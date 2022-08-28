@@ -14,7 +14,7 @@
 #define AT24C64_PAGE_SIZE 32
 #define AT24C64_PAGE_MAX  256
 
-#ifdef _USE_MODULE_AT24C64
+#ifdef _USE_EXHW_AT24C64
 
 
 

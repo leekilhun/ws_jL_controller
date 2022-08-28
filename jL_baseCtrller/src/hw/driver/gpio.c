@@ -37,8 +37,8 @@ const gpio_tbl_t gpio_tbl[GPIO_MAX_CH] =
         {GPIOD, GPIO_PIN_2,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 6. op lamp start
         {GPIOD, GPIO_PIN_1,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 7. op lamp stop
         {GPIOD, GPIO_PIN_0,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 8. op lamp reset
-        //{GPIOB, GPIO_PIN_0,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 9. op lamp estop
 
+				// in 0~7
         {GPIOD, GPIO_PIN_3,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 10.
         {GPIOD, GPIO_PIN_4,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // .
         {GPIOD, GPIO_PIN_5,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // .
@@ -48,6 +48,7 @@ const gpio_tbl_t gpio_tbl[GPIO_MAX_CH] =
         {GPIOB, GPIO_PIN_5,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // .
         {GPIOB, GPIO_PIN_6,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 17.
 
+				// out 0~7
         {GPIOC, GPIO_PIN_8,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 18.
         {GPIOA, GPIO_PIN_15,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      //
         {GPIOC, GPIO_PIN_9,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      //
@@ -56,6 +57,11 @@ const gpio_tbl_t gpio_tbl[GPIO_MAX_CH] =
         {GPIOD, GPIO_PIN_8,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      //
         {GPIOC, GPIO_PIN_7,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      //
         {GPIOC, GPIO_PIN_6,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      //25.
+
+
+				// test i2c interrupt
+				{GPIOB, GPIO_PIN_15,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 26.
+
 
 
     };
@@ -82,6 +88,19 @@ bool gpioInit(void)
   {
     gpioPinMode(i, gpio_tbl[i].mode);
     gpioPinWrite(i, gpio_tbl[i].init_value);
+  }
+
+  //Test I2C Interrupt
+  {
+  	GPIO_InitTypeDef GPIO_InitStruct = {0};
+  	/*Configure GPIO pin : PtPin */
+  	GPIO_InitStruct.Pin = GPIO_PIN_15;
+  	GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  	GPIO_InitStruct.Pull = GPIO_NOPULL;
+  	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  	/* EXTI interrupt init*/
+  	HAL_NVIC_SetPriority(EXTI4_15_IRQn, 3, 0);
+  	HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
   }
 
 #ifdef _USE_HW_CLI
@@ -193,6 +212,34 @@ bool gpioIsOn(uint8_t ch)
 {
   return gpioPinRead(ch);
 }
+
+
+void EXTI4_15_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);
+}
+
+
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(GPIO_Pin);
+
+}
+
+/**
+  * @brief  EXTI line detection callback.
+  * @param  GPIO_Pin Specifies the port pin connected to corresponding EXTI line.
+  * @retval None
+  */
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(GPIO_Pin);
+
+}
+
+
 
 
 #ifdef _USE_HW_CLI

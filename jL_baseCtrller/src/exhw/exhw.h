@@ -14,6 +14,7 @@ extern "C" {
 
 #include "exhw_def.h"
 
+#include "at24c64.h"
 
 
 

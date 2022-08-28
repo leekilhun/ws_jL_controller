@@ -55,7 +55,7 @@ typedef struct
 static i2c_tbl_t i2c_tbl[I2C_MAX_CH] =
     {
         { &hi2c1, GPIOB, GPIO_PIN_8,  GPIOB, GPIO_PIN_9},
-        { &hi2c2, GPIOB, GPIO_PIN_13,  GPIOB, GPIO_PIN_14},
+        { &hi2c2, GPIOB, GPIO_PIN_13,  GPIOB, GPIO_PIN_14}
     };
 
 static const uint32_t i2c_freq_tbl[] =
@@ -226,16 +226,16 @@ void i2cReset(uint8_t ch)
 bool i2cIsDeviceReady(uint8_t ch, uint8_t dev_addr)
 {
   I2C_HandleTypeDef *p_handle = i2c_tbl[ch].p_hi2c;
-
+  bool ret = false;
 
   LOCK_BEGIN(ch);
   if (HAL_I2C_IsDeviceReady(p_handle, dev_addr << 1, 10, 10) == HAL_OK)
   {
-    return true;
+  	ret = true;
   }
   LOCK_END(ch);
 
-  return false;
+  return ret;
 }
 
 bool i2cRecovery(uint8_t ch)
@@ -298,6 +298,7 @@ bool i2cRead16Bytes(uint8_t ch, uint16_t dev_addr, uint16_t reg_addr, uint8_t *p
   }
 
   LOCK_BEGIN(ch);
+
   i2c_ret = HAL_I2C_Mem_Read(p_handle, (uint16_t)(dev_addr << 1), reg_addr, I2C_MEMADD_SIZE_16BIT, p_data, length, timeout);
 
   if( i2c_ret == HAL_OK )
@@ -624,6 +625,34 @@ void cliI2C(cli_args_t *args)
       }
     }
   }
+  else if (args->argc == 4)
+  {
+  	print_ch = (uint16_t) args->getData(1);
+  	print_ch = constrain(print_ch, 1, I2C_MAX_CH);
+
+  	dev_addr = (uint16_t) args->getData(2);
+  	length   = (uint16_t) args->getData(3);
+  	ch       = print_ch - 1;
+
+  	if(args->isStr(0, "readData") == true)
+  	{
+  		i2c_ret = i2cReadData(ch, dev_addr, i2c_data, length, 100);
+
+  		if (i2c_ret == true)
+  		{
+  			for (i=0; i<length; i++)
+  			{
+  				cliPrintf("%d I2C : 0x%02X\n", print_ch, i2c_data[i]);
+  			}
+  		}
+  		else
+  		{
+  			cliPrintf("%d I2C - Fail \n", print_ch);
+  		}
+
+  	}
+
+  }
   else if (args->argc == 5)
   {
     print_ch = (uint16_t) args->getData(1);
@@ -732,6 +761,8 @@ void cliI2C(cli_args_t *args)
   {
     cliPrintf( "i2c scan ch[1~%d]\n", I2C_MAX_CH);
     cliPrintf( "i2c open ch[1~%d]\n", I2C_MAX_CH);
+    cliPrintf( "i2c readData ch dev_addr length\n");
+
     cliPrintf( "i2c read ch dev_addr reg_addr length\n");
     cliPrintf( "i2c write ch dev_addr reg_addr data\n");
     cliPrintf( "i2c read16 ch dev_addr reg_addr length\n");

@@ -6,7 +6,6 @@
  */
 
 
-
 #include "ap.h"
 
 static void threadCmdCli(void const *argument);
@@ -15,8 +14,6 @@ static void threadCmdCli(void const *argument);
 
 void apInit(void)
 {
-
-
 	/* rtos initialize*/
 	{
 		osThreadDef(threadCmdCli, threadCmdCli, _HW_DEF_RTOS_THREAD_PRI_CLI, 0, _HW_DEF_RTOS_THREAD_MEM_CLI);
@@ -30,11 +27,17 @@ void apInit(void)
 		}
 	}
 
+	i2cBegin(_DEF_I2C1, I2C_FREQ_400KHz);
+
+	uartOpen(_DEF_UART2, 115200);
+	cliOpen(_DEF_UART3, 115200);
+
 }
+
 
 void apMain(void)
 {
-  uint32_t pre_ms = millis();
+	uint32_t pre_ms = millis();
 
 	while (1)
 	{
@@ -42,9 +45,10 @@ void apMain(void)
 		{
 			pre_ms = millis();
 			ledToggle(_DEF_LED1);
+
 		}
 
-		delay(1);
+
 	}
 
 }
@@ -53,15 +57,14 @@ void apMain(void)
 
 void threadCmdCli(void const *argument)
 {
-  UNUSED(argument);
-  //uint32_t pre_ms = millis();
+	UNUSED(argument);
+	//uint32_t pre_ms = millis();
 
-  while (1)
-  {
+	while (1)
+	{
+		cliMain();
 
-
-    delay(1);
-  }
-
-
+		delay(1);
+	}
 }
+

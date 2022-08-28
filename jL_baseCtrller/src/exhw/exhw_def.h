@@ -12,4 +12,8 @@
 #include "hw.h"
 
 
+#define	_USE_EXHW_AT24C64
+#define _USE_EXHW_PCA8575PW_EX_IO
+
+
 #endif /* SRC_EXHW_EXHW_DEF_H_ */

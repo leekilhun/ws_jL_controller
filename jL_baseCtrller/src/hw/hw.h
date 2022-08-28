@@ -14,6 +14,7 @@ extern "C" {
 #include "hw_def.h"
 
 #include "led.h"
+#include "flash.h"
 #include "uart.h"
 #include "cli.h"
 #include "can.h"
@@ -21,7 +22,9 @@ extern "C" {
 #include "spi.h"
 #include "log.h"
 #include "flash.h"
+#include "buzzer.h"
 #include "gpio.h"
+
 
 
 bool hwInit(void);

@@ -14,13 +14,16 @@ bool hwInit(void)
 {
   bool ret = true;
 
-//ret &= bspInit();
+#ifndef _USE_HW_RTOS
+  ret &= bspInit();
+#endif
 
 #ifdef _USE_HW_CLI
   ret &= cliInit();
 #endif
 
   ret &= ledInit();
+
 
 #ifdef _USE_HW_SPI
   ret &= spiInit();
@@ -41,13 +44,14 @@ bool hwInit(void)
 
 
 #ifdef _USE_HW_LOG
-  logOpen(_DEF_UART1, 115200);
+  ret &= logInit();
+
+  logOpen(HW_LOG_CH, 115200);
   logPrintf("[ fw Begin... ]\r\n");
 #else // use small size log func
- // uartOpen(_DEF_UART1, 115200);
-  logPrintf("[ fw Begin... ]\r\n");
+  uartOpen(_DEF_UART1, 115200);
+  uartPrintf(_DEF_UART1, "[ fw Begin... ]\r\n");
 #endif
-
 
 #ifdef _USE_HW_I2C
   ret &= i2cInit();

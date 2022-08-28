@@ -12,7 +12,11 @@
 
 bool exhwInit(void)
 {
-  bool ret = true;
+	bool ret = true;
+
+#ifdef _USE_EXHW_AT24C64
+	ret = at24c64Init();
+#endif
 
   return ret;
 }

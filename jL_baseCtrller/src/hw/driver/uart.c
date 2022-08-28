@@ -12,8 +12,6 @@
 #ifdef _USE_HW_UART
 
 #include "qbuffer.h"
-#include "cdc.h"
-
 
 #define UART_BUF_LENGTH      128
 
