@@ -22,4 +22,5 @@ Debug/
 .settings/
 Templates/
 _htmresc/
-XYB-V10-200417/
+stm32g070rbt6_cube/
+stm32g070rbt6_cube_led/
