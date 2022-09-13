@@ -29,7 +29,7 @@
 //#define _USE_HW_RESET
 
 #define _USE_HW_LED
-#define      HW_LED_MAX_CH          2
+#define      HW_LED_MAX_CH          1
 
 
 #define _USE_HW_BUZZER
