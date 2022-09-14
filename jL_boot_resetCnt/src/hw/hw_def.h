@@ -13,8 +13,9 @@
 #include "bsp.h"
 
 
-
-/*#############   fw   ################ */
+/****************************************************
+   boot/ firmware memory information
+ ****************************************************/
 #define _DEF_BOOT_VERSION           "B220911R1"
 #define _DEF_BOARD_NAME             "jL Bootloader"
 
@@ -25,7 +26,7 @@
 #define FLASH_ADDR_START            0x08005000
 #define FLASH_ADDR_END              (FLASH_ADDR_START + (128-20)*1024)
 
-/*#############   fw   ################ */
+/* ------------------------------------------------- */
 
 
 #define _USE_HW_FLASH
