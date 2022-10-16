@@ -265,8 +265,7 @@ void cliGpio(cli_args_t *args)
     }
     ret = true;
   }
-
-  if (args->argc == 2 && args->isStr(0, "read") == true)
+  else if (args->argc == 2 && args->isStr(0, "read") == true)
   {
     uint8_t ch;
 
@@ -280,8 +279,7 @@ void cliGpio(cli_args_t *args)
 
     ret = true;
   }
-
-  if (args->argc == 3 && args->isStr(0, "write") == true)
+  else if (args->argc == 3 && args->isStr(0, "write") == true)
   {
     uint8_t ch;
     uint8_t data;
@@ -294,12 +292,31 @@ void cliGpio(cli_args_t *args)
     cliPrintf("gpio write %d : %d\n", ch, data);
     ret = true;
   }
+  else if (args->argc == 3 && args->isStr(0, "pulse") == true)
+  {
+    uint8_t port;
+    uint8_t cnt;
+
+    port   = (uint8_t)args->getData(1);
+    cnt = (uint32_t)args->getData(2);
+
+    for ( int i = 0 ; i<cnt; i++)
+    {
+    	gpioPinToggle(19);
+    	delay(1);
+    }
+
+
+    cliPrintf("gpio pulse out[%d] cnt[%d] \n", port, cnt);
+    ret = true;
+  }
 
   if (ret != true)
   {
     cliPrintf("gpio show\n");
     cliPrintf("gpio read ch[0~%d]\n", GPIO_MAX_CH-1);
     cliPrintf("gpio write ch[0~%d] 0:1\n", GPIO_MAX_CH-1);
+    cliPrintf("gpio pulse out[0~7] cnt[n]\n");
   }
 }
 

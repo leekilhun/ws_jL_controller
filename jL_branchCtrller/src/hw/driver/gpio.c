@@ -40,24 +40,24 @@ const gpio_tbl_t gpio_tbl[GPIO_MAX_CH] =
       */
 
 				// in 0~7
-        {GPIOD, GPIO_PIN_3,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 6.
-        {GPIOD, GPIO_PIN_4,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 7.
-        {GPIOD, GPIO_PIN_5,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 8.
-        {GPIOD, GPIO_PIN_6,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 9.
-        {GPIOD, GPIO_PIN_0,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 10.
-        {GPIOD, GPIO_PIN_1,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 11.
-        {GPIOD, GPIO_PIN_2,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 12.
-        {GPIOB, GPIO_PIN_6,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 13.
+        {GPIOD, GPIO_PIN_3,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 2.
+        {GPIOD, GPIO_PIN_4,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 3.
+        {GPIOD, GPIO_PIN_5,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 4.
+        {GPIOD, GPIO_PIN_6,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 5.
+        {GPIOD, GPIO_PIN_0,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 6.
+        {GPIOD, GPIO_PIN_1,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 7.
+        {GPIOD, GPIO_PIN_2,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 8.
+        {GPIOB, GPIO_PIN_6,  _DEF_INPUT_PULLUP,  GPIO_PIN_RESET, GPIO_PIN_SET,   _DEF_LOW},      // 9.
 
 				// out 0~7
-        {GPIOC, GPIO_PIN_8,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 14.
-        {GPIOA, GPIO_PIN_15, _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 15.
-        {GPIOC, GPIO_PIN_9,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 16.
-        {GPIOA, GPIO_PIN_11, _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 17.
-        {GPIOD, GPIO_PIN_9,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 18.
-        {GPIOD, GPIO_PIN_8,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 19.
-        {GPIOC, GPIO_PIN_7,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 20.
-        {GPIOC, GPIO_PIN_6,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 21.
+        {GPIOC, GPIO_PIN_8,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 10.
+        {GPIOA, GPIO_PIN_15, _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 11.
+        {GPIOC, GPIO_PIN_9,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 12.
+        {GPIOA, GPIO_PIN_11, _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 13.
+        {GPIOD, GPIO_PIN_9,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 14.
+        {GPIOD, GPIO_PIN_8,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 15.
+        {GPIOC, GPIO_PIN_7,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 16.
+        {GPIOC, GPIO_PIN_6,  _DEF_OUTPUT, GPIO_PIN_SET, GPIO_PIN_RESET,   _DEF_LOW},      // 17.
 
 
 				// test i2c interrupt
@@ -68,6 +68,8 @@ const gpio_tbl_t gpio_tbl[GPIO_MAX_CH] =
     };
 
 
+
+static void delayUs(uint32_t us);
 
 #ifdef _USE_HW_CLI
 static void cliGpio(cli_args_t *args);
@@ -215,6 +217,16 @@ bool gpioIsOn(uint8_t ch)
 }
 
 
+void delayUs(uint32_t us)
+{
+  volatile uint32_t i;
+
+  for (i=0; i<us*1/*000*/; i++)
+  {
+
+  }
+}
+
 void EXTI4_15_IRQHandler(void)
 {
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);
@@ -265,8 +277,7 @@ void cliGpio(cli_args_t *args)
     }
     ret = true;
   }
-
-  if (args->argc == 2 && args->isStr(0, "read") == true)
+  else if (args->argc == 2 && args->isStr(0, "read") == true)
   {
     uint8_t ch;
 
@@ -280,8 +291,7 @@ void cliGpio(cli_args_t *args)
 
     ret = true;
   }
-
-  if (args->argc == 3 && args->isStr(0, "write") == true)
+  else if (args->argc == 3 && args->isStr(0, "write") == true)
   {
     uint8_t ch;
     uint8_t data;
@@ -294,12 +304,31 @@ void cliGpio(cli_args_t *args)
     cliPrintf("gpio write %d : %d\n", ch, data);
     ret = true;
   }
+  else if (args->argc == 3 && args->isStr(0, "pulse") == true)
+  {
+    uint8_t port;
+    uint32_t cnt;
+
+    port   = (uint8_t)args->getData(1);
+    cnt = (uint32_t)args->getData(2);
+
+    for ( int i = 0 ; i<cnt; i++)
+    {
+    	gpioPinToggle(port);
+    	delayUs(10);
+    }
+
+
+    cliPrintf("gpio pulse out[%d] cnt[%d] \n", port, cnt);
+    ret = true;
+  }
 
   if (ret != true)
   {
     cliPrintf("gpio show\n");
     cliPrintf("gpio read ch[0~%d]\n", GPIO_MAX_CH-1);
     cliPrintf("gpio write ch[0~%d] 0:1\n", GPIO_MAX_CH-1);
+    cliPrintf("gpio pulse out[0~7] cnt[n]\n");
   }
 }
 

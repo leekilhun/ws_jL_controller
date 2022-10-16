@@ -18,6 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
+#include "dma.h"
 #include "rtc.h"
 #include "usart.h"
 #include "gpio.h"
@@ -44,6 +46,18 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+extern ADC_HandleTypeDef hadc1;
+
+#define ADC_CH_MAX    5
+#define ADC_CH_1      0
+#define ADC_CH_2      1
+#define ADC_CH_3      2
+#define ADC_CH_4      3
+#define ADC_CH_TEMP   4
+
+volatile uint16_t adc_data[ADC_CH_MAX] = {0,};
+
 
 /* USER CODE END PV */
 
@@ -86,12 +100,23 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART1_UART_Init();
   MX_RTC_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
 
+  /*ADC DMA */
 
+
+
+  HAL_StatusTypeDef ret_adc;
+  ret_adc = HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_data[0], ADC_CH_MAX);
+  if (ret_adc !=  HAL_OK)
+  {
+  	HAL_Delay(1000);
+  }
 
 
 
