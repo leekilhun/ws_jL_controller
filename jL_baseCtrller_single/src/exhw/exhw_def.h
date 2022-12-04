@@ -17,8 +17,6 @@
 #define     _EXHW_PCA8575PW_EX_IO_MAX_CH    2
 #define          _PCA8575PW_EX_IO_CH_IN     0
 #define          _PCA8575PW_EX_IO_CH_OUT    1
-
-
 //#define _USE_EXHW_KDR10K_IDSW
 
 

@@ -1,0 +1,7 @@
+1. uart 1 (rs485) moons 모터와 연결 (DMA 통신)
+2. uart 2 pc 통신 (interrput)
+3. uart 3 lcd 통신  (DMA 통신)
+
+
+I2C 1  - extension io 
+I2C 2  - at24c64 eeprom 통신
