@@ -38,7 +38,7 @@ extern "C" {
 	uint32_t millis(void);
 	void Error_Handler(void);
 	void logPrintf(const char *fmt, ...);
-
+	void delayUs(uint32_t us);
 
 #if 0
 #define LOG_ERROR_(fmt, ...) \

@@ -65,7 +65,7 @@ static const uint32_t i2c_freq_tbl[] =
         0x00300B29, // 1000Khz fast plus mode
     };
 
-static void delayUs(uint32_t us);
+
 
 
 

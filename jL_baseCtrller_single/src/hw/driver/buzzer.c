@@ -13,7 +13,7 @@
 
 
 #define DEF_BUZZER_PORT     GPIOC
-#define DEF_BUZZER_PIN      GPIO_PIN_2
+#define DEF_BUZZER_PIN      GPIO_PIN_13
 static bool is_buzzerOn;
 
 #ifdef _USE_HW_CLI

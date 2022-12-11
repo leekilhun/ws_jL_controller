@@ -13,6 +13,8 @@
 namespace MOTOR
 {
 
+	constexpr uint16_t MODBUS_MULTIPLE_PARAM_VEL = 240;
+	constexpr uint16_t MODBUS_MULTIPLE_PARAM_ACC = 6;
 	class enMotor_moons
 	{
 		/****************************************************
@@ -129,46 +131,52 @@ namespace MOTOR
 		 * 속도는 제품 데이터(rps)에 240배수 데이터를 보낸다.
 		 */
 		struct motion_param_t {
-			uint32_t jog_speed{}; //단위 mmsec
-			uint32_t jog_accel{}; //단위 mmsec/ms 목표 속도에 도달할 시간ms
-			uint32_t jog_decel{}; //단위  mmsec/ms
+			uint32_t jog_speedC{}; //단위 mmsec
+			uint32_t jog_accelC{}; //단위 mmsec/ms 목표 속도에 도달할 시간ms
+			uint32_t jog_decelC{}; //단위  mmsec/ms
 
-			uint32_t move_velocity{}; //단위 mmsec
-			uint32_t move_accel{}; //단위 mmsec/ms  목표 속도에 도달할 시간ms
-			uint32_t move_decel{}; //단위 mmsec/ms
+			uint32_t move_speedC{}; //단위 mmsec
+			uint32_t move_accelC{}; //단위 mmsec/ms  목표 속도에 도달할 시간ms
+			uint32_t move_decelC{}; //단위 mmsec/ms
 
-			uint32_t limit_velocity{}; //한계 속도 mmsec [max_rps * one_turn_move_mm]
+			//uint32_t limit_velocity{}; //한계 속도 mmsec [max_rps * one_turn_move_mm]
 
-			double max_rps{}; // 초당 최대 회전수 (3'000 RPM ==  50rps)
-			uint32_t turn_pulse_count{}; // 한 바퀴 발생 엔코더 카운터
-			double one_turn_move_mm{}; // 한 바퀴 구동 시 이동되는 실제 거리 mm  (cmd_pos/turn_per_move)*turn_per_pulse
+			float max_rps{}; // 초당 최대 회전수 (3'000 RPM ==  50rps)
+			uint32_t electronic_gear_ratio{}; // 한 바퀴 필요 카운터
+			float one_turn_move_mm{}; // 한 바퀴 구동 시 이동되는 실제 거리 mm  (cmd_pos/turn_per_move)*turn_per_pulse
 
+			motion_param_t() = default;
 
 			void Init() {
-				constexpr double default_rps = 10.0;
-				jog_speed = (uint32_t)(one_turn_move_mm * default_rps);
-				jog_accel = 100;
-				jog_decel = 100;
+				constexpr float default_rps = 10.0;
+				constexpr float default_rpss = 100.0;
+				constexpr float default_dist_turn = 10.0;// default distance at turn (mm/s) 초당 이동 거리
+				constexpr uint32_t defaul_gear_ratio = 20'000;
+				one_turn_move_mm = default_dist_turn;//
+				jog_speedC = (uint32_t)(default_rps  * MODBUS_MULTIPLE_PARAM_VEL);
+				jog_accelC = (uint32_t)(default_rpss * MODBUS_MULTIPLE_PARAM_ACC);
+				jog_decelC = jog_accelC;
 
-				move_velocity = (uint32_t)(one_turn_move_mm * default_rps * 3.0);
-				move_accel = 100;
-				move_decel = 100;
-
-				limit_velocity = (uint32_t)(one_turn_move_mm * max_rps);
+				max_rps = 50.0;// 초당 최대 회전수 (3'000 RPM ==  50rps)
+				move_speedC = jog_speedC;
+				move_accelC = jog_accelC;
+				move_decelC = jog_accelC;
+				electronic_gear_ratio = defaul_gear_ratio;
+				//limit_velocity = (uint32_t)(one_turn_move_mm * max_rps);
 			}
 
 
 			inline motion_param_t& operator = (const motion_param_t& cfg) {
 				if ( this != &cfg){
-					this->jog_speed = cfg.jog_speed;
-					this->jog_accel = cfg.jog_accel;
-					this->jog_decel = cfg.jog_decel;
-					this->move_velocity = cfg.move_velocity;
-					this->move_accel = cfg.move_accel;
-					this->move_decel = cfg.move_decel;
-					this->limit_velocity = cfg.limit_velocity;
+					this->jog_speedC = cfg.jog_speedC;
+					this->jog_accelC = cfg.jog_accelC;
+					this->jog_decelC = cfg.jog_decelC;
+					this->move_speedC = cfg.move_speedC;
+					this->move_accelC = cfg.move_accelC;
+					this->move_decelC = cfg.move_decelC;
+					//this->limit_velocity = cfg.limit_velocity;
 
-					this->turn_pulse_count = cfg.turn_pulse_count;
+					this->electronic_gear_ratio = cfg.electronic_gear_ratio;
 					this->max_rps = cfg.max_rps;
 					this->one_turn_move_mm = cfg.one_turn_move_mm;
 				}
@@ -176,19 +184,75 @@ namespace MOTOR
 			}
 		};
 
+		struct origin_param_t		{
+			uint16_t accel{}; //rpss
+			uint16_t decel{}; //rpss
+			uint16_t speed{}; //rps
+			uint32_t offset{};
+			char home_x_no{}; // '1' ~ '5'
+			int find_home_dir{}; // 1 CW, -1 CCW
+			char home_x_level{}; //'L' Low, 'H' High,
+
+			origin_param_t(){
+				Init();
+			}
+
+			void Init() {
+				accel = 100;
+				decel = 100;
+				speed = 10;
+				offset = 0;
+				home_x_no = '5'; // home sens
+				home_x_level = 'L';
+				find_home_dir = 1;
+			}
+
+			inline origin_param_t& operator = (const origin_param_t& cfg) {
+				if (this != &cfg) {
+					this->accel = cfg.accel;
+					this->decel = cfg.decel;
+					this->speed = cfg.speed;
+					this->offset = cfg.offset;
+
+					this->home_x_no = cfg.home_x_no;
+					this->find_home_dir = cfg.find_home_dir;
+					this->home_x_level = cfg.home_x_level;
+
+				}
+				return *this;
+			}
+			inline void operator = (const origin_param_t* p_cfg) {
+				this->accel = p_cfg->accel;
+				this->decel = p_cfg->decel;
+				this->speed = p_cfg->speed;
+				this->offset = p_cfg->offset;
+
+				this->home_x_no = p_cfg->home_x_no;
+				this->find_home_dir = p_cfg->find_home_dir;
+				this->home_x_level = p_cfg->home_x_level;
+			}
+
+		};
+
 
 		struct cfg_t {
 			motion_param_t motor_param{};
+			origin_param_t origin_param{};
 			uint8_t instance_no{};
+			axis_dat* p_apAxisDat{};
+			MCU_REG::ap_reg* p_apReg{};
+			ap_dat* p_apCfgDat{};
 			uart_moons* p_comm{};
-			uint8_t ch{}; uint32_t baud{};
+
+			cfg_t() = default;
 
 			cfg_t& operator = (const cfg_t& cfg){
 				if ( this != &cfg){
 					instance_no = cfg.instance_no;
 					p_comm = cfg.p_comm;
-					ch = cfg.ch;
-					baud = cfg.baud;
+					p_apReg = cfg.p_apReg;
+					p_apCfgDat = cfg.p_apCfgDat;
+					p_apAxisDat = cfg.p_apAxisDat;
 					motor_param = cfg.motor_param;
 				}
 				return *this;
@@ -312,243 +376,118 @@ namespace MOTOR
 			return m_cfg.p_comm->MotorOnOff(m_nodeId, on_off);
 		}
 
+
+		inline errno_t SetMoveDistSpeed(uint32_t vel, uint32_t acc, uint32_t dec, int dist){
+			m_cfg.motor_param.move_accelC = acc * MODBUS_MULTIPLE_PARAM_ACC;
+			m_cfg.motor_param.move_decelC = dec * MODBUS_MULTIPLE_PARAM_ACC;
+			m_cfg.motor_param.move_speedC = vel * MODBUS_MULTIPLE_PARAM_VEL;
+			uart_moons::speed_t params {
+				(uint16_t)m_cfg.motor_param.move_accelC,
+			  (uint16_t)m_cfg.motor_param.move_decelC,
+				(uint16_t)m_cfg.motor_param.move_speedC };
+
+			return m_cfg.p_comm->SetMove(m_nodeId, params, dist);
+		}
+
+
+		inline errno_t JogMove(uart_moons::speed_t& param, bool is_cw = true){
+			m_cfg.motor_param.jog_accelC = (param.accel *=MODBUS_MULTIPLE_PARAM_ACC);
+			m_cfg.motor_param.jog_decelC = (param.decel *=MODBUS_MULTIPLE_PARAM_ACC);
+			m_cfg.motor_param.jog_speedC = (param.speed *=MODBUS_MULTIPLE_PARAM_VEL);
+			return m_cfg.p_comm->JogMove(m_nodeId,param,is_cw);
+		}
+
+
+
 		inline errno_t JogMove(bool is_cw = true) {
-			uart_moons::speed_t params {100 *6, 100 * 6, 10 * 240};
+			uart_moons::speed_t params {
+				(uint16_t)m_cfg.motor_param.jog_accelC,
+				(uint16_t)m_cfg.motor_param.jog_decelC,
+				(uint16_t)m_cfg.motor_param.jog_speedC };
 			return m_cfg.p_comm->JogMove(m_nodeId,params,is_cw);
 		}
 
 		inline errno_t JogStop() {
-			return 0;
+			return m_cfg.p_comm->JogStop(m_nodeId);
 		}
 
 		inline errno_t MoveStop() {
-			return 0;
+			return m_cfg.p_comm->MoveStop(m_nodeId);
 		}
 
+		inline errno_t MoveRelative(uint32_t vel, uint32_t acc, uint32_t dec, int dist) {
+			errno_t ret = ERROR_SUCCESS;
+			ret = SetMoveDistSpeed(vel, acc, dec, dist);
+			if (ret == ERROR_SUCCESS)
+				return m_cfg.p_comm->MoveRelactive(m_nodeId);
+			else
+				return ret;
+		}
 
 		inline errno_t MoveRelative(int pos) {
 			errno_t ret = ERROR_SUCCESS;
+			ret = m_cfg.p_comm->DistancePoint(m_nodeId, pos);
+			if (ret == ERROR_SUCCESS)
+				return m_cfg.p_comm->MoveRelactive(m_nodeId);
+			else
+				return ret;
+		}
 
-			return ret;
+
+		inline errno_t MoveAbsolutive(uint32_t vel, uint32_t acc, uint32_t dec, int dist) {
+			errno_t ret = ERROR_SUCCESS;
+			ret = SetMoveDistSpeed(vel, acc, dec, dist);
+			if (ret == ERROR_SUCCESS)
+				return m_cfg.p_comm->moveAbsolutive(m_nodeId);
+			else
+				return ret;
 		}
 
 		inline errno_t MoveAbsolutive(int pos) {
-			errno_t ret = 0 ; //distancePoint(pos);
-
-			return ret;
+			errno_t ret = ERROR_SUCCESS;
+			ret = m_cfg.p_comm->DistancePoint(m_nodeId, pos);
+			if (ret == ERROR_SUCCESS)
+				return m_cfg.p_comm->moveAbsolutive(m_nodeId);
+			else
+				return ret;
 		}
 
 		inline void Recovery(){
 
 		}
-		/*
-		inline errno_t GetMotorStatus(uint32_t& state) {
-			errno_t ret = ERROR_SUCCESS;
-
-			return ret;
-		}
 
 
 
-		inline errno_t GetAlarmCode(uint32_t& code) {
-			errno_t ret = ERROR_SUCCESS;
-
-			return ret;
-		}
-
-		 */
 		inline errno_t GetMotorData(){
 			return m_cfg.p_comm->RequestMotorData(m_nodeId);
 		}
 
+		inline errno_t SetOriginParam(origin_param_t& param) {
+			m_cfg.origin_param = param;
+			m_cfg.origin_param.accel = param.accel;
+			m_cfg.origin_param.decel = param.decel;
+			m_cfg.origin_param.speed = param.speed;
+			uart_moons::speed_t params {
+				    (uint16_t)(param.accel * MODBUS_MULTIPLE_PARAM_ACC),
+						(uint16_t)(param.decel * MODBUS_MULTIPLE_PARAM_ACC),
+						(uint16_t)(param.speed * MODBUS_MULTIPLE_PARAM_VEL)};
 
-#if 0
-		inline errno_t GetMotorData(moons_data_t& rf_data) {
-			errno_t ret = ERROR_SUCCESS;
-			if (m_cfg.pComm->IsOpened() == false)
-				return -1;
-			using func_e = moons_modbus_func_e;
-			using reg_e = moons_SS_reg_e;
-
-			constexpr int array_max = 6;
-			uint8_t  func = static_cast<uint8_t>(func_e::read_HoldingReg);
-			uint16_t regist_no = static_cast<uint16_t>(reg_e::Alarm_Code_AL_f);
-			uint16_t data_cnt = 12;
-			std::array<uint8_t, array_max> send_data =
-					{
-							m_cfg.AxisId,
-							func,
-							(uint8_t)(regist_no >> 8),
-							(uint8_t)regist_no ,
-							(uint8_t)(data_cnt >> 8),
-							(uint8_t)data_cnt
-					};
-
-			m_waitResp = true;
-			constexpr uint32_t timeout = 300;
-
-			errno_t result = m_cfg.pComm->SendCmdRxResp(send_data.data(), (uint32_t)send_data.size(), timeout);
-			if (result == ERROR_SUCCESS)
-			{
-				bool ok_recv = true;
-				uint32_t pre_ms = UTL::millis();
-				while (m_waitResp)
-				{
-					if (UTL::millis() - pre_ms > timeout)
-					{
-						ok_recv = false;
-						m_waitResp = false;
-						ret = -1;
-					}
-					Sleep(10);
-				}
-				if (ok_recv)
-				{
-					uint8_t size = (uint8_t)m_vBuffer.size();
-					if (size == 24)
-					{
-
-						m_mtAlarmCode.al_status = (uint16_t)(m_vBuffer[0] << 8) | (uint16_t)(m_vBuffer[1] << 0);
-						m_mtStatus.sc_status = (uint16_t)(m_vBuffer[2] << 8) | (uint16_t)(m_vBuffer[3] << 0);
-						rf_data.al_code = m_mtAlarmCode;
-						rf_data.drv_status = m_mtStatus;
-						rf_data.immediate_expanded_input = (uint16_t)(m_vBuffer[4] << 8) | (uint16_t)(m_vBuffer[5] << 0);
-						rf_data.driver_board_inputs = (uint16_t)(m_vBuffer[6] << 8) | (uint16_t)(m_vBuffer[7] << 0);
-						rf_data.encoder_position = (uint32_t)(m_vBuffer[8] << 24) | (uint32_t)(m_vBuffer[9] << 16) | (uint32_t)(m_vBuffer[10] << 8) | (uint32_t)(m_vBuffer[11] << 0);
-						rf_data.immediate_abs_position = (uint32_t)(m_vBuffer[12] << 24) | (uint32_t)(m_vBuffer[13] << 16) | (uint32_t)(m_vBuffer[14] << 8) | (uint32_t)(m_vBuffer[15] << 0);
-						rf_data.abs_position_command = (uint32_t)(m_vBuffer[16] << 24) | (uint32_t)(m_vBuffer[17] << 16) | (uint32_t)(m_vBuffer[18] << 8) | (uint32_t)(m_vBuffer[19] << 0);
-						rf_data.immediate_act_velocity = (uint16_t)(m_vBuffer[20] << 8) | (uint16_t)(m_vBuffer[21] << 0);
-						rf_data.immediate_target_velocity = (uint16_t)(m_vBuffer[22] << 8) | (uint16_t)(m_vBuffer[23] << 0);
-					}
-
-					m_vBuffer.clear();
-				}
-			}
-			return ret;
+			return  m_cfg.p_comm->SetOriginParam(m_nodeId, params, param.find_home_dir);
 		}
 
 
-
-
-		inline errno_t GetPosData(moons_pos_data_t& rf_data) {
-			errno_t ret = ERROR_SUCCESS;
-			if (m_cfg.pComm->IsOpened() == false)
-				return -1;
-
-			using func_e = moons_modbus_func_e;
-			using reg_e = moons_SS_reg_e;
-
-			constexpr int array_max = 6;
-			uint8_t  func = static_cast<uint8_t>(func_e::read_HoldingReg);
-			uint16_t regist_no = static_cast<uint16_t>(reg_e::Encoder_Position_IE_EP_e);
-			uint16_t data_cnt = 8;
-			std::array<uint8_t, array_max> send_data =
-					{
-							m_cfg.AxisId,
-							func,
-							(uint8_t)(regist_no >> 8),
-							(uint8_t)regist_no ,
-							(uint8_t)(data_cnt >> 8),
-							(uint8_t)data_cnt
-					};
-
-			constexpr uint32_t timeout = 300;
-			m_waitResp = true;
-			errno_t result = m_cfg.pComm->SendCmdRxResp(send_data.data(), (uint32_t)send_data.size(), timeout);
-			if (result == ERROR_SUCCESS)
-			{
-				bool ok_recv = true;
-				uint32_t pre_ms = UTL::millis();
-				while (m_waitResp)
-				{
-					if (UTL::millis() - pre_ms > timeout)
-					{
-						ok_recv = false;
-						m_waitResp = false;
-						ret = -1;
-					}
-					Sleep(10);
-				}
-				if (ok_recv)
-				{
-					uint8_t size = (uint8_t)m_vBuffer.size();
-					if (size == 16)
-					{
-						rf_data.encoder_position = (uint32_t)(m_vBuffer[0] << 24) | (uint32_t)(m_vBuffer[1] << 16) | (uint32_t)(m_vBuffer[2] << 8) | (uint32_t)(m_vBuffer[3] << 0);
-						rf_data.immediate_abs_position = (uint32_t)(m_vBuffer[4] << 24) | (uint32_t)(m_vBuffer[5] << 16) | (uint32_t)(m_vBuffer[6] << 8) | (uint32_t)(m_vBuffer[7] << 0);
-						rf_data.abs_position_command = (uint32_t)(m_vBuffer[8] << 24) | (uint32_t)(m_vBuffer[9] << 16) | (uint32_t)(m_vBuffer[10] << 8) | (uint32_t)(m_vBuffer[11] << 0);
-						rf_data.immediate_act_velocity = (uint16_t)(m_vBuffer[12] << 8) | (uint16_t)(m_vBuffer[13] << 0);
-						rf_data.immediate_target_velocity = (uint16_t)(m_vBuffer[14] << 8) | (uint16_t)(m_vBuffer[15] << 0);
-					}
-
-					m_vBuffer.clear();
-				}
-			}
-
-			return ret;
-
+		inline errno_t OriginMotor(){
+			return  m_cfg.p_comm->OriginAxis(m_nodeId, m_cfg.origin_param.home_x_no, m_cfg.origin_param.home_x_level);
 		}
 
-		inline errno_t  ClearState() {
-			errno_t ret = ERROR_SUCCESS;
-			if (m_cfg.pComm->IsOpened() == false)
-				return -1;
 
-			using func_e = moons_modbus_func_e;
-			using reg_e = moons_SS_reg_e;
-			using code_e = moons_SS_Opcode_e;
-
-			constexpr int array_max = 6;
-			uint8_t  func = static_cast<uint8_t>(func_e::write_SingleReg);
-			uint16_t regist_no = static_cast<uint16_t>(reg_e::Command_Opcode);
-			uint16_t vlaue = static_cast<uint16_t>(code_e::alarm_reset);
-			std::array<uint8_t, array_max> send_data =
-					{
-							m_cfg.AxisId,
-							func,
-							(uint8_t)(regist_no >> 8),
-							(uint8_t)regist_no,
-							(uint8_t)(vlaue >> 8),
-							(uint8_t)vlaue
-					};
-
-			constexpr uint32_t timeout = 200;
-			m_waitResp = true;
-			errno_t result = m_cfg.pComm->SendCmdRxResp(send_data.data(), (uint32_t)send_data.size(), timeout);
-			if (result == ERROR_SUCCESS)
-			{
-				bool ok_recv = true;
-				uint32_t pre_ms = UTL::millis();
-				while (m_waitResp)
-				{
-					if (UTL::millis() - pre_ms > timeout)
-					{
-						ok_recv = false;
-						m_waitResp = false;
-						ret = -1;
-					}
-					Sleep(10);
-				}
-				if (ok_recv)
-				{
-				}
-			}
-
-
-			return ret;
+		inline errno_t ClearState(){
+			return m_cfg.p_comm->ClearState(m_nodeId);
 		}
 
-		inline errno_t  ClearPosition() {
-			errno_t ret = ERROR_SUCCESS;
-			if (m_cfg.pComm->IsOpened() == false)
-				return -1;
-
-
-			return clearEncoder();
+		inline errno_t ClearEncoder(){
+			return m_cfg.p_comm->ClearEncoder(m_nodeId);
 		}
-
-#endif
-
 
 
 	}; // end of class

@@ -217,15 +217,15 @@ bool gpioIsOn(uint8_t ch)
 }
 
 
-/*void delayUs(uint32_t us)
-{
-  volatile uint32_t i;
-
-  for (i=0; i<us*1; i++)
-  {
-
-  }
-}*/
+//void delayUs(uint32_t us)
+//{
+//  volatile uint32_t i;
+//
+//  for (i=0; i<us*1; i++)
+//  {
+//
+//  }
+//}
 
 
 

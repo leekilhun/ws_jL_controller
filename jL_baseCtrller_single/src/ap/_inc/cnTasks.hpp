@@ -35,7 +35,7 @@ public:
 		enOp* p_Op{};
 		ACT::enCyl *p_Cyl{};
 		ACT::enVac *p_Vac{};
-		cnMotors *p_motors{};
+		MOTOR::cnMotors *p_motors{};
 		cnAuto *p_AutoManger;
 
 		cfg_t() = default;

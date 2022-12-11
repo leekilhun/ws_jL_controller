@@ -15,6 +15,7 @@ void updateLamp();
 
 uint16_t refresh_time = 1000;
 uint32_t lamp_ms = 0;
+uint32_t test_ms =0;
 
 /****************************************************
   0. mcu data and register
@@ -34,7 +35,8 @@ ap_log mcu_log;
 MOTOR::uart_moons moons_comm;
 
 
-MOTOR::enMotor_moons moons_motors[AP_DEF_OBJ_MOTOR_ID_MAX]{M_SetMotorId(AP_DEF_OBJ_MOTOR_ID_JIG),2,3} ;
+MOTOR::enMotor_moons moons_motors[AP_DEF_OBJ_MOTOR_ID_MAX]
+																	{M_SetMotorId(AP_DEF_OBJ_MOTOR_ID_JIG),2,3};
 ACT::enCyl cyl[AP_DEF_OBJ_CYL_ID_MAX];
 ACT::enVac vac[AP_DEF_OBJ_VACUUM_ID_MAX];
 enOp op_panel;
@@ -44,6 +46,7 @@ enOp op_panel;
 cnAuto autoManager;
 cnJob process;
 cnTasks tasks;
+MOTOR::cnMotors motors;
 
 // user interface.
 NXLCD::uart_nextion nextion_lcd;
@@ -225,6 +228,54 @@ void apInit(void)
 		vac[AP_DEF_OBJ_VACUUM_ID_PHONE_JIG].SetConfigData(vac_cfg);
 	}
 
+	/* motor initial */
+	{
+		using namespace MOTOR;
+
+		enMotor_moons::cfg_t cfg = {0, };
+		cfg.instance_no =AP_OBJ::MOTOR_JIG;
+		cfg.p_apReg = &mcu_reg;
+		cfg.p_apCfgDat = &apCfg_data;
+		cfg.p_apAxisDat = &axis_data;
+		cfg.p_comm = &moons_comm;
+		cfg.motor_param.Init();
+		moons_motors[AP_OBJ::MOTOR_JIG].Init(cfg);
+
+
+		cfg = {0, };
+		cfg.instance_no =AP_OBJ::MOTOR_ROLL;
+		cfg.p_apReg = &mcu_reg;
+		cfg.p_apCfgDat = &apCfg_data;
+		cfg.p_apAxisDat = &axis_data;
+		cfg.p_comm = &moons_comm;
+		cfg.motor_param.Init();
+		moons_motors[AP_OBJ::MOTOR_ROLL].Init(cfg);
+
+
+		cfg = {0, };
+		cfg.instance_no =AP_OBJ::MOTOR_HIGH;
+		cfg.p_apReg = &mcu_reg;
+		cfg.p_apCfgDat = &apCfg_data;
+		cfg.p_apAxisDat = &axis_data;
+		cfg.p_comm = &moons_comm;
+		cfg.motor_param.Init();
+		moons_motors[AP_OBJ::MOTOR_HIGH].Init(cfg);
+	}
+
+	/* control motors */
+	{
+		using namespace MOTOR;
+
+		cnMotors::cfg_t cfg = {0,};
+		cfg.p_motor = moons_motors;
+		cfg.p_apAxisDat =  &axis_data;
+		cfg.p_comm = &moons_comm;
+		cfg.p_apCfgDat = &apCfg_data;
+		cfg.p_apIo = &mcu_io;
+		cfg.p_apReg = &mcu_reg;
+		motors.Init(cfg);
+	}
+
 
 	/* automanager initial */
 	{
@@ -237,11 +288,25 @@ void apInit(void)
 
 	/* manual operating initial */
 	{
-
+		cnTasks::cfg_t cfg = {0, };
+		cfg.p_apReg = &mcu_reg;
+		cfg.p_apIo = &mcu_io;
+		cfg.p_motors = &motors;
+		cfg.p_Cyl = cyl;
+		cfg.p_Vac = vac;
+		cfg.p_Op = &op_panel;
+		cfg.p_AutoManger = &autoManager;
+		cfg.p_apAxisDat = &axis_data;
+		cfg.p_apCylDat = &cyl_data;
+		cfg.p_apVacDat = &vac_data;
+		cfg.p_apCfgDat = &apCfg_data;
+		cfg.p_apSeqDat = &seq_data;
+		tasks.Init(cfg);
 	}
 
 	/* sequence process initial */
 	{
+
 	}
 
 
@@ -327,6 +392,25 @@ void apMain(void)
 			ledToggle(_DEF_LED1);
 			pre_main_ms = millis();
 		}
+
+		// 1. request moons motor state data;
+		{
+			motors.UpdateMotorsState();
+
+	/*		if (moons_comm.CheckCommState())
+			{
+				if (moons_motors[AP_OBJ::MOTOR_JIG].GetMotorData()== ERROR_SUCCESS)
+ 				{
+					test_ms = millis()-pre_main_ms;
+				}
+				if (moons_comm.Recovery())
+				{
+					// ok
+				}
+			}*/
+
+		}
+
 
 		moons_comm.ReceiveProcess();
 		nextion_lcd.ReceiveProcess();
