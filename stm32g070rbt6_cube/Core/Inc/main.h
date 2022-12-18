@@ -67,14 +67,22 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IO_KEY3_Pin GPIO_PIN_11
+#define IO_KEY3_GPIO_Port GPIOC
+#define IO_KEY2_Pin GPIO_PIN_12
+#define IO_KEY2_GPIO_Port GPIOC
+#define BUZZER_Pin GPIO_PIN_13
+#define BUZZER_GPIO_Port GPIOC
 #define STATUS_LED_Pin GPIO_PIN_14
 #define STATUS_LED_GPIO_Port GPIOC
-#define ch_OUT_3_Pin GPIO_PIN_1
-#define ch_OUT_3_GPIO_Port GPIOC
-#define SPI1_INT_Pin GPIO_PIN_0
-#define SPI1_INT_GPIO_Port GPIOB
-#define SPI1_CD_Pin GPIO_PIN_1
-#define SPI1_CD_GPIO_Port GPIOB
+#define IO_LED_F_Pin GPIO_PIN_15
+#define IO_LED_F_GPIO_Port GPIOC
+#define SPI2_NSS_Pin GPIO_PIN_0
+#define SPI2_NSS_GPIO_Port GPIOC
+#define SPI2_CS_Pin GPIO_PIN_1
+#define SPI2_CS_GPIO_Port GPIOC
+#define SPI1_CS_Pin GPIO_PIN_1
+#define SPI1_CS_GPIO_Port GPIOB
 #define I2C_INT_Pin GPIO_PIN_15
 #define I2C_INT_GPIO_Port GPIOB
 #define I2C_INT_EXTI_IRQn EXTI4_15_IRQn
@@ -86,18 +94,18 @@ void Error_Handler(void);
 #define OUT_5_GPIO_Port GPIOD
 #define OUT_4_Pin GPIO_PIN_9
 #define OUT_4_GPIO_Port GPIOD
+#define OUT_3_Pin GPIO_PIN_11
+#define OUT_3_GPIO_Port GPIOA
 #define OUT_1_Pin GPIO_PIN_15
 #define OUT_1_GPIO_Port GPIOA
 #define OUT_0_Pin GPIO_PIN_8
 #define OUT_0_GPIO_Port GPIOC
 #define OUT_2_Pin GPIO_PIN_9
 #define OUT_2_GPIO_Port GPIOC
-#define LED_RESET_Pin GPIO_PIN_0
-#define LED_RESET_GPIO_Port GPIOD
-#define LED_STOP_Pin GPIO_PIN_1
-#define LED_STOP_GPIO_Port GPIOD
-#define LED_START_Pin GPIO_PIN_2
-#define LED_START_GPIO_Port GPIOD
+#define IO_LED_EMG_Pin GPIO_PIN_0
+#define IO_LED_EMG_GPIO_Port GPIOD
+#define IO_LED_P_Pin GPIO_PIN_2
+#define IO_LED_P_GPIO_Port GPIOD
 #define IN_0_Pin GPIO_PIN_3
 #define IN_0_GPIO_Port GPIOD
 #define IN_1_Pin GPIO_PIN_4
@@ -106,6 +114,19 @@ void Error_Handler(void);
 #define IN_2_GPIO_Port GPIOD
 #define IN_3_Pin GPIO_PIN_6
 #define IN_3_GPIO_Port GPIOD
+#define IN_4_Pin GPIO_PIN_3
+#define IN_4_GPIO_Port GPIOB
+#define IN_5_Pin GPIO_PIN_4
+#define IN_5_GPIO_Port GPIOB
+#define IN_6_Pin GPIO_PIN_5
+#define IN_6_GPIO_Port GPIOB
+#define IN_7_Pin GPIO_PIN_6
+#define IN_7_GPIO_Port GPIOB
+#define IO_KEY0_Pin GPIO_PIN_7
+#define IO_KEY0_GPIO_Port GPIOB
+#define IO_KEY1_Pin GPIO_PIN_10
+#define IO_KEY1_GPIO_Port GPIOC
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

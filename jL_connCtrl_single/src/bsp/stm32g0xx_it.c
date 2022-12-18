@@ -84,7 +84,7 @@ void SysTick_Handler(void)
 
 #ifndef  _USE_HW_RTOS //rtos
   HAL_IncTick();
-  swTimerISR();
+
 #else
   osSystickHandler();
 //  swTimerISR();

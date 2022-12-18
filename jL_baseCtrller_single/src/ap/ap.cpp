@@ -8,6 +8,8 @@
 
 #include "ap.h"
 
+
+
 void updateApReg();
 void updateErr();
 void eventOpPanel();
@@ -53,7 +55,7 @@ NXLCD::uart_nextion nextion_lcd;
 RCTRL::uart_remote remote_ctrl;
 
 api_remote remote_pc;
-
+api_lcd op_lcd;
 
 void apInit(void)
 {
@@ -309,52 +311,25 @@ void apInit(void)
 
 	}
 
+	/*user display object*/
+	{
+		api_lcd::cfg_t cfg{};
+		cfg.ptr_comm = &nextion_lcd;
+
+		op_lcd.Init(cfg);
+	}
+
+	/*remote control and monitor*/
+	{
+		api_remote::cfg_t cfg{};
+		cfg.ptr_comm = &remote_ctrl;
+
+		remote_pc.Init(cfg);
+	}
 
 
-
-
-}
-
-
-void apMain(void)
-{
 
 #if 0
-	/*user display object*/
-	uiNextionLcd::cfg_t lcd_cfg = {0, };
-	lcd_cfg.p_apReg = &mcu_reg;
-	lcd_cfg.p_apIo = &mcu_io;
-	lcd_cfg.p_Fm = &fastech_motor;
-	lcd_cfg.p_apAxisDat = &axis_data;
-	lcd_cfg.p_apCylDat = &cyl_data;
-	lcd_cfg.p_apVacDat = &vac_data;
-	lcd_cfg.p_apCfgDat = &apCfg_data;
-	lcd_cfg.p_apSeqDat = &seq_data;
-	lcd_cfg.p_Ap=&doJob;
-	lcd_cfg.p_Auto = &autoManager;
-	lcd_cfg.p_Log = &mcu_log;
-	lcd_cfg.ch = _DEF_UART3;
-	lcd_cfg.baud = 115200; // 250000;//;
-	nextion_lcd.Init(&lcd_cfg);
-
-	/* remote control and monitor */
-	uiRemoteCtrl::cfg_t remote_cfg = {0, };
-	remote_cfg.p_apReg = &mcu_reg;
-	remote_cfg.p_apIo = &mcu_io;
-	remote_cfg.p_apAxisDat = &axis_data;
-	remote_cfg.p_apCylDat = &cyl_data;
-	remote_cfg.p_apVacDat = &vac_data;
-	remote_cfg.p_apCfgDat = &apCfg_data;
-	remote_cfg.p_apSeqDat = &seq_data;
-	remote_cfg.p_Ap=&doJob;
-	remote_cfg.p_Auto = &autoManager;
-	remote_cfg.p_Fm = &fastech_motor;
-	remote_cfg.p_Log = &mcu_log;
-	remote_cfg.ch = _DEF_UART2;
-	remote_cfg.baud = 115200;
-
-	remote_ctrl.Init(&remote_cfg);
-
 	/****************************/
 	/* loading eeprom data*/
 	//apCfg_data.ClearRomData();
@@ -381,9 +356,17 @@ void apMain(void)
 	/****************************/
 	/*Assign Obj */
 	mcu_io.assignObj((iio *)&fastech_motor);
-
 #endif
 
+
+}
+
+
+void apMain(void)
+{
+
+
+	uint8_t motor_err_state{};
 	uint32_t pre_main_ms = millis();
 	while (1)
 	{
@@ -395,19 +378,11 @@ void apMain(void)
 
 		// 1. request moons motor state data;
 		{
-			motors.UpdateMotorsState();
+			motor_err_state = motors.UpdateMotorsState();
+			mcu_reg.SetMotorErrState(motor_err_state);
 
-	/*		if (moons_comm.CheckCommState())
-			{
-				if (moons_motors[AP_OBJ::MOTOR_JIG].GetMotorData()== ERROR_SUCCESS)
- 				{
-					test_ms = millis()-pre_main_ms;
-				}
-				if (moons_comm.Recovery())
-				{
-					// ok
-				}
-			}*/
+			//mcu_reg.error_reg
+
 
 		}
 
@@ -516,6 +491,8 @@ void updateLamp()
 
 void updateErr()
 {
+
+
 	// Check the error status of the constructed unit
 	// auto run 상태의 process-step 운영에서 발생되는 에러 정지는 포함하지 않는다
 	/* if (mcu_reg.status[AP_REG_BANK_ERR_H][AP_REG_ERR_NO_RESP_MOT])

@@ -8,6 +8,9 @@
 #ifndef SRC_COMMON_ERR_CODE_H_
 #define SRC_COMMON_ERR_CODE_H_
 
+#define errno_t  int
+
+#define ERROR_SUCCESS 							  0
 
 #define OK                            0
 #define ERR_MEMORY                    1

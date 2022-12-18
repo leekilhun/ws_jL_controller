@@ -8,6 +8,8 @@
 
 #include "ap.h"
 
+uint32_t loop_ms = 0;
+
 void apInit(void)
 {
 
@@ -22,9 +24,12 @@ void apInit(void)
 void apMain(void)
 {
 	uint32_t pre_ms = millis();
-
+	uint32_t check_ms = millis();
 	while (1)
 	{
+
+		loop_ms = millis() - check_ms;
+		check_ms = millis();
 		if (millis() - pre_ms >=500)
 		{
 			pre_ms = millis();
@@ -38,6 +43,7 @@ void apMain(void)
 
 
 		cliMain();
+
 	}
 
 }

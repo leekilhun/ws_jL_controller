@@ -15,6 +15,7 @@
 
 //#define _USE_HW_RTOS  ->
 
+#ifdef _USE_HW_RTOS
 #define _HW_DEF_RTOS_MEM_SIZE(x)              ((x)/4)
 
 #define _HW_DEF_RTOS_THREAD_PRI_MAIN          osPriorityNormal//osPriorityRealtime
@@ -22,7 +23,7 @@
 
 #define _HW_DEF_RTOS_THREAD_MEM_MAIN          _HW_DEF_RTOS_MEM_SIZE( 1*1024)
 #define _HW_DEF_RTOS_THREAD_MEM_CLI           _HW_DEF_RTOS_MEM_SIZE( 1*1024)
-
+#endif
 
 //#define _USE_HW_FLASH
 
@@ -35,32 +36,33 @@
 #define _USE_HW_BUZZER
 
 #define _USE_HW_GPIO
-#define      HW_GPIO_MAX_CH         19
+#define      HW_GPIO_MAX_CH         26
 #define        _GPIO_SPI_NCS        0
 #define        _GPIO_SPI_NSS        1
-/*
-#define        _GPIO_BD_ID_SW1      2
-#define        _GPIO_BD_ID_SW2      3
-#define        _GPIO_BD_ID_SW4      4
-#define        _GPIO_BD_ID_SW8      5
-*/
-#define        _GPIO_IO_IN_01       2
-#define        _GPIO_IO_IN_02       3
-#define        _GPIO_IO_IN_03       4
-#define        _GPIO_IO_IN_04       5
-#define        _GPIO_IO_IN_05       6
-#define        _GPIO_IO_IN_06       7
-#define        _GPIO_IO_IN_07       8
-#define        _GPIO_IO_IN_08       9
-#define        _GPIO_IO_OUT_01      10
-#define        _GPIO_IO_OUT_02      11
-#define        _GPIO_IO_OUT_03      12
-#define        _GPIO_IO_OUT_04      13
-#define        _GPIO_IO_OUT_05      14
-#define        _GPIO_IO_OUT_06      15
-#define        _GPIO_IO_OUT_07      16
-#define        _GPIO_IO_OUT_08      17
-#define        _GPIO_I2C_INTERRUPT  18
+#define        _GPIO_OP_SW_START    2
+#define        _GPIO_OP_SW_STOP     3
+#define        _GPIO_OP_SW_RESET    4
+#define        _GPIO_OP_SW_ESTOP    5
+#define        _GPIO_OP_LAMP_START  6
+#define        _GPIO_OP_LAMP_STOP   7
+#define        _GPIO_OP_LAMP_RESET  8
+#define        _GPIO_IO_IN_01       9
+#define        _GPIO_IO_IN_02       10
+#define        _GPIO_IO_IN_03       11
+#define        _GPIO_IO_IN_04       12
+#define        _GPIO_IO_IN_05       13
+#define        _GPIO_IO_IN_06       14
+#define        _GPIO_IO_IN_07       15
+#define        _GPIO_IO_IN_08       16
+#define        _GPIO_IO_OUT_01      17
+#define        _GPIO_IO_OUT_02      18
+#define        _GPIO_IO_OUT_03      19
+#define        _GPIO_IO_OUT_04      20
+#define        _GPIO_IO_OUT_05      21
+#define        _GPIO_IO_OUT_06      22
+#define        _GPIO_IO_OUT_07      23
+#define        _GPIO_IO_OUT_08      24
+#define        _GPIO_I2C_INTERRUPT  25
 
 
 #define _USE_HW_CODE_IDSW
@@ -68,12 +70,12 @@
 
 #define _USE_HW_UART
 #define      HW_UART_MAX_CH         4
-//#define _USE_HW_UART_1_DMA
-//#define _USE_HW_UART_3_DMA
+#define _USE_HW_UART_1_DMA
+#define _USE_HW_UART_3_DMA
 
 
-#define _USE_HW_LOG
-#define      HW_LOG_CH              _DEF_UART3
+//#define _USE_HW_LOG
+#define      HW_LOG_CH              _DEF_UART2
 #define      HW_LOG_BOOT_BUF_MAX    1024
 #define      HW_LOG_LIST_BUF_MAX    2048
 
@@ -95,6 +97,8 @@
 
 #define _USE_HW_I2C
 #define      HW_I2C_MAX_CH          2
+#define        _I2C_EXT_IO          _DEF_I2C1
+#define        _I2C_EEPROM          _DEF_I2C2
 
 
 

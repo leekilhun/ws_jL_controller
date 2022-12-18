@@ -63,6 +63,18 @@ void bspDeInit(void)
 void logPrintf(const char *fmt, ...)
 {
 
+	va_list args;
+	int len;
+	char buf[256];
+
+	va_start(args, fmt);
+	len = vsnprintf(buf, 256, fmt, args);
+
+	uartWrite(HW_LOG_CH, (uint8_t *)buf, len);
+
+	va_end(args);
+
+
 }
 #endif
 
