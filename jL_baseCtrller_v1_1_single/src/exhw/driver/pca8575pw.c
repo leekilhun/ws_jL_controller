@@ -48,6 +48,11 @@ bool pca8575pw_Init()
 	return is_init;
 }
 
+bool pca8575pw_Recovery()
+{
+	return i2cRecovery(PCA8575PW_I2C);
+}
+
 bool pca8575pw_ReadPort(uint8_t ch, uint8_t* p_ret)
 {
 	bool ret = false;

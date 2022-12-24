@@ -36,6 +36,7 @@ extern "C" {
   extern pca8575_ch_t data[_EXHW_PCA8575PW_EX_IO_MAX_CH];
 
 bool pca8575pw_Init();
+bool pca8575pw_Recovery();
 bool pca8575pw_Read(uint8_t ch, uint16_t* p_ret);
 bool pca8575pw_Write(uint8_t ch, uint16_t data);
 

@@ -27,15 +27,32 @@ public:
 	struct cfg_t
 	{
 		RCTRL::uart_remote* ptr_comm{};
+		MCU_REG::ap_reg* ptr_mcu_reg{};
 		cnTasks* ptr_task{};
+		MCU_IO::ap_io* ptr_io{};
+		ap_dat* ptr_cfg_data{};
+		axis_dat* ptr_axis_data{};
+		cyl_dat* ptr_cyl_data{};
+		vac_dat* ptr_vac_data{};
+		seq_dat* ptr_sequence_data{};
+		ap_log* ptr_log{};
+		cnAuto* ptr_auto{};
+		MOTOR::cnMotors* ptr_motors{};
 
 		cfg_t() = default;
 
 		cfg_t& operator = (const cfg_t& cfg){
-			if (this != &cfg){
-				ptr_comm = cfg.ptr_comm;
-				ptr_task = cfg.ptr_task;
-			}
+			ptr_mcu_reg 					= cfg.ptr_mcu_reg;
+			ptr_comm 							= cfg.ptr_comm;
+			ptr_task 							= cfg.ptr_task;
+			ptr_io 								= cfg.ptr_io;
+			ptr_cfg_data 					= cfg.ptr_cfg_data;
+			ptr_cyl_data 					= cfg.ptr_cyl_data;
+			ptr_vac_data 					= cfg.ptr_vac_data;
+			ptr_sequence_data 		= cfg.ptr_sequence_data;
+			ptr_log 							= cfg.ptr_log;
+			ptr_auto 							= cfg.ptr_auto;
+			ptr_motors 						= cfg.ptr_motors;
 			return *(this);
 		}
 
@@ -47,13 +64,16 @@ private:
 	bool m_IsInit;
 	cfg_t m_cfg;
 	RCTRL::uart_remote::rx_packet_t m_receiveData;
+	uint8_t m_txBuffer[UI_RCTRL_MAX_BUFFER_LENGTH];
 public:
+	prc_step_t m_step;
 
 	/****************************************************
 	 *  Constructor
 	 ****************************************************/
 public:
-	api_remote(): m_IsInit{}, m_cfg{},m_receiveData{}{
+	api_remote(): m_IsInit{}, m_cfg{},m_receiveData{}, m_txBuffer{}
+	, m_step{}{
 
 	};
 
@@ -71,7 +91,7 @@ private:
 	api_remote::ret_e sendData(uint8_t type);
 
 	// callback function
-	static void receiveDataFunc(void* obj, void* w_parm, void* l_parm) {
+	inline static void receiveDataFunc(void* obj, void* w_parm, void* l_parm) {
 		api_remote* ptr_this = (api_remote*)obj;
 		if (w_parm == nullptr && obj == nullptr && l_parm == nullptr)
 			return;

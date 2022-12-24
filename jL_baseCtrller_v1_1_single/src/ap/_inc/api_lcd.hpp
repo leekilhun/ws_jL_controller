@@ -54,16 +54,16 @@ public:
 		cfg_t() = default;
 
 		cfg_t& operator = (const cfg_t& cfg){
-			ptr_mcu_reg = cfg.ptr_mcu_reg;
-			ptr_comm = cfg.ptr_comm;
-			ptr_task = cfg.ptr_task;
-			ptr_io = cfg.ptr_io;
-			ptr_cfg_data = cfg.ptr_cfg_data;
-			ptr_cyl_data = cfg.ptr_cyl_data;
-			ptr_vac_data = cfg.ptr_vac_data;
+			ptr_mcu_reg 		= cfg.ptr_mcu_reg;
+			ptr_comm 				= cfg.ptr_comm;
+			ptr_task 				= cfg.ptr_task;
+			ptr_io 					= cfg.ptr_io;
+			ptr_cfg_data 		= cfg.ptr_cfg_data;
+			ptr_cyl_data 		= cfg.ptr_cyl_data;
+			ptr_vac_data 		= cfg.ptr_vac_data;
 			ptr_sequence_data = cfg.ptr_sequence_data;
-			ptr_log = cfg.ptr_log;
-			ptr_auto = ptr_auto;
+			ptr_log 				= cfg.ptr_log;
+			ptr_auto 				= cfg.ptr_auto;
 			return *(this);
 		}
 

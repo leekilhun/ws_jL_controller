@@ -336,7 +336,14 @@ void apInit(void)
 	{
 		api_remote::cfg_t cfg{};
 		cfg.ptr_comm = &remote_ctrl;
-
+		cfg.ptr_mcu_reg = &mcu_reg;
+		cfg.ptr_task = &tasks;
+		cfg.ptr_io = &mcu_io;
+		cfg.ptr_cyl_data = &cyl_data;
+		cfg.ptr_vac_data = &vac_data;
+		cfg.ptr_sequence_data = &seq_data;
+		cfg.ptr_log = &mcu_log;
+		cfg.ptr_auto =&autoManager;
 		remote_pc.Init(cfg);
 	}
 
@@ -382,21 +389,18 @@ void apMain(void)
 	{
 		loop_ms = millis() - pre_loop;
 		pre_loop = millis();
+
+		/* set led blink time */
+		if (mcu_reg.error_reg.no_error)
+			refresh_time = 1000;
+		else
+			refresh_time =300;
 		if (millis() - pre_main_ms >= refresh_time)
 		{
 			mcu_io.OutputToggle(MCU_IO::ap_io::out20 + (io_idx++ % 16));
 
 			ledToggle(_DEF_LED1);
 			pre_main_ms = millis();
-		}
-		{
-		// recovery at ap.cpp
-		// motor_err_state = motors.UpdateMotorsState();
-		// mcu_reg.SetMotorErrState(motor_err_state);
-
-		// mcu_reg.error_reg
-		// moons_motors[1].GetMotorData();
-		// moons_comm.ReceiveProcess();
 		}
 
 		// non-block코드.

@@ -10,6 +10,130 @@
 #include "api_remote.hpp"
 
 
+
+constexpr uint8_t STEP_INIT 							= 0x00;
+constexpr uint8_t	STEP_TODO 							= 0x01;
+constexpr uint8_t	STEP_TIMEOUT						= 0x02;
+constexpr uint8_t	STEP_WAIT_RETURN				= 0x03;
+constexpr uint8_t	STEP_STATE_UPDATE				= 0x04;
+constexpr uint8_t	STEP_STATE_UPDATE_START	= 0x05;
+constexpr uint8_t	STEP_STATE_UPDATE_WAIT 	= 0x06;
+constexpr uint8_t	STEP_STATE_UPDATE_END 	= 0x07;
+
+constexpr uint8_t	COMM_TIMEOUT_MAX 				= 100;
+
+
+
+void api_remote::ThreadJob()
+{
+  doRunStep();
+
+  m_cfg.ptr_comm->ReceiveProcess();
+}
+
+
+
+void api_remote::doRunStep()
+{
+	switch(m_step.GetStep())
+	{
+		case STEP_INIT:
+		{
+			m_step.SetStep(STEP_TODO);
+		}
+		break;
+
+		/*######################################################
+		     to do
+		  ######################################################*/
+		case STEP_TODO:
+		{
+			m_step.SetStep(STEP_STATE_UPDATE);
+		}
+		break;
+		/*######################################################
+				  timeout
+			######################################################*/
+		case STEP_TIMEOUT:
+		{
+
+			m_step.SetStep(STEP_TODO);
+		}
+		break;
+		/*######################################################
+				  wait return
+			######################################################*/
+		case STEP_WAIT_RETURN:
+		{
+			if (m_step.LessThan(50))
+				break;
+
+			if (0)//check
+				m_step.SetStep(STEP_TIMEOUT);
+			else
+				m_step.SetStep(STEP_TODO);
+		}
+		break;
+		/*######################################################
+				STEP_STATE_UPDATE
+			######################################################*/
+		case STEP_STATE_UPDATE:
+		{
+			memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
+			m_step.SetStep(STEP_STATE_UPDATE_START);
+		}
+		break;
+
+		case STEP_STATE_UPDATE_START:
+		{
+
+			memcpy(&m_txBuffer[0],&m_cfg.ptr_mcu_reg->state_reg.ap_state,2);
+			memcpy(&m_txBuffer[2],&m_cfg.ptr_mcu_reg->option_reg.ap_option,2);
+			memcpy(&m_txBuffer[4],&m_cfg.ptr_mcu_reg->error_reg.ap_error,4);
+			memcpy(&m_txBuffer[8],&m_cfg.ptr_io->m_in.data, 4);
+			memcpy(&m_txBuffer[12],&m_cfg.ptr_io->m_out.data, 4);
+
+			MOTOR::enMotor_moons* p_motor{};
+			MOTOR::enMotor_moons::moons_data_t motor_data{};
+			p_motor = m_cfg.ptr_motors->GetMotorObject(AP_OBJ::MOTOR::MOTOR_JIG);
+			p_motor->GetMotorData(motor_data);
+
+			memcpy(&m_txBuffer[16],&motor_data.drv_status.sc_status, 2);
+			memcpy(&m_txBuffer[18],&motor_data.al_code.al_status, 2);
+			memcpy(&m_txBuffer[20],&motor_data.encoder_position, 4 );				// 엔코더 위치값
+			memcpy(&m_txBuffer[24],&motor_data.immediate_abs_position, 4 ); // 목표 위치값
+			memcpy(&m_txBuffer[28],&motor_data.abs_position_command, 4 );   // 현재
+			memcpy(&m_txBuffer[32],&motor_data.immediate_target_velocity, 4 ); // 타켓 속도
+			memcpy(&m_txBuffer[34],&motor_data.immediate_act_velocity, 4 );	   // 현재 속도
+
+			// =
+
+
+			m_step.SetStep(STEP_STATE_UPDATE_WAIT);
+		}
+		break;
+
+		case STEP_STATE_UPDATE_WAIT:
+		{
+			m_step.SetStep(STEP_STATE_UPDATE_END);
+		}
+		break;
+
+		case STEP_STATE_UPDATE_END:
+		{
+
+			m_step.SetStep(STEP_TODO);
+		}
+		break;
+
+
+		default:
+			break;
+	}
+	// end of switch
+}
+
+
 void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 	m_receiveData = ptr_data;
   using TYPE = RCTRL::CMDTYPE;
@@ -48,6 +172,7 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 		default:
 			break;
 	}// switch (m_receiveData.type)
+
 
 #if 0
   m_Packet.is_wait_resp = false;
@@ -583,6 +708,7 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 #endif
 
 }
+
 
 
 

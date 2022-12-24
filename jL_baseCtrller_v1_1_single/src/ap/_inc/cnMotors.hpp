@@ -111,6 +111,12 @@ namespace MOTOR
 			return m_commStatus.comm_err;
 		}
 
+		inline MOTOR::enMotor_moons* GetMotorObject(AP_OBJ::MOTOR motor_id){
+			if (motor_id < AP_OBJ::MOTOR::MOTOR_MAX)
+				return &m_cfg.p_motor[motor_id];
+			return nullptr;
+		}
+
 		// step machine을 통해 nonblock으로 처리된다.
 		void ThreadJob();
 

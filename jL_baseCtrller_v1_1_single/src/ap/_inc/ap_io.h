@@ -202,8 +202,9 @@ namespace MCU_IO
 		uint16_t m_extIn;
 		uint16_t m_extOut;
 
+		uint8_t m_errCnt;
 	public:
-		ap_io() : m_in{}, m_out{} , m_extIn{0}, m_extOut{0} {
+		ap_io() : m_in{}, m_out{} , m_extIn{0}, m_extOut{0} ,m_errCnt{}{
 #ifdef _USE_HW_RTOS
 			osMutexDef(ap_io_mutex_id);
 			ap_io_mutex_id = osMutexCreate (osMutex(ap_io_mutex_id));
@@ -329,7 +330,10 @@ namespace MCU_IO
 				// extension io module
 				{
 					uint16_t out_data = m_extOut;
-					pca8575pw_Write(_PCA8575PW_EX_IO_CH_OUT, ~(out_data));
+					if(pca8575pw_Write(_PCA8575PW_EX_IO_CH_OUT, ~(out_data)) == false)
+					{
+						++m_errCnt;
+					}
 				}
 				//pca8575pw_Read(_PCA8575PW_EX_IO_CH_OUT, &m_extOut);
 
@@ -352,15 +356,27 @@ namespace MCU_IO
 				data[bank_1] = gpio;
 
 				// extension io module
-				pca8575pw_Read(_PCA8575PW_EX_IO_CH_IN, &m_extIn);
-				data[bank_3] =  (uint8_t)(m_extIn >> 0);
-				data[bank_4] =  (uint8_t)(m_extIn >> 8);
-
+				if (pca8575pw_Read(_PCA8575PW_EX_IO_CH_IN, &m_extIn))
+				{
+					data[bank_3] =  (uint8_t)(m_extIn >> 0);
+					data[bank_4] =  (uint8_t)(m_extIn >> 8);
+				}
+				else
+				{
+					++m_errCnt;
+				}
 
 				m_in.data = utilDwToUint(data.data());
 			}
 
-
+			/* check i2c communication recovery*/
+			constexpr uint8_t limit_recovery_cnt = 100;
+			if (m_errCnt >= limit_recovery_cnt)
+			{
+				m_errCnt = 0;
+				pca8575pw_Recovery();
+				Init();
+			}
 
 		}
 

@@ -19,7 +19,7 @@
 namespace RCTRL
 {
 
-	enum CMDTYPE
+	enum CMDTYPE:uint8_t
 	{
 		FIRM_CTRL       = 0x00,
 		CONTROL_MOT     = 0x10,
@@ -29,7 +29,7 @@ namespace RCTRL
 
 	};
 
-	enum RXCMD
+	enum CMDID:uint8_t
 	{
 		CMD_READ_ALL_STATE          = 0x00,
 		CMD_READ_BOOT_INFO          = 0x01,

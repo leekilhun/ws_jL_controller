@@ -109,6 +109,11 @@ namespace MOTOR
 			};
 		};
 
+
+
+
+	public:
+
 		struct moons_data_t {
 
 			MOONS_SS_ALARM_STATUS al_code{};
@@ -120,10 +125,23 @@ namespace MOTOR
 			uint32_t abs_position_command{};
 			uint16_t immediate_act_velocity{};
 			uint16_t immediate_target_velocity{};
+
+			moons_data_t() = default;
+
+			moons_data_t& operator = (const moons_data_t& data){
+				al_code 									= data.al_code;
+				drv_status 								= data.drv_status;
+				immediate_expanded_input	= data.immediate_expanded_input;
+				driver_board_inputs 			= data.driver_board_inputs;
+				encoder_position 					= data.encoder_position;
+				immediate_abs_position 		= data.immediate_abs_position;
+				abs_position_command 			= data.abs_position_command;
+				immediate_act_velocity 		= data.immediate_act_velocity;
+				immediate_target_velocity = data.immediate_target_velocity;
+				return *(this);
+			}
 		};
 
-
-	public:
 
 		/*
 		 * modbus 통신에서
@@ -302,6 +320,9 @@ namespace MOTOR
 			return &m_receiveData;
 		}
 
+		inline void GetMotorData(moons_data_t& ret_data) {
+			ret_data = m_motorData;
+		}
 		inline uint8_t GetInstanceNo() {
 			return m_cfg.instance_no;
 		}
