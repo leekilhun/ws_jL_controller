@@ -183,7 +183,7 @@ private:
 				{
 					ret = cnAuto::state_e::emg_stop;
 				}
-				else if(ap_reg->state_reg.error_stop)
+				else if(ap_reg->state_reg.auto_stop)
 				{
 					ret = cnAuto::state_e::error_stop;
 				}
@@ -280,7 +280,7 @@ public:
 		if (!m_cfg.p_apReg->IsSkipSafeSensor())//not
 		{
 			ret = m_cfg.p_ApIo->IsOff(MCU_IO::ap_io::in_e::in_area_sensor);
-			ret = m_IsDetectedPauseSensor;
+			//ret = m_IsDetectedPauseSensor;
 		}
 		return ret;
 	}

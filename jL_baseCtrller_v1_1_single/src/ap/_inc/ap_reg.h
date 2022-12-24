@@ -12,6 +12,36 @@
 namespace MCU_REG
 {
 
+	/*
+
+	 ## 상태 정의
+
+	 01. AUTO_RUNNING : 자동 실행
+	 02. EMG_STOP : 비상정지
+	 03. AUTO_READY : 자동 실행이 가능한 지 체크하고, 문제 없다면 시작 신호를 대기
+	 04. AUTO_STOP : 자동 실행 중 정지된 상태
+	 05. DETECT_AREA_SEN : 자동 동작이 정지되어야 한다.
+	 06. MOTOR_ON : 모터가 정상적으로 enable 됨
+	 07. ORG_COMPLETED : 시스템 초기화가 완료되어 자동 운전이 가능한 상태
+	 08. ALARM_STATUS : 시스템에 리셋할 에러가 있다.
+
+	 11. STATE_10,
+	 12. STATE_11,
+	 13. STATE_12,
+	 14. STATE_13,
+	 15. STATE_14,
+	 16. STATE_15,
+	 17. REQUEST_INITAL,
+	 18. ALL_CHECK_OK,
+
+
+
+
+
+
+
+	 */
+
 
 #ifdef _USE_HW_RTOS
 #define AP_REG_LOCK_BEGIN osMutexWait(ap_reg_mutex_id, osWaitForever)
@@ -50,7 +80,7 @@ namespace MCU_REG
 			AUTO_RUNNING,
 			EMG_STOP,
 			AUTO_READY,
-			ERROR_STOP,
+			AUTO_STOP,
 			DETECT_AREA_SEN,
 			MOTOR_ON,
 			ORG_COMPLETED,
@@ -62,8 +92,8 @@ namespace MCU_REG
 			STATE_13,
 			STATE_14,
 			STATE_15,
-			STATE_16,
-			STATE_17,
+			REQUEST_INITAL,
+			ALL_CHECK_OK,
 		};
 
 		union AP_ERR_REG
@@ -143,7 +173,7 @@ namespace MCU_REG
 				unsigned auto_running:1;
 				unsigned emg_stop:1;
 				unsigned auto_ready:1;
-				unsigned error_stop:1;
+				unsigned auto_stop:1;
 				unsigned detect_safe_sensor:1;
 				unsigned motor_on:1;
 				unsigned system_origin_cplt:1;
@@ -218,25 +248,121 @@ namespace MCU_REG
 			error_reg.ap_error = 0;
 		}
 
-		inline void SetReg_AutoRunning(bool on_off = true){
-			state_reg.auto_running = on_off;
+		inline uint16_t SetReg_State(MCU_REG::ap_reg::state_e state, bool on_off = true) {
+			AP_REG_LOCK_BEGIN;
+			switch (state) {
+				case AUTO_RUNNING:
+				{
+
+				}
+				break;
+
+				case EMG_STOP:
+				{
+					if (on_off)
+						state_reg.emg_stop = true;
+					else
+						state_reg.emg_stop = false;
+				}
+				break;
+
+				case AUTO_READY:
+				{
+
+				}
+				break;
+
+				case AUTO_STOP:
+				{
+
+				}
+				break;
+
+				case DETECT_AREA_SEN:
+				{
+					if (on_off)
+						state_reg.detect_safe_sensor = true;
+					else
+						state_reg.detect_safe_sensor = false;
+				}
+				break;
+
+				case MOTOR_ON:
+				{
+
+					if (on_off)
+						state_reg.motor_on = true;
+					else
+						state_reg.motor_on = false;
+				}
+				break;
+
+				case ORG_COMPLETED:
+				{
+
+				}
+				break;
+
+				case ALARM_STATUS:
+				{
+					if (on_off)
+						state_reg.alarm_status = true;
+					else
+						state_reg.alarm_status = false;
+
+				}
+				break;
+
+				case STATE_10:
+				{
+
+				}
+				break;
+				case STATE_11:
+				{
+
+				}
+				break;
+				case STATE_12:
+				{
+
+				}
+				break;
+				case STATE_13:
+				{
+
+				}
+				break;
+				case STATE_14:
+				{
+
+				}
+				break;
+				case STATE_15:
+				{
+
+				}
+				break;
+				case REQUEST_INITAL:
+				{
+					state_reg.request_initial = on_off;
+				}
+				break;
+				case ALL_CHECK_OK:
+				{
+					state_reg.all_check_ok = on_off;
+				}
+				break;
+				default:
+					break;
+			}
+			// end of switch (state)
+
+
+			AP_REG_LOCK_END;
+			return state_reg.ap_state;
 		}
 
-		inline void SetReg_State(state_e state, bool on_off = true){
-			AP_REG_LOCK_BEGIN;
-			uint16_t tmp {};
-			if (on_off)
-			{
-				tmp = 1 << uint16_t(state);
-				state_reg.ap_state |= tmp;
-			}
-			else
-			{
-				tmp = ~(1 << uint16_t(state));
-				state_reg.ap_state &= tmp;
-			}
-			AP_REG_LOCK_END;
-		}
 
 		inline void SetErrRegister(ap_reg::err_e state, bool set = true){
 
@@ -298,9 +424,9 @@ namespace MCU_REG
 			}
 
 
-			if (error_reg.ap_error < 2)
+			if (error_reg.ap_error > 1)
 			{
-				error_reg.ap_error = 1;
+				error_reg.no_error = false;
 			}
 
 

@@ -162,7 +162,7 @@ namespace RCTRL
 
 		struct packet_t {
 			uint8_t   state{};
-			uint8_t   wait_flag{};
+			//uint8_t   wait_flag{};
 			uint32_t  prev_ms{};
 			uint32_t  resp_ms{};
 			uint32_t  index{};
@@ -393,7 +393,7 @@ namespace RCTRL
 					{
 						if (rx_data == CMD_STX)
 						{
-							m_packet.wait_flag = 1;
+							//m_packet.wait_flag = 1;
 							m_packet.data_cnt = 0;
 							rx_packet->check_sum = 0xffff;
 							memset(&rx_packet->buffer[0], 0, CMD_MAX_PACKET_LENGTH);

@@ -8,12 +8,12 @@
 #include "ap.h"
 #include "cnAuto.hpp"
 
-#define CN_AUTO_ERR_CNT_MAX       255
+//#define CN_AUTO_ERR_CNT_MAX       255
 
-#define CN_AUTO_ARG_TBL_CNT_MAX   10
 
-#define CN_AUTO_MSG_STR_MAX        20
-#define CN_AUTO_FILE_STR_MAX       40
+constexpr int CN_AUTO_ARG_TBL_CNT_MAX   = 10;
+constexpr int CN_AUTO_MSG_STR_MAX       = 20;
+constexpr int CN_AUTO_FILE_STR_MAX      = 40;
 
 void cnAuto::ThreadJob()
 {
@@ -78,7 +78,8 @@ void cnAuto::AlarmAuto(cnAuto::state_e err)
 
 		default:
 			break;
-	}//switch (err)
+	}
+	//switch (err)
 
 	SetOPStatus(enOp::status_e::ERR_STOP);
 }

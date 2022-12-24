@@ -9,6 +9,7 @@
 #include "ap.h"
 
 
+constexpr uint8_t COMM_RECOVERY_LIMIT_COUNT_LCD  = 10;
 
 void updateApReg();
 void updateErr();
@@ -326,6 +327,7 @@ void apInit(void)
 		cfg.ptr_vac_data = &vac_data;
 		cfg.ptr_sequence_data = &seq_data;
 		cfg.ptr_log = &mcu_log;
+		cfg.ptr_auto =&autoManager;
 
 		op_lcd.Init(cfg);
 	}
@@ -366,16 +368,13 @@ void apInit(void)
 	//process.SetAutoSpeed(seq_data.GetMaxSpeed());
 	/****************************/
 	/*Assign Obj */
-  mcu_io.Init();
+	mcu_io.Init();
 
 }
 
 
 void apMain(void)
 {
-
-
-	uint8_t motor_err_state{};
 	uint32_t pre_main_ms = millis();
 	uint32_t pre_loop = millis();
 	uint8_t io_idx = 0;
@@ -390,21 +389,22 @@ void apMain(void)
 			ledToggle(_DEF_LED1);
 			pre_main_ms = millis();
 		}
-
-		// 1. request moons motor state data;
 		{
-			motor_err_state = motors.UpdateMotorsState();
-			mcu_reg.SetMotorErrState(motor_err_state);
+		// recovery at ap.cpp
+		// motor_err_state = motors.UpdateMotorsState();
+		// mcu_reg.SetMotorErrState(motor_err_state);
 
-			//mcu_reg.error_reg
-
-
+		// mcu_reg.error_reg
+		// moons_motors[1].GetMotorData();
+		// moons_comm.ReceiveProcess();
 		}
 
+		// non-block코드.
+		motors.ThreadJob();
 
-		moons_comm.ReceiveProcess();
-
+		// non-block코드.
 		op_lcd.ThreadJob();
+
 		//nextion_lcd.ReceiveProcess();
 		remote_ctrl.ReceiveProcess();
 
@@ -421,17 +421,19 @@ void apMain(void)
 
 
 
-
+/*
+ * operating sw 이벤트 처리
+ */
 void eventOpPanel()
 {
 	if (op_panel.GetPressed(enOp::panel_e::SW_ESTOP))
 	{
-		mcu_reg.state_reg.emg_stop = true;
+		mcu_reg.SetReg_State(MCU_REG::ap_reg::state_e::EMG_STOP, true);
 		return;
 	}
 	else
 	{
-		mcu_reg.state_reg.emg_stop = false;
+		mcu_reg.SetReg_State(MCU_REG::ap_reg::state_e::EMG_STOP, false);
 	}
 
 	if (op_panel.GetPressed(enOp::panel_e::SW_START))
@@ -451,43 +453,40 @@ void eventOpPanel()
 
 }
 
+
+/*
+ * operating 램프
+ */
 void updateLamp()
 {
-	enOp::status_e op_state = autoManager.GetOPStatus();
 
-	switch (op_state)
+	switch (autoManager.GetOPStatus())
 	{
-		case enOp::INIT:
+		case enOp::status_e::INIT:
+		{
 			if (mcu_reg.IsProcessInitialCplt())
 			{
 				autoManager.SetOPStatus(enOp::STEP_STOP);
 			}
+
 			if (millis() - lamp_ms >= 1000*2)
 			{
 				lamp_ms = millis();
 				op_panel.LampToggle(enOp::LAMP_START);
 			}
-			break;
+		}
+		break;
 
-		case enOp::ERR_STOP:
-			if (millis() - lamp_ms >= 300)
-			{
-				lamp_ms = millis();
-				op_panel.LampToggle(enOp::LAMP_STOP);
-			}
-			op_panel.LampOnOff(enOp::LAMP_START,false);
-			op_panel.LampOnOff(enOp::LAMP_RESET,false);
-			mcu_reg.state_reg.error_stop = true;
-			break;
-
-		case enOp::STEP_STOP:
+		case enOp::status_e::STEP_STOP:
+		{
 			op_panel.LampOnOff(enOp::LAMP_START,false);
 			op_panel.LampOnOff(enOp::LAMP_STOP,true);
 			op_panel.LampOnOff(enOp::LAMP_RESET,false);
-			mcu_reg.state_reg.error_stop = true;
-			break;
+		}
+		break;
 
-		case enOp::RUN_READY:
+		case enOp::status_e::RUN_READY:
+		{
 			if (millis() - lamp_ms >= 1000)
 			{
 				lamp_ms = millis();
@@ -495,100 +494,240 @@ void updateLamp()
 			}
 			op_panel.LampOnOff(enOp::LAMP_STOP,false);
 			op_panel.LampOnOff(enOp::LAMP_RESET,false);
-			mcu_reg.state_reg.auto_ready = true;
-			break;
+		}
+		break;
 
-		case enOp::RUN:
+		case enOp::status_e::RUN:
+		{
 			op_panel.LampOnOff(enOp::LAMP_START,true);
-			mcu_reg.state_reg.auto_running = true;
-			break;
+			switch (autoManager.GetOPMode())
+			{
+				case enOp::mode_e::AUTORUN:
+					break;
+
+				case enOp::mode_e::DRY_RUN:
+					break;
+
+				case enOp::mode_e::READY:
+					break;
+
+				case enOp::mode_e::STOP:
+					break;
+
+				default:
+					break;
+			}
+			// end of switch (autoManager.GetOPMode())
+		}
+		break;
+
+		case enOp::status_e::ERR_STOP:
+		{
+			if (millis() - lamp_ms >= 300)
+			{
+				lamp_ms = millis();
+				op_panel.LampToggle(enOp::LAMP_STOP);
+			}
+			op_panel.LampOnOff(enOp::LAMP_START,false);
+			op_panel.LampOnOff(enOp::LAMP_RESET,false);
+
+		}
+		break;
 
 		default:
 			break;
 	}
-
-}
-
-void updateErr()
-{
-
-
-	// Check the error status of the constructed unit
-	// auto run 상태의 process-step 운영에서 발생되는 에러 정지는 포함하지 않는다
-	/* if (mcu_reg.status[AP_REG_BANK_ERR_H][AP_REG_ERR_NO_RESP_MOT])
-  {
-    if (errCnt  >= AP_DEF_ERROR_CNT_MAX)
-    {
-      errCnt = 0;
-      mcu_reg.status[AP_REG_BANK_ERR_H][AP_REG_ERR_CLEAR] = false;
-      refresh_time = 100;
-    }
-    else
-    {
-      errCnt++;
-    }
-  }
-  else if (mcu_reg.status[AP_REG_BANK_ERR_H][AP_REG_ERR_NO_RESP_LCD])
-  {
-    if (errCnt  >= AP_DEF_ERROR_CNT_MAX)
-    {
-      errCnt = 0;
-      mcu_reg.status[AP_REG_BANK_ERR_H][AP_REG_ERR_CLEAR] = false;
-      refresh_time = 300;
-    }
-    else
-    {
-      errCnt++;
-    }
-  }
-  else
-  {
-    errCnt = 0;
-    mcu_reg.status[AP_REG_BANK_ERR_H][AP_REG_ERR_CLEAR] = true;
-    refresh_time = 1000;
-  }
-
-
-  //process 에러 체크
-  if (mcu_reg.GetAlarmState() != 1)
-  {
-    mcu_reg.SetRunState(AP_REG_ALARM_STATUS, true);
-  }
-  else
-  {
-    mcu_reg.SetRunState(AP_REG_ALARM_STATUS, false);
-  }*/
-
-
+	// end of switch (autoManager.GetOPStatus())
 }
 
 
+
+
+/*
+ * mcu register update
+ */
 void updateApReg()
-{
-	mcu_io.Update_io();
+ {
+	 /* 1. io register */
+	 mcu_io.Update_io();
 
-	if (autoManager.IsDetectAreaSensor()) //
-	{
-		mcu_reg.state_reg.detect_safe_sensor = true;
-	}
-	else
-	{
-		mcu_reg.state_reg.detect_safe_sensor = false;
-	}
+	 /* 2. mcu register */
+	 using reg = MCU_REG::ap_reg::state_e;
 
-}
+	 if (autoManager.IsDetectAreaSensor()) //
+		 mcu_reg.SetReg_State(reg::DETECT_AREA_SEN, true);
+	 else
+		 mcu_reg.SetReg_State(reg::DETECT_AREA_SEN, false);
 
 
-void routineFunc()
-{
-	static uint32_t time_ms = 0;
-	if (millis() - time_ms >= 1000)
-	{
-		time_ms = millis();
-		//op_lcd.ChangePage(NXLCD::uart_nextion::page_e::MAIN);
-	}
+	 switch (autoManager.GetOPStatus())
+	 {
+		 case enOp::status_e::INIT:
+		 {
 
-}
+		 }
+		 break;
+
+		 case enOp::status_e::STEP_STOP:
+		 {
+			 mcu_reg.SetReg_State(reg::AUTO_STOP, true);
+			 //mcu_reg.state_reg.error_stop = true;
+		 }
+		 break;
+
+		 case enOp::status_e::RUN_READY:
+		 {
+			 mcu_reg.SetReg_State(reg::AUTO_READY, true);
+			 //mcu_reg.state_reg.auto_ready = true;
+		 }
+		 break;
+
+		 case enOp::status_e::RUN:
+		 {
+			 mcu_reg.SetReg_State(reg::AUTO_RUNNING, true);
+			 //mcu_reg.state_reg.auto_running = true;
+			 switch (autoManager.GetOPMode())
+			 {
+				 case enOp::mode_e::AUTORUN:
+					 break;
+
+				 case enOp::mode_e::DRY_RUN:
+					 break;
+
+				 case enOp::mode_e::READY:
+					 break;
+
+				 case enOp::mode_e::STOP:
+					 break;
+
+				 default:
+					 break;
+			 }
+		 }
+		 // end of switch (autoManager.GetOPMode())
+		 break;
+
+		 case enOp::status_e::ERR_STOP:
+		 {
+			 mcu_reg.SetReg_State(reg::AUTO_STOP, true);
+			 //mcu_reg.state_reg.error_stop = true;
+		 }
+		 break;
+
+		 default:
+			 break;
+	 }
+	 // end of switch (autoManager.GetOPStatus())
+
+ }
+
+
+
+/*
+ * system error register, communication error and try to recovery
+ */
+ void updateErr()
+ {
+
+	 /* 1. error register */
+
+	 using state_reg = MCU_REG::ap_reg::state_e;
+	 using error_reg = MCU_REG::ap_reg::err_e;
+
+	 //process 에러 체크
+	 if (mcu_reg.GetAlarmState() != 1)
+		 mcu_reg.SetReg_State(state_reg::ALARM_STATUS, true);
+	 else
+		 mcu_reg.SetReg_State(state_reg::ALARM_STATUS, false);
+
+
+   /* 2. lcd  통신 체크  */
+	 if (op_lcd.IsConnected() == false)
+	 {
+		 if (nextion_lcd.GetErrCnt() >= COMM_RECOVERY_LIMIT_COUNT_LCD)
+		 {
+			 mcu_reg.SetErrRegister(error_reg::no_response_lcd, true);
+			 op_lcd.CommRecovery();
+		 }
+	 }
+	 else
+	 {
+		 mcu_reg.SetErrRegister(error_reg::no_response_lcd, false);
+	 }
+
+
+	 /* 3. motor communication */
+	 if (motors.GetCommStatus() > 0)
+	 {
+		 mcu_reg.SetErrRegister(error_reg::no_response_mot, true);
+		 // recovery는 motors객체에서 전체 모터 연결이 안되면 실시
+	 }
+	 else
+	 {
+		 mcu_reg.SetErrRegister(error_reg::no_response_mot, false);
+	 }
+
+	 // Check the error status of the constructed unit
+	 // auto run 상태의 process-step 운영에서 발생되는 에러 정지는 포함하지 않는다
+	 /* if (mcu_reg.status[AP_REG_BANK_ERR_H][AP_REG_ERR_NO_RESP_MOT])
+   {
+     if (errCnt  >= AP_DEF_ERROR_CNT_MAX)
+     {
+       errCnt = 0;
+       mcu_reg.status[AP_REG_BANK_ERR_H][AP_REG_ERR_CLEAR] = false;
+       refresh_time = 100;
+     }
+     else
+     {
+       errCnt++;
+     }
+   }
+   else if (mcu_reg.status[AP_REG_BANK_ERR_H][AP_REG_ERR_NO_RESP_LCD])
+   {
+     if (errCnt  >= AP_DEF_ERROR_CNT_MAX)
+     {
+       errCnt = 0;
+       mcu_reg.status[AP_REG_BANK_ERR_H][AP_REG_ERR_CLEAR] = false;
+       refresh_time = 300;
+     }
+     else
+     {
+       errCnt++;
+     }
+   }
+   else
+   {
+     errCnt = 0;
+     mcu_reg.status[AP_REG_BANK_ERR_H][AP_REG_ERR_CLEAR] = true;
+     refresh_time = 1000;
+   }
+
+
+   //process 에러 체크
+   if (mcu_reg.GetAlarmState() != 1)
+   {
+     mcu_reg.SetRunState(AP_REG_ALARM_STATUS, true);
+   }
+   else
+   {
+     mcu_reg.SetRunState(AP_REG_ALARM_STATUS, false);
+   }*/
+
+
+ }
+
+
+
+ void routineFunc()
+ {
+	 static uint32_t time_ms = 0;
+	 if (millis() - time_ms >= 1000)
+	 {
+		 time_ms = millis();
+		 //op_lcd.ChangePage(NXLCD::uart_nextion::page_e::MAIN);
+	 }
+
+ }
 
 
 

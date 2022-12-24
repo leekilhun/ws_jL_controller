@@ -64,12 +64,15 @@ namespace MOTOR
 		uint32_t m_request_ms;
 		CN_MOTORS_COMM m_commStatus;
 
+	public:
+		prc_step_t m_step;
 		/****************************************************
 		 *  Constructor
 		 ****************************************************/
 	public:
 		cnMotors () : m_cfg{},m_requestMotor_idx{}, m_request_ms{}
 		,m_commStatus{}
+		,m_step{}
 		{
 
 		}
@@ -79,6 +82,7 @@ namespace MOTOR
 		 *  func
 		 ****************************************************/
 	private:
+		void doRunStep();
 
 	public:
 		inline int Init(cnMotors::cfg_t &cfg)  {
@@ -96,44 +100,21 @@ namespace MOTOR
 			return m_cfg.p_comm->Recovery();
 		}
 
-		inline uint8_t UpdateMotorsState(){
-			constexpr int wait_response_timeout = 100;
+		inline bool IsConnected() {
+			constexpr uint8_t rimit_err_cnt = 10;
+			if(m_cfg.p_comm->IsConnected())
+				return  (m_cfg.p_comm->GetErrCnt() > rimit_err_cnt) ? false: true;
+			return false;
+		}
 
-			if (m_cfg.p_comm->IsAvailableComm())
-			{
-				// check response time
-				if (millis() - m_request_ms < wait_response_timeout)
-				{
-					// status bit recovery
-					m_commStatus.comm_err &= ~(1 << (m_requestMotor_idx-1));
-				}
-
-				// idx limit
-				m_requestMotor_idx = m_requestMotor_idx % AP_OBJ::MOTOR_MAX;
-				if (m_cfg.p_motor[m_requestMotor_idx].GetMotorData()== ERROR_SUCCESS)
-				{
-					++m_requestMotor_idx;
-					m_request_ms = millis();
-				}
-			}
-			else
-			{
-				if (millis() - m_request_ms > wait_response_timeout)
-				{
-					m_commStatus.comm_err |= (1 << (m_requestMotor_idx-1));
-					m_cfg.p_comm->Recovery();
-				}
-			}
-
-			if (m_commStatus.idx_0_comm_err
-				 && m_commStatus.idx_1_comm_err
-				 && m_commStatus.idx_2_comm_err)
-			{
-				Recovery();
-			}
-
+		inline uint8_t GetCommStatus() const{
 			return m_commStatus.comm_err;
 		}
+
+		// step machine을 통해 nonblock으로 처리된다.
+		void ThreadJob();
+
+		void UpdateMotorsState();
 
 		inline int Move(AP_OBJ::MOTOR motor_id, int cmd_pos){
 			/*must assign motor id*/

@@ -166,12 +166,25 @@ namespace MOTOR
 			return m_Isconnected;
 		}
 
+		inline void ResetCommFlag(){
+			m_packet.request_flag = 0;
+		}
 		inline bool Recovery() {
 			m_packet.request_flag = 0;
+			m_Isconnected = false;
 			uartClose(m_cfg.ch);
 			/* */
 			return uartOpen(m_cfg.ch, m_cfg.baud);
 		}
+
+		inline uint8_t GetErrCnt() const {
+			return m_packet.error;
+		}
+
+		inline uint8_t AddErrCnt()  {
+			return ++m_packet.error;
+		}
+
 
 		inline bool IsAvailableComm(){
 			if (m_packet.request_flag == 0)
@@ -202,9 +215,6 @@ namespace MOTOR
 		}
 
 		inline errno_t RequestMotorData(uint8_t node_id){
-			if (m_Isconnected != true)
-				return -1;
-
 			enum{id, fn,reg_h, reg_l, length_h, length_l, crc_l, crc_h,  _max};
 			uint8_t  func = read_HoldingReg;
 			uint16_t regist_no = Alarm_Code_AL_f;
@@ -966,8 +976,6 @@ namespace MOTOR
 		}
 
 		inline errno_t SendCmdRxResp(uint8_t* ptr_data, uint32_t size, uint32_t timeout){
-			if (m_Isconnected != true)
-				return -1;
 			if (SendCmd(ptr_data, size) == ERROR_SUCCESS)
 			{
 				uint32_t pre_ms = millis();
@@ -1023,7 +1031,10 @@ namespace MOTOR
 			{
 				return false;
 			}
-
+			// update flag and for debug
+			{
+				m_Isconnected = true;
+			}
 			rx_packet_t* rx_packet = &m_packet.rx_packet;
 
 			if (millis() - m_packet.prev_ms >= 100)

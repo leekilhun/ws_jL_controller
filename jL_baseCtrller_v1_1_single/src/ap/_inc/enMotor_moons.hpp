@@ -268,7 +268,7 @@ namespace MOTOR
 		cfg_t m_cfg;
 		uart_moons::rx_packet_t m_receiveData;
 		moons_data_t m_motorData;
-
+		uint8_t m_commErrCnt;
 #ifdef _USE_HW_RTOS
 		osMutexId m_mutex_id;
 #endif
@@ -278,7 +278,7 @@ namespace MOTOR
 		 ****************************************************/
 	public:
 		enMotor_moons(uint8_t id): m_nodeId(id), m_cfg{}, m_receiveData()
-		,m_motorData{}
+		,m_motorData{}, m_commErrCnt{}
 		{
 #ifdef _USE_HW_RTOS
 			osMutexDef(m_mutex_id);
@@ -306,6 +306,14 @@ namespace MOTOR
 			return m_cfg.instance_no;
 		}
 
+		inline uint8_t GetErrCnt() const {
+			return m_commErrCnt;
+		}
+
+		inline uint8_t AddErrCnt()  {
+			m_cfg.p_comm->ResetCommFlag();
+			return ++m_commErrCnt;
+		}
 
 	private:
 
@@ -453,7 +461,7 @@ namespace MOTOR
 		}
 
 		inline void Recovery(){
-
+			m_commErrCnt = 0;
 		}
 
 

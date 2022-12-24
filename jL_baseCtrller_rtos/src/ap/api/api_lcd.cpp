@@ -24,15 +24,6 @@ constexpr uint8_t	STEP_IO_UPDATE_END 	  	= 0x0b;
 
 
 
-constexpr uint8_t RXCMD_LCD_SW_KEY_EVENT_READY 			= (1 << 0);
-constexpr uint8_t RXCMD_LCD_SW_KEY_EVENT_START 			= (1 << 1);
-constexpr uint8_t RXCMD_LCD_SW_KEY_EVENT_STOP 			= (1 << 2);
-constexpr uint8_t RXCMD_LCD_SW_KEY_EVENT_RESET 			= (1 << 3);
-constexpr uint8_t RXCMD_LCD_SW_KEY_EVENT_RESERVED4 	= (1 << 4);
-constexpr uint8_t RXCMD_LCD_SW_KEY_EVENT_RESERVED5 	= (1 << 5);
-constexpr uint8_t RXCMD_LCD_SW_KEY_EVENT_RESERVED6 	= (1 << 6);
-constexpr uint8_t RXCMD_LCD_SW_KEY_EVENT_RESERVED7 	= (1 << 7);
-
 
 void api_lcd::ThreadJob()
 {
@@ -44,16 +35,6 @@ void api_lcd::ThreadJob()
 
 void api_lcd::doRunStep()
 {
-	if(m_step.MoreThan(200))
-	{
-		if (m_waitReplyOK == false)
-		{
-			m_waitReplyOK = true;
-			m_cfg.ptr_comm->SendCmd(NXLCD::TXCMD::LCD_REQUSET_PAGE,nullptr, 0);
-			m_step.SetStep(STEP_WAIT_RETURN);
-		}
-	}
-
 
 	switch(m_step.GetStep())
 	{
@@ -76,23 +57,7 @@ void api_lcd::doRunStep()
 		######################################################*/
 		case STEP_TIMEOUT:
 		{
-			m_cfg.ptr_comm->AddErrCnt();
-			m_waitReplyOK = false;
-			m_step.SetStep(STEP_TODO);
-		}
-		break;
-		/*######################################################
-		  wait return
-		######################################################*/
-		case STEP_WAIT_RETURN:
-		{
-			if (m_step.LessThan(50))
-				break;
 
-			if (m_waitReplyOK)
-				m_step.SetStep(STEP_TIMEOUT);
-			else
-				m_step.SetStep(STEP_TODO);
 		}
 		break;
 		/*######################################################
@@ -196,8 +161,7 @@ void api_lcd::ProcessCmd(NXLCD::uart_nextion::rx_packet_t* ptr_data){
 
 	if (m_waitReplyOK)
 	{
-		m_waitReplyOK = false;
-		//if(m_receiveData.type != TYPE::RPY_BKCMD_OK)
+		if(m_receiveData.type != TYPE::RPY_BKCMD_OK)
 		{
 			m_OkReply = true;
 		}
@@ -208,10 +172,7 @@ void api_lcd::ProcessCmd(NXLCD::uart_nextion::rx_packet_t* ptr_data){
 	{
 		case TYPE::REQ_BEEP :
 		{
-			if (m_cfg.ptr_mcu_reg->option_reg.use_beep)
-			{
-				buzzerBeep(1, 2);
-			}
+
 		}
 		break;
 
@@ -230,29 +191,6 @@ void api_lcd::ProcessCmd(NXLCD::uart_nextion::rx_packet_t* ptr_data){
 
 		case TYPE::UPATE_MCU_REG:
 		{
-			switch (m_receiveData.data[0])
-			{
-				case RXCMD_LCD_SW_KEY_EVENT_READY:
-					m_cfg.ptr_auto->UiStartSw();
-					break;
-
-				case RXCMD_LCD_SW_KEY_EVENT_START:
-					m_cfg.ptr_auto->UiStartSw();
-					break;
-
-				case RXCMD_LCD_SW_KEY_EVENT_STOP:
-					m_cfg.ptr_auto->StopSw();
-					//m_pApReg->SetRunState(AP_REG_AUTO_RUNNING, false);
-					//m_pAuto->StopSw();
-					break;
-
-				case RXCMD_LCD_SW_KEY_EVENT_RESET:
-					//m_pAuto->ResetSw();
-					break;
-
-				default:
-					break;
-			}
 
 		}
 		break;

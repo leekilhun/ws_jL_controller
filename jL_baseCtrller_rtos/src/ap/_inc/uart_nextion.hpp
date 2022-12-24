@@ -260,26 +260,17 @@ namespace NXLCD
 		}
 
 
-		inline bool IsConnected() const {
-			return m_Isconnected;
-		}
-
 		inline bool Recovery() {
 			uartClose(m_cfg.ch);
 			/* */
 
 			m_packet.error = 0;
 			m_packet.state = 0;
-			m_Isconnected = false;
 			return uartOpen(m_cfg.ch, m_cfg.baud);
 		}
 
 		inline uint8_t GetErrCnt() const {
 			return m_packet.error;
-		}
-
-		inline uint8_t AddErrCnt()  {
-			return ++m_packet.error;
 		}
 
 		inline bool ReceiveProcess(){
@@ -767,13 +758,9 @@ namespace NXLCD
 				return false;
 			}
 
-			// update flag and for debug
-			{
-				m_Isconnected = true;
-				*m_cfg.ptr_databuff = data_arry;
-			}
-
+			*m_cfg.ptr_databuff = data_arry;
 			rx_packet_t* rx_packet = &m_packet.rx_packet;
+
 			if (millis() - m_packet.prev_ms >= 100)
 			{
 				m_packet.state = STATE_WAIT_STX;

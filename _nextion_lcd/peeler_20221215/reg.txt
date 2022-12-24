@@ -1,0 +1,74 @@
+// # no_error
+// # no_resp_lcd
+// # no_resp_mot
+// # err_03
+// # err_04
+// # err_05
+// # err_state_motor
+// # not_ready_motor
+
+// # limit_err_motor
+// # cylinder_interlock
+// # err_12
+// # err_13
+// # cylinder_timeout
+// # vacuum_timeout
+// # motor_timeout
+// # sequnce_timeout
+
+// # err_20
+// # err_21
+// # err_22
+// # err_23
+// # err_24
+// # err_25
+// # err_26
+// # err_27
+
+// # err_30
+// # err_31
+// # err_32
+// # err_33
+// # err_34
+// # err_35
+// # err_36
+// # err_37
+
+
+
+// # use_beep
+// # use_dryrun
+// # skip_doorsensor
+// # skip_safesensor
+// # option_04
+// # option_05
+// # option_06
+// # optio
+// # 
+// # option_10
+// # option_11
+// # option_12
+// # option_13
+// # option_14
+// # option_15
+// # option_16
+// # optio
+/
+// # 
+// # auto_running
+// # emg_stop
+// # auto_ready
+// # error_stop
+// # detect_safe_sensor
+// # motor_on
+// # system_origin_cplt
+// # alarm_st
+// # 
+// # state_10
+// # state_11
+// # state_12
+// # state_13
+// # state_14
+// # state_15
+// # request_initial
+// # all_check_ok

@@ -20,7 +20,7 @@ class api_lcd
 
 
 
-	enum data_e:uint8_t
+	enum data_e
 	{
 		TYPE_MOTOR_POS_1_H    = 0x01,
 		TYPE_MOTOR_POS_1_L  ,
@@ -49,21 +49,21 @@ public:
 		vac_dat* ptr_vac_data{};
 		seq_dat* ptr_sequence_data{};
 		ap_log* ptr_log{};
-		cnAuto* ptr_auto{};
 
 		cfg_t() = default;
 
 		cfg_t& operator = (const cfg_t& cfg){
-			ptr_mcu_reg = cfg.ptr_mcu_reg;
-			ptr_comm = cfg.ptr_comm;
-			ptr_task = cfg.ptr_task;
-			ptr_io = cfg.ptr_io;
-			ptr_cfg_data = cfg.ptr_cfg_data;
-			ptr_cyl_data = cfg.ptr_cyl_data;
-			ptr_vac_data = cfg.ptr_vac_data;
-			ptr_sequence_data = cfg.ptr_sequence_data;
-			ptr_log = cfg.ptr_log;
-			ptr_auto = ptr_auto;
+			if (this != &cfg){
+				ptr_mcu_reg = cfg.ptr_mcu_reg;
+				ptr_comm = cfg.ptr_comm;
+				ptr_task = cfg.ptr_task;
+				ptr_io = cfg.ptr_io;
+				ptr_cfg_data = cfg.ptr_cfg_data;
+				ptr_cyl_data = cfg.ptr_cyl_data;
+				ptr_vac_data = cfg.ptr_vac_data;
+				ptr_sequence_data = cfg.ptr_sequence_data;
+				ptr_log = cfg.ptr_log;
+			}
 			return *(this);
 		}
 
@@ -82,6 +82,7 @@ private:
 
 public:
 	prc_step_t m_step;
+
 
 	/****************************************************
 	 *  Constructor
@@ -126,16 +127,10 @@ public:
 
 	// 통신 연결을 재 시도한다
 	inline void CommRecovery(){
+		constexpr int recovery_limit = 10;
+		if (m_cfg.ptr_comm->GetErrCnt() < recovery_limit)
+			return;
 		m_cfg.ptr_comm->Recovery();
-	}
-
-
-	inline bool IsConnected(){
-		//return m_cfg.ptr_comm->IsConnected();
-		constexpr uint8_t rimit_err_cnt = 10;
-	  if(m_cfg.ptr_comm->IsConnected())
-	  	return (m_cfg.ptr_comm->GetErrCnt() > rimit_err_cnt) ? false: true;
-	  return false;
 	}
 
 	// step machine을 통해 nonblock으로 처리된다.
