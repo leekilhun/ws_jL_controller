@@ -11,17 +11,27 @@
 
 
 
-constexpr uint8_t STEP_INIT 							= 0x00;
-constexpr uint8_t	STEP_TODO 							= 0x01;
-constexpr uint8_t	STEP_TIMEOUT						= 0x02;
-constexpr uint8_t	STEP_WAIT_RETURN				= 0x03;
-constexpr uint8_t	STEP_STATE_UPDATE				= 0x04;
-constexpr uint8_t	STEP_STATE_UPDATE_START	= 0x05;
-constexpr uint8_t	STEP_STATE_UPDATE_WAIT 	= 0x06;
-constexpr uint8_t	STEP_STATE_UPDATE_END 	= 0x07;
+constexpr uint8_t STEP_INIT 													= 0x00;
+constexpr uint8_t	STEP_TODO 													= 0x01;
+constexpr uint8_t	STEP_TIMEOUT												= 0x02;
+constexpr uint8_t	STEP_WAIT_RETURN										= 0x03;
+constexpr uint8_t	STEP_MCU_STATE											= 0x04;
+constexpr uint8_t	STEP_MCU_STATE_START								= 0x05;
+constexpr uint8_t	STEP_MCU_STATE_WAIT 								= 0x06;
+constexpr uint8_t	STEP_MCU_STATE_END 									= 0x07;
+constexpr uint8_t	STEP_MOTOR_DATA 										= 0x08;
+constexpr uint8_t	STEP_MOTOR_DATA_START   						= 0x09;
+constexpr uint8_t	STEP_MOTOR_DATA_WAIT  							= 0x0a;
+constexpr uint8_t	STEP_MOTOR_DATA_END 								= 0x0b;
+constexpr uint8_t	STEP_MOTOR_POS_VEL									= 0x0c;
+constexpr uint8_t	STEP_MOTOR_POS_VEL_START 						= 0x0d;
+constexpr uint8_t	STEP_MOTOR_POS_VEL_WAIT							= 0x0e;
+constexpr uint8_t	STEP_MOTOR_POS_VEL_END							= 0x0f;
 
-constexpr uint8_t	COMM_TIMEOUT_MAX 				= 100;
 
+
+constexpr uint8_t	COMM_TIMEOUT_MAX 										= 100;
+constexpr uint8_t COMM_ERR_RECOVERY_LIMIT_CNT         = 10;
 
 
 void api_remote::ThreadJob()
@@ -48,7 +58,7 @@ void api_remote::doRunStep()
 		  ######################################################*/
 		case STEP_TODO:
 		{
-			m_step.SetStep(STEP_STATE_UPDATE);
+			m_step.SetStep(STEP_MCU_STATE);
 		}
 		break;
 		/*######################################################
@@ -56,7 +66,11 @@ void api_remote::doRunStep()
 			######################################################*/
 		case STEP_TIMEOUT:
 		{
-
+			m_cfg.ptr_comm->AddErrCnt();
+			if (m_cfg.ptr_comm->GetErrCnt() >= COMM_ERR_RECOVERY_LIMIT_CNT)
+			{
+				m_cfg.ptr_comm->Recovery();
+			}
 			m_step.SetStep(STEP_TODO);
 		}
 		break;
@@ -77,56 +91,196 @@ void api_remote::doRunStep()
 		/*######################################################
 				STEP_STATE_UPDATE
 			######################################################*/
-		case STEP_STATE_UPDATE:
+		case STEP_MCU_STATE:
 		{
 			memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
-			m_step.SetStep(STEP_STATE_UPDATE_START);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_MCU_STATE_START);
 		}
 		break;
 
-		case STEP_STATE_UPDATE_START:
+		case STEP_MCU_STATE_START:
 		{
+			uint8_t idx = 0;	uint8_t size = 0;
+			size = (uint8_t)sizeof(m_cfg.ptr_mcu_reg->state_reg.ap_state);
+			memcpy(&m_txBuffer[idx],&m_cfg.ptr_mcu_reg->state_reg.ap_state, size);  // 0
 
-			memcpy(&m_txBuffer[0],&m_cfg.ptr_mcu_reg->state_reg.ap_state,2);
-			memcpy(&m_txBuffer[2],&m_cfg.ptr_mcu_reg->option_reg.ap_option,2);
-			memcpy(&m_txBuffer[4],&m_cfg.ptr_mcu_reg->error_reg.ap_error,4);
-			memcpy(&m_txBuffer[8],&m_cfg.ptr_io->m_in.data, 4);
-			memcpy(&m_txBuffer[12],&m_cfg.ptr_io->m_out.data, 4);
+			idx += size; //2
+			size = (uint8_t)sizeof(m_cfg.ptr_mcu_reg->option_reg.ap_option);
+			memcpy(&m_txBuffer[idx],&m_cfg.ptr_mcu_reg->option_reg.ap_option, size);
 
-			MOTOR::enMotor_moons* p_motor{};
-			MOTOR::enMotor_moons::moons_data_t motor_data{};
-			p_motor = m_cfg.ptr_motors->GetMotorObject(AP_OBJ::MOTOR::MOTOR_JIG);
-			p_motor->GetMotorData(motor_data);
+			idx += size; //4
+			size = (uint8_t)sizeof(m_cfg.ptr_mcu_reg->error_reg.ap_error);
+			memcpy(&m_txBuffer[idx],&m_cfg.ptr_mcu_reg->error_reg.ap_error, size); //
 
-			memcpy(&m_txBuffer[16],&motor_data.drv_status.sc_status, 2);
-			memcpy(&m_txBuffer[18],&motor_data.al_code.al_status, 2);
-			memcpy(&m_txBuffer[20],&motor_data.encoder_position, 4 );				// 엔코더 위치값
-			memcpy(&m_txBuffer[24],&motor_data.immediate_abs_position, 4 ); // 목표 위치값
-			memcpy(&m_txBuffer[28],&motor_data.abs_position_command, 4 );   // 현재
-			memcpy(&m_txBuffer[32],&motor_data.immediate_target_velocity, 4 ); // 타켓 속도
-			memcpy(&m_txBuffer[34],&motor_data.immediate_act_velocity, 4 );	   // 현재 속도
+			idx += size; //8
+			size = (uint8_t)sizeof(m_cfg.ptr_io->m_in.data);
+			memcpy(&m_txBuffer[idx],&m_cfg.ptr_io->m_in.data, size);
 
-			// =
+			idx += size; //12
+			size = (uint8_t)sizeof(m_cfg.ptr_io->m_out.data);
+			memcpy(&m_txBuffer[idx],&m_cfg.ptr_io->m_out.data, size);
 
+			// total 16 bytes
+			uint8_t length = idx + size;
+			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_MCU_STATE_DATA, &m_txBuffer[0], length);
+			m_step.SetStep(STEP_MOTOR_POS_VEL_WAIT);
 
-			m_step.SetStep(STEP_STATE_UPDATE_WAIT);
+			m_step.SetStep(STEP_MCU_STATE_WAIT);
 		}
 		break;
 
-		case STEP_STATE_UPDATE_WAIT:
+		case STEP_MCU_STATE_WAIT:
 		{
-			m_step.SetStep(STEP_STATE_UPDATE_END);
+			//timeout
+			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
+			{
+				m_step.SetStep(STEP_TIMEOUT);
+				break;
+			}
+			// check return flag
+			if (m_waitReplyOK)
+				break;
+
+			m_step.SetStep(STEP_MCU_STATE_END);
 		}
 		break;
 
-		case STEP_STATE_UPDATE_END:
+		case STEP_MCU_STATE_END:
 		{
 
 			m_step.SetStep(STEP_TODO);
 		}
 		break;
 
+		/*######################################################
+				STEP_MOTOR_DATA
+			######################################################*/
+		case STEP_MOTOR_DATA:
+		{
+			memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
+			m_step.SetStep(STEP_MOTOR_DATA_START);
+		}
+		break;
 
+		case STEP_MOTOR_DATA_START:
+		{
+#if 0
+			MOTOR::enMotor_moons* p_motor{};
+			MOTOR::enMotor_moons::moons_data_t motor_data{};
+
+			p_motor = m_cfg.ptr_motors->GetMotorObject(AP_OBJ::MOTOR::MOTOR_JIG);//m_idxMotor
+			p_motor->GetMotorData(motor_data);
+
+			idx += size; //16
+			size = (uint8_t)sizeof(motor_data.drv_status.sc_status);
+			memcpy(&m_txBuffer[idx],&motor_data.drv_status.sc_status, size);
+			idx += size; //18
+			size = (uint8_t)sizeof(motor_data.al_code.al_status);
+			memcpy(&m_txBuffer[idx],&motor_data.al_code.al_status, size);
+			idx += size; //20
+			size = (uint8_t)sizeof(motor_data.immediate_expanded_input);
+			memcpy(&m_txBuffer[idx],&motor_data.immediate_expanded_input, size); //
+			idx += size; //22
+			size = (uint8_t)sizeof(motor_data.driver_board_inputs);
+			memcpy(&m_txBuffer[idx],&motor_data.driver_board_inputs, size); //
+			idx += size; //24
+			size = (uint8_t)sizeof(motor_data.encoder_position);
+			memcpy(&m_txBuffer[idx],&motor_data.encoder_position, size); // 엔코더 위치값
+			idx += size; //28
+			size = (uint8_t)sizeof(motor_data.immediate_abs_position);
+			memcpy(&m_txBuffer[idx],&motor_data.immediate_abs_position, size); //
+			idx += size; //32
+			size = (uint8_t)sizeof(motor_data.abs_position_command);
+			memcpy(&m_txBuffer[idx],&motor_data.abs_position_command, size);   // 현재
+			idx += size; //36
+			size = (uint8_t)sizeof(motor_data.immediate_act_velocity);
+			memcpy(&m_txBuffer[idx],&motor_data.immediate_act_velocity, size);	   // 현재 속도
+			idx += size; //38
+			size = (uint8_t)sizeof(motor_data.immediate_target_velocity);
+			memcpy(&m_txBuffer[idx],&motor_data.immediate_target_velocity, size); // 타켓 속도
+
+#endif
+			m_step.SetStep(STEP_MOTOR_DATA_WAIT);
+		}
+		break;
+
+		case STEP_MOTOR_DATA_WAIT:
+		{
+			m_step.SetStep(STEP_MOTOR_DATA_END);
+		}
+		break;
+
+		case STEP_MOTOR_DATA_END:
+		{
+
+			m_step.SetStep(STEP_TODO);
+		}
+		break;
+
+		/*######################################################
+				STEP_MOTOR_POS_VEL
+			######################################################*/
+		case STEP_MOTOR_POS_VEL:
+		{
+			memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_MOTOR_POS_VEL_START);
+		}
+		break;
+
+		case STEP_MOTOR_POS_VEL_START:
+		{
+
+			uint8_t idx = 0;	uint8_t size = 0;
+
+			MOTOR::enMotor_moons* p_motor{};
+			MOTOR::enMotor_moons::moons_data_t motor_data{};
+
+			p_motor = m_cfg.ptr_motors->GetMotorObject(AP_OBJ::MOTOR::MOTOR_JIG);//m_idxMotor
+			p_motor->GetMotorData(motor_data);
+
+			idx += size; //0
+			size = (uint8_t)sizeof(motor_data.drv_status.sc_status);
+			memcpy(&m_txBuffer[idx],&motor_data.drv_status.sc_status, size);
+			idx += size; //2
+			size = (uint8_t)sizeof(motor_data.al_code.al_status);
+			memcpy(&m_txBuffer[idx],&motor_data.al_code.al_status, size);
+			idx += size; //4
+			size = (uint8_t)sizeof(motor_data.encoder_position);
+			memcpy(&m_txBuffer[idx],&motor_data.encoder_position, size); // 엔코더 위치값
+			idx += size; //8
+			size = (uint8_t)sizeof(motor_data.immediate_abs_position);
+			memcpy(&m_txBuffer[idx],&motor_data.immediate_abs_position, size); //
+			idx += size; //12
+			size = (uint8_t)sizeof(motor_data.abs_position_command);
+			memcpy(&m_txBuffer[idx],&motor_data.abs_position_command, size);   // 현재
+			idx += size; //16
+			size = (uint8_t)sizeof(motor_data.immediate_act_velocity);
+			memcpy(&m_txBuffer[idx],&motor_data.immediate_act_velocity, size);	   // 현재 속도
+			idx += size; //18
+			size = (uint8_t)sizeof(motor_data.immediate_target_velocity);
+			memcpy(&m_txBuffer[idx],&motor_data.immediate_target_velocity, size); // 타켓 속도
+
+			// total 20 bytes
+			uint8_t length = idx + size;
+			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_MOTOR_POS_VEL, &m_txBuffer[0], length);
+			m_step.SetStep(STEP_MOTOR_POS_VEL_WAIT);
+		}
+		break;
+
+		case STEP_MOTOR_POS_VEL_WAIT:
+		{
+			m_step.SetStep(STEP_MOTOR_POS_VEL_END);
+		}
+		break;
+
+		case STEP_MOTOR_POS_VEL_END:
+		{
+
+			m_step.SetStep(STEP_TODO);
+		}
+		break;
 		default:
 			break;
 	}
@@ -136,7 +290,12 @@ void api_remote::doRunStep()
 
 void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 	m_receiveData = ptr_data;
-  using TYPE = RCTRL::CMDTYPE;
+
+	if (m_waitReplyOK)
+		m_waitReplyOK = false;
+
+
+  using TYPE = RCTRL::CMD_TYPE;
 	switch (m_receiveData.type)
 	{
 		case TYPE::FIRM_CTRL :

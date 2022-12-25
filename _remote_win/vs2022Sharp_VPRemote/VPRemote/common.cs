@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 /*
  *  common.cs
@@ -63,18 +58,18 @@ namespace VPRemote
     private uint _head;
     private uint _tail;
     private uint _length;
-    
+
 
     public QBuffer(uint size = 4096)
     {
       this._head = 0;
       this._tail = 0;
       this._length = size;
-      _buffers = new Typename[size];  
+      _buffers = new Typename[size];
 
     }
 
-    public bool Put(Typename value) 
+    public bool Put(Typename value)
     {
       bool ret = true;
       uint next_in;
@@ -90,7 +85,7 @@ namespace VPRemote
       return ret;
     }
 
-    public bool Get(ref Typename ref_data) 
+    public bool Get(ref Typename ref_data)
     {
       bool ret = true;
       ref_data = _buffers[_tail];
@@ -103,7 +98,7 @@ namespace VPRemote
 
       return ret;
     }
-    
+
 
 
     public uint Available()
@@ -199,7 +194,7 @@ namespace VPRemote
     public ushort Checksum_recv;
     public List<byte> Buffer = new List<byte>();
     public List<byte> Data = new List<byte>();
-    public StateMachine State = new StateMachine(); 
+    public StateMachine State = new StateMachine();
 
   }
 

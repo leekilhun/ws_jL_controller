@@ -409,8 +409,9 @@ void apMain(void)
 		// non-block코드.
 		op_lcd.ThreadJob();
 
-		//nextion_lcd.ReceiveProcess();
-		remote_ctrl.ReceiveProcess();
+		// non-block코드
+		remote_pc.ThreadJob();
+		//remote_ctrl.ReceiveProcess();
 
 		eventOpPanel();
 

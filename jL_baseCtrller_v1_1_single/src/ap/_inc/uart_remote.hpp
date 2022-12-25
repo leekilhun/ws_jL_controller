@@ -19,17 +19,23 @@
 namespace RCTRL
 {
 
-	enum CMDTYPE:uint8_t
+  enum TX_TYPE:uint8_t
+  {
+    TX_MCU_STATE_DATA = 0x00,
+    TX_MOTOR_DATA 		= 0x01,
+    TX_MOTOR_POS_VEL 	= 0x02,
+  };
+
+	enum CMD_TYPE:uint8_t
 	{
 		FIRM_CTRL       = 0x00,
 		CONTROL_MOT     = 0x10,
 		CONTROL_CYL     = 0x11,
 		CONTROL_VAC     = 0x12,
 		EEROM_CTRL      = 0x13,
-
 	};
 
-	enum CMDID:uint8_t
+	enum CMD_ID:uint8_t
 	{
 		CMD_READ_ALL_STATE          = 0x00,
 		CMD_READ_BOOT_INFO          = 0x01,
@@ -76,20 +82,10 @@ namespace RCTRL
 	};
 
 
-	enum ERRNO
-	{
-		WRONG_CMD               = 0x01,
-		IO_OUT                  = 0x02,
-		MOT_ORIGIN              = 0x03,
-		BUF_OVF                 = 0x06,
-		INVALID_FW              = 0x07,
-		FW_CRC                  = 0x08
-	};
-
 	constexpr uint8_t CMD_STX 					= 0x4A;
 	constexpr uint8_t CMD_ETX 					= 0x4C;
 
-	constexpr int CMD_MAX_DATA_LENGTH 	= 24;
+	constexpr int CMD_MAX_DATA_LENGTH 	= 48;
 	constexpr int CMD_MAX_PACKET_LENGTH =(CMD_MAX_DATA_LENGTH + 8);
 	constexpr int PACKET_BUFF_LENGTH 		= CMD_MAX_PACKET_LENGTH;
 
@@ -212,11 +208,19 @@ namespace RCTRL
 			}
 		}
 
+		inline uint8_t GetErrCnt() const {
+			return m_packet.error;
+		}
+
+		inline uint8_t AddErrCnt()  {
+			return ++m_packet.error;
+		}
 
 		inline bool Recovery() {
 			uartClose(m_cfg.ch);
 			/* */
 			m_packet.state = 0;
+			m_packet.error = 0;
 			return uartOpen(m_cfg.ch, m_cfg.baud);
 		}
 
@@ -237,6 +241,45 @@ namespace RCTRL
 		}
 
 
+		uint32_t SendData (uint8_t tx_type, uint8_t *p_data, uint8_t length)
+		{
+			/*
+
+				| SOF  | Type |funcId| Data Length |Data          |   Checksum   | EOF  |
+				| :--- |:-----|:---- | :---------- |:-------------|:-------------| :--  |
+				| 0x4A |1 byte|1 byte| 2 byte(L+H) |Data 0～Data n|2 byte(crc 16)| 0x4C |
+
+			 */
+			uint8_t idx = 0;
+			uint16_t crc = 0xffff;
+
+			std::array<uint8_t, CMD_MAX_PACKET_LENGTH> value = { };
+			value[idx++] = CMD_STX;
+			value[idx++] = tx_type;
+			UTL::crc16_modbus_update(&crc, tx_type);
+			value[idx++] = 0;
+			UTL::crc16_modbus_update(&crc, 0);
+			value[idx++] = (uint8_t)(length >> 0);
+			UTL::crc16_modbus_update(&crc,(uint8_t)(length >> 0));
+			value[idx++] = (uint8_t)(length >> 8);
+			UTL::crc16_modbus_update(&crc,(uint8_t)(length >> 8));
+			for (uint8_t i = 0; i < length; i++)
+			{
+				value[idx++] = p_data[i];
+				UTL::crc16_modbus_update(&crc,p_data[i]);
+			}
+			value[idx++] = (uint8_t)(crc >> 0);
+			value[idx++] = (uint8_t)(crc >> 8);
+			value[idx++] = CMD_ETX;
+
+			m_packet_sending_ms = millis();
+
+
+
+			return uartWrite(m_cfg.ch, value.data(), idx);
+		}
+
+#if 0
 
 		bool SendCmd(uint8_t cmd, uint8_t *p_data, uint32_t length)
 		{
@@ -331,6 +374,9 @@ namespace RCTRL
 			}
 			return -1;
 		}
+
+#endif
+
 
 
 		inline bool receivePacket()	{

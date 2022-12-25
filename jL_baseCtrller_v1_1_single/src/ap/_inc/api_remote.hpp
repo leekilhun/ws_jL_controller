@@ -9,7 +9,7 @@
 #define SRC_AP__INC_API_REMOTE_HPP_
 
 
-#define UI_RCTRL_MAX_BUFFER_LENGTH                     (40+1)
+#define UI_RCTRL_MAX_BUFFER_LENGTH                     (48)
 
 class api_remote
 {
@@ -65,6 +65,9 @@ private:
 	cfg_t m_cfg;
 	RCTRL::uart_remote::rx_packet_t m_receiveData;
 	uint8_t m_txBuffer[UI_RCTRL_MAX_BUFFER_LENGTH];
+	uint8_t m_idxMotor;
+	bool m_waitReplyOK;
+	bool m_OkReply;
 public:
 	prc_step_t m_step;
 
@@ -72,7 +75,8 @@ public:
 	 *  Constructor
 	 ****************************************************/
 public:
-	api_remote(): m_IsInit{}, m_cfg{},m_receiveData{}, m_txBuffer{}
+	api_remote(): m_IsInit{}, m_cfg{},m_receiveData{}, m_txBuffer{}, m_idxMotor{}
+	, m_waitReplyOK{}, m_OkReply{}
 	, m_step{}{
 
 	};
