@@ -130,7 +130,7 @@ namespace VPRemote.ap
     private Thread _thread = null;
     private bool _IsThreadLife = false;
 
-    //private System.Timers.Timer _tick_timer;//틱 타이머
+    private System.Timers.Timer _tick_timer;//틱 타이머
     private QBuffer<byte> _qReceiveBuffer = new QBuffer<byte>(4096);
     private PacketData _packet = new PacketData();
 
@@ -146,7 +146,7 @@ namespace VPRemote.ap
     public Peeler_remote()
     {
       byte[] sc = null;
-      //SetTimer(); -> tick에서 thread로 변경
+      SetTimer();// -> tick에서 thread로 변경
     }
 
     ~Peeler_remote()
@@ -161,6 +161,8 @@ namespace VPRemote.ap
       _step.SetStep(0);
       _IsThreadLife = true;
       _thread.Start();
+
+      StartTick();
     }
     public void ThreadStop()
     {
@@ -187,9 +189,10 @@ namespace VPRemote.ap
 
       if (recivePacket())
       {
+        _packet.OkResponse = true;
 
         Ret_OkResponse();
-
+        _step.SetStep((byte)STEP.STEP_TODO);
         string hex = "";
         foreach (var elm in _packet.Buffer)
         {
@@ -246,7 +249,7 @@ namespace VPRemote.ap
 
         case STEP.STEP_TODO:
           {
-            _step.SetStep((byte)STEP.STEP_REQUEST_MCU_DATE);
+          //  _step.SetStep((byte)STEP.STEP_REQUEST_MCU_DATE);
           }
           break;
 
@@ -290,10 +293,10 @@ namespace VPRemote.ap
     }
 
 
-    //public void StartTick()
-    //{
-    //  _tick_timer.Start();
-    //}
+    public void StartTick()
+    {
+      _tick_timer.Start();
+    }
 
     public void PutReceive_1ByteData(byte data)
     {
@@ -311,36 +314,40 @@ namespace VPRemote.ap
       this.commWrite = func;
     }
 
-#if false
+#if true
 
     private void SetTimer() // 타이머 셋팅 
     {
       // tick timer (주기적으로 실행할 함수를 호출할 타이머)
       _tick_timer = new System.Timers.Timer();
-      _tick_timer.Interval = 1; // 10ms 주기
+      _tick_timer.Interval = 10; // 주기
       _tick_timer.Elapsed += new System.Timers.ElapsedEventHandler(SerialPortTick);
 
     }
 
     private void SerialPortTick(object sender, System.Timers.ElapsedEventArgs e)
     {
-      if (recivePacket())
-      {
-        string hex = "";
-        foreach (var elm in _packet.Buffer)
-        {
-          hex += string.Format("{0:X2} ", elm);
-        }
-        _refresh_ms = (uint)UTL.millis() - _refresh_ms;
-        hex += "response ms : " + _refresh_ms.ToString();
-        _refresh_ms = (uint)UTL.millis();
-        Console.WriteLine(hex);
 
-        if (callback != null)
-          callback.Invoke(hex);
+      requestMcuState();
+      
+      
+      /* if (recivePacket())
+       {
+         string hex = "";
+         foreach (var elm in _packet.Buffer)
+         {
+           hex += string.Format("{0:X2} ", elm);
+         }
+         _refresh_ms = (uint)UTL.millis() - _refresh_ms;
+         hex += "response ms : " + _refresh_ms.ToString();
+         _refresh_ms = (uint)UTL.millis();
+         Console.WriteLine(hex);
 
-        ProcessCmd();
-      }
+         if (callback != null)
+           callback.Invoke(hex);
+
+         ProcessCmd();
+       }*/
 
 
 #if false
@@ -474,7 +481,6 @@ namespace VPRemote.ap
 
     public int Ret_OkResponse()
     {
-      _packet.OkResponse = true;
       List<byte> datas = new List<byte>();
       datas.Add((byte)CMD_TYPE.CMD_OK_RESPONSE);
       datas.Add(0x00);

@@ -128,13 +128,19 @@ namespace VPRemote
   internal class StateMachine
   {
 
-    private byte _state;
+    private byte _curr_state;
+    private byte _prev_state;
     private int _prev_ms;
     private int _resp_ms;
 
     public byte GetStep()
     {
-      return _state;
+      return _curr_state;
+    }
+
+    public byte GetPrevStep()
+    {
+      return _prev_state;
     }
 
     public int GetRespTime()
@@ -151,7 +157,8 @@ namespace VPRemote
     {
       _resp_ms = UTL.millis() - _prev_ms;
       _prev_ms = UTL.millis();
-      _state = state;
+      _prev_state= _curr_state;
+      _curr_state = state;
     }
 
     public bool LessThan(int msec)

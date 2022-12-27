@@ -150,7 +150,8 @@ namespace VPRemote
 
     public void SerialCommWrite(byte[] buffer, int offset, int count)
     {
-      serialPort_peeler.Write(buffer, offset, count);
+      if(serialPort_peeler.IsOpen)
+        serialPort_peeler.Write(buffer, offset, count);
       //VPRemote.MainForm.SerialCommWrite(buffer, offset, count);
     }
 
