@@ -10,15 +10,28 @@
 
 /*
 
-| SOF  | Type |funcId| Data Length |Data          |   Checksum   | EOF  |
-| :--- |:-----|:---- | :---------- |:-------------|:-------------| :--  |
-| 0x4A |1 byte|1 byte| 2 byte      |Data 0～Data n|2 byte(crc 16)| 0x4C |
+mcu - server, pc - client
+
+TX  (mcu -> pc) provide information
+obj_id [option] 0 is all or ignore
+| SOF  | tx_Type  | obj_Id | Data Length |Data          |   Checksum   | EOF  |
+| :--- |:---------|:-------| :---------- |:-------------|:-------------| :--  |
+| 0x4A |  1 byte  | 1 byte | 2 byte      |Data 0～Data n|2 byte(crc 16)| 0x4C |
+
+RX (pc -> mcu) request information or action
+obj_id [option] 0 is all or ignore
+| SOF  | cmd_Type | obj_Id | Data Length |Data          |   Checksum   | EOF  |
+| :--- |:---------|:-------| :---------- |:-------------|:-------------| :--  |
+| 0x4A |  1 byte  | 1 byte | 2 byte      |Data 0～Data n|2 byte(crc 16)| 0x4C |
+
+
 
  */
 
 namespace RCTRL
 {
 
+	//TX  (mcu -> pc) provide information
   enum TX_TYPE:uint8_t
   {
     TX_MCU_STATE_DATA = 0x00,
@@ -26,59 +39,57 @@ namespace RCTRL
     TX_MOTOR_POS_VEL 	= 0x02,
   };
 
-	enum CMD_TYPE:uint8_t
-	{
-		FIRM_CTRL       = 0x00,
-		CONTROL_MOT     = 0x10,
-		CONTROL_CYL     = 0x11,
-		CONTROL_VAC     = 0x12,
-		EEROM_CTRL      = 0x13,
-	};
 
-	enum CMD_ID:uint8_t
+	/*enum CMD_TYPE:uint8_t
+	{
+		CTRL_FIRM                   = 0x00,
+		CTRL_ACT	  	              = 0x10,
+		CTRL_MOT  	  	            = 0x20,
+		WRITE_DATA                  = 0x40,
+		READ_DATA				            = 0x50,
+		OK_RESPONSE                 = 0xAA,
+	};*/
+
+
+  //RX (pc -> mcu) request information or action
+	enum CMD_TYPE:uint8_t
 	{
 		CMD_READ_ALL_STATE          = 0x00,
 		CMD_READ_BOOT_INFO          = 0x01,
 		CMD_READ_FIRM_INFO          = 0x02,
-		CMD_CONTROL_IO_OUT          = 0x10,
-		CMD_CONTROL_MOT_ORIGIN      = 0x11,
-		CMD_CONTROL_MOT_ONOFF       = 0x12,
-		CMD_CONTROL_MOT_RUN         = 0x13,
-		CMD_CONTROL_MOT_STOP        = 0x14,
-		CMD_CONTROL_MOT_JOG         = 0x15,
-		CMD_CONTROL_MOT_LIMIT       = 0x16,
-		CMD_MOT_ENCODER_ZEROSET     = 0x17,
-		CMD_CONTROL_CYL             = 0x18,
-		CMD_CONTROL_VAC             = 0x19,
-		CMD_CONTROL_MOT_RELMOVE     = 0x1A,
-		CMD_CONTROL_MOT_CLEAR_ALARM = 0x1B,
-		CMD_CONTROL_JOB_INITIAL     = 0x1C,
-		CMD_CONTROL_MOT_CHANGE_VEL  = 0x1D,
-		CMD_CONTROL_MOTS_ONOFF      = 0x60,
-		CMD_CONTROL_MOTS_RUN        = 0x61,
-		CMD_CONTROL_MOTS_STOP       = 0x62,
-		CMD_CONTROL_MOTS_REL        = 0x63,
-		CMD_AP_CONFIG_WRITE         = 0x20,
-		CMD_READ_MCU_DATA           = 0x21,
-		CMD_RELOAD_ROM_DATA         = 0x22,
-		CMD_CLEAR_ROM_DATA          = 0x23,
-		CMD_WRITE_MOTOR_POS_DATA    = 0x30,
-		CMD_WRITE_AP_DATA           = 0x31,
-		CMD_WRITE_CYL_DATA          = 0x32,
-		CMD_WRITE_VAC_DATA          = 0x33,
-		CMD_WRITE_SEQ_DATA          = 0x34,
-		CMD_WRITE_LINK_DATA         = 0x35,
-		CMD_EVENT_MCU_VIRTUAL_SW    = 0x40,
-		CMD_READ_LOG_FRONT          = 0x50,
-		CMD_READ_LOG_REAR           = 0x51,
-		CMD_TEST_STRESS             = 0x52,
-		CMD_START_SEND_MCU_STATE    = 0xB0,
-		CMD_STOP_SEND_MCU_STATE     = 0xB1,
-		CMD_MOTOR_PARM_SET          = 0xAC,
-		CMD_MOTOR_PARM_GET          = 0xAE,
+
+		CMD_CTRL_IO_OUT             = 0x10,
+		CMD_CTRL_CYL                = 0x11,
+		CMD_CTRL_VAC                = 0x12,
+		CMD_CTRL_JOB_INITIAL        = 0x1A,
+		CMD_CTRL_VIRTUAL_SW         = 0x1B,
+
+		CMD_CTRL_MOT_ORIGIN         = 0x20,
+		CMD_CTRL_MOT_ONOFF          = 0x21,
+		CMD_CTRL_MOT_RUN            = 0x22,
+		CMD_CTRL_MOT_STOP           = 0x23,
+		CMD_CTRL_MOT_JOG            = 0x24,
+		CMD_CTRL_MOT_LIMIT          = 0x25,
+		CMD_CTRL_MOT_ZEROSET        = 0x26,
+		CMD_CTRL_MOT_RELMOVE        = 0x27,
+		CMD_CTRL_MOT_CLEAR_ALARM    = 0x28,
+		CMD_CTRL_MOT_CHANGE_VEL     = 0x29,
+		CMD_CTRL_MOTS_ONOFF         = 0x2A,
+		CMD_CTRL_MOTS_RUN           = 0x2B,
+		CMD_CTRL_MOTS_STOP          = 0x2C,
+		CMD_CTRL_MOTS_REL           = 0x2D,
+
+		CMD_WRITE_MOTOR_POS_DATA    = 0x40,
+		CMD_WRITE_CFG_DATA          = 0x41,
+		CMD_WRITE_CYL_DATA          = 0x42,
+		CMD_WRITE_VAC_DATA          = 0x43,
+		CMD_WRITE_SEQ_DATA          = 0x44,
+		CMD_CLEAR_ROM_DATA          = 0x45,
+
+		CMD_READ_MCU_DATA           = 0x50,
+		CMD_RELOAD_ROM_DATA         = 0x51,
 
 		CMD_OK_RESPONSE             = 0xAA,
-		CMD_TIMEOUT_RESPONSE        = 0xAB,
 	};
 
 
@@ -115,7 +126,7 @@ namespace RCTRL
 		struct rx_packet_t
 		{
 			uint8_t         type{};
-			uint8_t         func_id{};
+			uint8_t         obj_id{};
 			uint16_t        length{};
 			uint16_t        check_sum{};
 			uint16_t        check_sum_recv{};
@@ -127,7 +138,7 @@ namespace RCTRL
 			rx_packet_t& operator = (const rx_packet_t& dat){
 				if ( this != &dat){
 					type = dat.type;
-					func_id = dat.func_id;
+					obj_id = dat.obj_id;
 					length = dat.length;
 					data = dat.data;
 					check_sum = dat.check_sum;
@@ -140,7 +151,7 @@ namespace RCTRL
 			rx_packet_t& operator = (const rx_packet_t* dat){
 				if ( this != dat){
 					type = dat->type;
-					func_id = dat->func_id;
+					obj_id = dat->obj_id;
 					length = dat->length;
 					data = dat->data;
 					check_sum = dat->check_sum;
@@ -241,11 +252,12 @@ namespace RCTRL
 		}
 
 
-		uint32_t SendData (uint8_t tx_type, uint8_t *p_data, uint8_t length)
+		//obj_id [option] 0 is all or ignore
+		uint32_t SendData (uint8_t tx_type, uint8_t *p_data, uint8_t length, uint8_t obj_id = 0)
 		{
 			/*
 
-				| SOF  | Type |funcId| Data Length |Data          |   Checksum   | EOF  |
+				| SOF  | Type |obj_id| Data Length |Data          |   Checksum   | EOF  |
 				| :--- |:-----|:---- | :---------- |:-------------|:-------------| :--  |
 				| 0x4A |1 byte|1 byte| 2 byte(L+H) |Data 0～Data n|2 byte(crc 16)| 0x4C |
 
@@ -257,8 +269,8 @@ namespace RCTRL
 			value[idx++] = CMD_STX;
 			value[idx++] = tx_type;
 			UTL::crc16_modbus_update(&crc, tx_type);
-			value[idx++] = 0;
-			UTL::crc16_modbus_update(&crc, 0);
+			value[idx++] = obj_id;
+			UTL::crc16_modbus_update(&crc, obj_id);
 			value[idx++] = (uint8_t)(length >> 0);
 			UTL::crc16_modbus_update(&crc,(uint8_t)(length >> 0));
 			value[idx++] = (uint8_t)(length >> 8);
@@ -273,8 +285,6 @@ namespace RCTRL
 			value[idx++] = CMD_ETX;
 
 			m_packet_sending_ms = millis();
-
-
 
 			return uartWrite(m_cfg.ch, value.data(), idx);
 		}
@@ -382,15 +392,14 @@ namespace RCTRL
 		inline bool receivePacket()	{
 
 			constexpr uint8_t STATE_WAIT_STX 				= 0;
-			constexpr uint8_t STATE_WAIT_PAGE_NO 		= 1;
-			constexpr uint8_t STATE_WAIT_TYPE 			= 2;
-			constexpr uint8_t STATE_WAIT_FUNC_ID 		= 3;
-			constexpr uint8_t STATE_WAIT_LENGTH_L 	= 4;
-			constexpr uint8_t STATE_WAIT_LENGTH_H 	= 5;
-			constexpr uint8_t STATE_WAIT_DATA 			= 6;
-			constexpr uint8_t STATE_WAIT_CHECKSUM_L = 7;
-			constexpr uint8_t STATE_WAIT_CHECKSUM_H = 8;
-			constexpr uint8_t STATE_WAIT_ETX 				= 9;
+			constexpr uint8_t STATE_WAIT_TYPE 			= 1;
+			constexpr uint8_t STATE_WAIT_OBJ_ID 		= 2;
+			constexpr uint8_t STATE_WAIT_LENGTH_L 	= 3;
+			constexpr uint8_t STATE_WAIT_LENGTH_H 	= 4;
+			constexpr uint8_t STATE_WAIT_DATA 			= 5;
+			constexpr uint8_t STATE_WAIT_CHECKSUM_L = 6;
+			constexpr uint8_t STATE_WAIT_CHECKSUM_H = 7;
+			constexpr uint8_t STATE_WAIT_ETX 				= 8;
 
 
 			bool ret = false;
@@ -444,7 +453,7 @@ namespace RCTRL
 							rx_packet->check_sum = 0xffff;
 							memset(&rx_packet->buffer[0], 0, CMD_MAX_PACKET_LENGTH);
 							rx_packet->buffer[m_packet.data_cnt++] = rx_data;
-							m_packet.state = STATE_WAIT_PAGE_NO;
+							m_packet.state = STATE_WAIT_TYPE;
 							break;
 						}
 
@@ -455,13 +464,13 @@ namespace RCTRL
 						rx_packet->type = rx_data;
 						rx_packet->buffer[m_packet.data_cnt++] = rx_data;
 						UTL::crc16_modbus_update(&rx_packet->check_sum, rx_data);
-						m_packet.state = STATE_WAIT_FUNC_ID;
+						m_packet.state = STATE_WAIT_OBJ_ID;
 					}
 					break;
 
-					case STATE_WAIT_FUNC_ID:
+					case STATE_WAIT_OBJ_ID:
 					{
-						rx_packet->func_id = rx_data;
+						rx_packet->obj_id = rx_data;
 						UTL::crc16_modbus_update(&rx_packet->check_sum, rx_data);
 						rx_packet->buffer[m_packet.data_cnt++] = rx_data;
 
@@ -485,11 +494,14 @@ namespace RCTRL
 						UTL::crc16_modbus_update(&rx_packet->check_sum, rx_data);
 						rx_packet->buffer[m_packet.data_cnt++] = rx_data;
 
-						if (rx_packet->length < CMD_MAX_DATA_LENGTH)
+						m_packet.index = 0;
+						if (rx_packet->length == 0)
 						{
-							m_packet.index = 0;
+							m_packet.state = STATE_WAIT_CHECKSUM_L;
+						}
+						else if (rx_packet->length < CMD_MAX_DATA_LENGTH)
+						{
 							m_packet.state = STATE_WAIT_DATA;
-							rx_packet->data = &rx_packet->buffer[m_packet.data_cnt];
 						}
 						else
 						{
@@ -500,22 +512,25 @@ namespace RCTRL
 
 					case STATE_WAIT_DATA:
 					{
-						if (m_packet.index <= rx_packet->length) // check overflow
+						if (m_packet.index == rx_packet->length)
+						{
+							m_packet.state = STATE_WAIT_CHECKSUM_L;
+							break;
+						}
+
+						if (m_packet.index == 0)
+							rx_packet->data = &rx_packet->buffer[m_packet.data_cnt];
+
+						if (m_packet.index < rx_packet->length)
 						{
 							rx_packet->data[m_packet.index++] = rx_data;
 							UTL::crc16_modbus_update(&rx_packet->check_sum, rx_data);
 							rx_packet->buffer[m_packet.data_cnt++] = rx_data;
-
-							if (m_packet.index == rx_packet->length)
-							{
-								m_packet.state = STATE_WAIT_CHECKSUM_L;
-							}
 						}
-						else
+						else// check overflow
 						{
 							m_packet.state = STATE_WAIT_STX;
 							m_packet.index = 0;
-							break;
 						}
 					}
 					break;

@@ -70,14 +70,14 @@ private:
 	bool m_OkReply;
 public:
 	prc_step_t m_step;
-
+  uint32_t m_elaps;
 	/****************************************************
 	 *  Constructor
 	 ****************************************************/
 public:
 	api_remote(): m_IsInit{}, m_cfg{},m_receiveData{}, m_txBuffer{}, m_idxMotor{}
 	, m_waitReplyOK{}, m_OkReply{}
-	, m_step{}{
+	, m_step{}, m_elaps{}{
 
 	};
 

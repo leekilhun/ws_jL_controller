@@ -58,7 +58,7 @@ void api_remote::doRunStep()
 		  ######################################################*/
 		case STEP_TODO:
 		{
-			m_step.SetStep(STEP_MCU_STATE);
+
 		}
 		break;
 		/*######################################################
@@ -94,7 +94,6 @@ void api_remote::doRunStep()
 		case STEP_MCU_STATE:
 		{
 			memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
-			m_waitReplyOK = true;
 			m_step.SetStep(STEP_MCU_STATE_START);
 		}
 		break;
@@ -124,20 +123,23 @@ void api_remote::doRunStep()
 			// total 16 bytes
 			uint8_t length = idx + size;
 			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_MCU_STATE_DATA, &m_txBuffer[0], length);
-			m_step.SetStep(STEP_MOTOR_POS_VEL_WAIT);
 
+			m_waitReplyOK = true;
 			m_step.SetStep(STEP_MCU_STATE_WAIT);
+			m_elaps = millis();
 		}
 		break;
 
 		case STEP_MCU_STATE_WAIT:
 		{
 			//timeout
+			//if ((millis() - m_elaps) > COMM_TIMEOUT_MAX)
 			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
 			{
 				m_step.SetStep(STEP_TIMEOUT);
 				break;
 			}
+
 			// check return flag
 			if (m_waitReplyOK)
 				break;
@@ -148,7 +150,7 @@ void api_remote::doRunStep()
 
 		case STEP_MCU_STATE_END:
 		{
-
+			m_waitReplyOK = false;
 			m_step.SetStep(STEP_TODO);
 		}
 		break;
@@ -291,43 +293,22 @@ void api_remote::doRunStep()
 void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 	m_receiveData = ptr_data;
 
-	if (m_waitReplyOK)
-		m_waitReplyOK = false;
+	m_waitReplyOK = false;
 
 
   using TYPE = RCTRL::CMD_TYPE;
 	switch (m_receiveData.type)
 	{
-		case TYPE::FIRM_CTRL :
-		{
 
+
+		case TYPE::CMD_READ_MCU_DATA:
+		{
+			m_step.SetStep(STEP_MCU_STATE);
 		}
 		break;
 
-		case TYPE::EEROM_CTRL:
-		{
-
-		}
-		break;
-
-		case TYPE::CONTROL_MOT:
-		{
-
-		}
-		break;
-
-		case TYPE::CONTROL_CYL:
-		{
-
-		}
-		break;
-
-		case TYPE::CONTROL_VAC:
-		{
-
-		}
-		break;
-
+		case TYPE::CMD_OK_RESPONSE :
+			__attribute__((fallthrough));
 		default:
 			break;
 	}// switch (m_receiveData.type)

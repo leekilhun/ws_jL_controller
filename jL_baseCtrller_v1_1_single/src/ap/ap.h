@@ -46,10 +46,10 @@ struct prc_step_t
   uint8_t pre_step{};
   uint8_t wait_step{};
   uint32_t prev_ms{};
-  uint32_t pass_ms{};
+  uint32_t elap_ms{};
 
   inline void SetStep(uint8_t step){
-    pass_ms = millis() - prev_ms;
+  	elap_ms = millis() - prev_ms;
     prev_ms = millis();
   	pre_step = curr_step;
     curr_step = step;
@@ -60,17 +60,15 @@ struct prc_step_t
   }
 
   inline bool LessThan(uint32_t msec){
-  	if ((millis() - prev_ms) < msec)
+  	elap_ms = millis() - prev_ms;
+  	if (elap_ms < msec)
   		return true;
   	else
   		return false;
   }
 
   inline bool MoreThan(uint32_t msec){
-  	if ((millis() - prev_ms) > msec)
-  		return true;
-  	else
-  		return false;
+  		return !LessThan(msec);
   }
 
 } ;

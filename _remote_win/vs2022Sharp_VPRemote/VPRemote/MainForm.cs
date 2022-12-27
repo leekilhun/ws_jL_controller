@@ -30,17 +30,23 @@ namespace VPRemote
       this.DoubleBuffered = true;
       this.MaximizedBounds = Screen.FromHandle(this.Handle).WorkingArea;
 
+
+      _peeler_remote.AddCallbackFunc(doUpdateTextBox);
+      _peeler_remote.AddCommWriteFunc(SerialCommWrite);
+
       SetTimer();
       if (SetCSerialComm())
         MessageBox.Show("Com Port Opened!");
       else
         MessageBox.Show("Com Port Open Fail!");
 
-
-      _peeler_remote.AddCallbackFunc(doUpdateTextBox);
+      _peeler_remote.ThreadRun();
 
     }
 
+    ~MainForm()
+    {
+    }
 
     private void SetTimer() // 타이머 셋팅 
     {
@@ -62,7 +68,8 @@ namespace VPRemote
           serialPort_peeler.PortName = "COM4";
           serialPort_peeler.Open();
 
-          _peeler_remote.StartTick();
+          _peeler_remote.ThreadRun();
+          // _peeler_remote.StartTick();
         }
         catch (Exception ex)
         {
@@ -141,6 +148,12 @@ namespace VPRemote
       reg_view.Show(this);
     }
 
+    public void SerialCommWrite(byte[] buffer, int offset, int count)
+    {
+      serialPort_peeler.Write(buffer, offset, count);
+      //VPRemote.MainForm.SerialCommWrite(buffer, offset, count);
+    }
+
 
     public void doUpdateTextBox(string str)
     {
@@ -174,6 +187,12 @@ namespace VPRemote
         RX_textBox.Text += str;
         RX_textBox.Text += "\r\n";
       }
+    }
+
+    private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      _enable_Timer = false;
+      _peeler_remote.ThreadStop();
     }
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 /*
  *  common.cs
@@ -48,6 +49,22 @@ namespace VPRemote
       }
       crc_in = crc;
     }
+
+    public static bool IsUppercase(string s)
+    {
+      return s.All(char.IsUpper);
+    }
+
+    public static bool IsLowercase(string s)
+    {
+      return s.All(char.IsLower);
+    }
+
+    public static string NormalizeString(string input)
+    {
+      return input.ToLower().Trim().Replace(",", "");
+    }
+
   }
 
 
@@ -187,11 +204,12 @@ namespace VPRemote
 
   class PacketData
   {
-    public byte Type;
+    public byte RXType;
     public byte ObjID;
     public ushort Length;
     public ushort Checksum;
     public ushort Checksum_recv;
+    public bool OkResponse;
     public List<byte> Buffer = new List<byte>();
     public List<byte> Data = new List<byte>();
     public StateMachine State = new StateMachine();

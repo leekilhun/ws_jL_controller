@@ -1,11 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace VPRemote.ap
 {
+
+  /*
+
+	mcu - server, pc - client
+
+	TX (pc -> mcu) request information or action
+	obj_id [option] 0 is all or ignore
+	| SOF  | cmd_Type | obj_Id | Data Length |Data          |   Checksum   | EOF  |
+	| :--- |:---------|:-------| :---------- |:-------------|:-------------| :--  |
+	| 0x4A |  1 byte  | 1 byte | 2 byte      |Data 0～Data n|2 byte(crc 16)| 0x4C |
+
+	RX  (mcu -> pc) provide information
+	obj_id [option] 0 is all or ignore
+	| SOF  | rx_Type  | obj_Id | Data Length |Data          |   Checksum   | EOF  |
+	| :--- |:---------|:-------| :---------- |:-------------|:-------------| :--  |
+	| 0x4A |  1 byte  | 1 byte | 2 byte      |Data 0～Data n|2 byte(crc 16)| 0x4C |
+
+	 */
+
+
   internal class Peeler_remote
   {
+    enum STEP
+    {
+      STEP_INIT,
+      STEP_TODO,
+      STEP_TIMEOUT,
+      STEP_WAIT_RETURN,
+      STEP_REQUEST_MCU_DATE,
+      STEP_REQUEST_MCU_DATE_START,
+      STEP_REQUEST_MCU_DATE_WAIT,
+      STEP_REQUEST_MCU_DATE_END,
+    }
+
+
+    const byte MODULE_PEELER_CMD_STX = 0x4A;
+    const byte MODULE_PEELER_CMD_ETX = 0x4C;
+
     public enum RX_TYPE
     {
       RX_STATE_DATA = 0x00,
@@ -13,59 +51,45 @@ namespace VPRemote.ap
       RX_MOTOR_POS_VEL = 0x02,
     }
 
-    public enum CMD_TYPE
-    {
-      FIRM_CTRL = 0x00,
-      CONTROL_MOT = 0x10,
-      CONTROL_CYL = 0x11,
-      CONTROL_VAC = 0x12,
-      EEROM_CTRL = 0x13,
-    };
 
-    public enum CMD_ID
+    public enum CMD_TYPE : byte
     {
       CMD_READ_ALL_STATE = 0x00,
       CMD_READ_BOOT_INFO = 0x01,
       CMD_READ_FIRM_INFO = 0x02,
-      CMD_CONTROL_IO_OUT = 0x10,
-      CMD_CONTROL_MOT_ORIGIN = 0x11,
-      CMD_CONTROL_MOT_ONOFF = 0x12,
-      CMD_CONTROL_MOT_RUN = 0x13,
-      CMD_CONTROL_MOT_STOP = 0x14,
-      CMD_CONTROL_MOT_JOG = 0x15,
-      CMD_CONTROL_MOT_LIMIT = 0x16,
-      CMD_MOT_ENCODER_ZEROSET = 0x17,
-      CMD_CONTROL_CYL = 0x18,
-      CMD_CONTROL_VAC = 0x19,
-      CMD_CONTROL_MOT_RELMOVE = 0x1A,
-      CMD_CONTROL_MOT_CLEAR_ALARM = 0x1B,
-      CMD_CONTROL_JOB_INITIAL = 0x1C,
-      CMD_CONTROL_MOT_CHANGE_VEL = 0x1D,
-      CMD_CONTROL_MOTS_ONOFF = 0x60,
-      CMD_CONTROL_MOTS_RUN = 0x61,
-      CMD_CONTROL_MOTS_STOP = 0x62,
-      CMD_CONTROL_MOTS_REL = 0x63,
-      CMD_AP_CONFIG_WRITE = 0x20,
-      CMD_READ_MCU_DATA = 0x21,
-      CMD_RELOAD_ROM_DATA = 0x22,
-      CMD_CLEAR_ROM_DATA = 0x23,
-      CMD_WRITE_MOTOR_POS_DATA = 0x30,
-      CMD_WRITE_AP_DATA = 0x31,
-      CMD_WRITE_CYL_DATA = 0x32,
-      CMD_WRITE_VAC_DATA = 0x33,
-      CMD_WRITE_SEQ_DATA = 0x34,
-      CMD_WRITE_LINK_DATA = 0x35,
-      CMD_EVENT_MCU_VIRTUAL_SW = 0x40,
-      CMD_READ_LOG_FRONT = 0x50,
-      CMD_READ_LOG_REAR = 0x51,
-      CMD_TEST_STRESS = 0x52,
-      CMD_START_SEND_MCU_STATE = 0xB0,
-      CMD_STOP_SEND_MCU_STATE = 0xB1,
-      CMD_MOTOR_PARM_SET = 0xAC,
-      CMD_MOTOR_PARM_GET = 0xAE,
+
+      CMD_CTRL_IO_OUT = 0x10,
+      CMD_CTRL_CYL = 0x11,
+      CMD_CTRL_VAC = 0x12,
+      CMD_CTRL_JOB_INITIAL = 0x1A,
+      CMD_CTRL_VIRTUAL_SW = 0x1B,
+
+      CMD_CTRL_MOT_ORIGIN = 0x20,
+      CMD_CTRL_MOT_ONOFF = 0x21,
+      CMD_CTRL_MOT_RUN = 0x22,
+      CMD_CTRL_MOT_STOP = 0x23,
+      CMD_CTRL_MOT_JOG = 0x24,
+      CMD_CTRL_MOT_LIMIT = 0x25,
+      CMD_CTRL_MOT_ZEROSET = 0x26,
+      CMD_CTRL_MOT_RELMOVE = 0x27,
+      CMD_CTRL_MOT_CLEAR_ALARM = 0x28,
+      CMD_CTRL_MOT_CHANGE_VEL = 0x29,
+      CMD_CTRL_MOTS_ONOFF = 0x2A,
+      CMD_CTRL_MOTS_RUN = 0x2B,
+      CMD_CTRL_MOTS_STOP = 0x2C,
+      CMD_CTRL_MOTS_REL = 0x2D,
+
+      CMD_WRITE_MOTOR_POS_DATA = 0x40,
+      CMD_WRITE_CFG_DATA = 0x41,
+      CMD_WRITE_CYL_DATA = 0x42,
+      CMD_WRITE_VAC_DATA = 0x43,
+      CMD_WRITE_SEQ_DATA = 0x44,
+      CMD_CLEAR_ROM_DATA = 0x45,
+
+      CMD_READ_MCU_DATA = 0x50,
+      CMD_RELOAD_ROM_DATA = 0x51,
 
       CMD_OK_RESPONSE = 0xAA,
-      CMD_TIMEOUT_RESPONSE = 0xAB,
     };
 
 
@@ -103,31 +127,173 @@ namespace VPRemote.ap
 			memcpy(&m_txBuffer[34],&motor_data.immediate_act_velocity, 4 );	   // 현재 속도
 
 #endif
+    private Thread _thread = null;
+    private bool _IsThreadLife = false;
 
-    private System.Timers.Timer _tick_timer;//틱 타이머
+    //private System.Timers.Timer _tick_timer;//틱 타이머
     private QBuffer<byte> _qReceiveBuffer = new QBuffer<byte>(4096);
     private PacketData _packet = new PacketData();
 
     private MCU_st _mcu_receive_data = new MCU_st();
 
     private Action<string> callback;
+    private Action<byte[], int, int> commWrite;
     uint _refresh_ms = 0;
 
 
+    private StateMachine _step = new StateMachine();
+
     public Peeler_remote()
     {
-      SetTimer();
+      byte[] sc = null;
+      //SetTimer(); -> tick에서 thread로 변경
     }
 
     ~Peeler_remote()
     {
-
+      if (_thread != null)
+        threadStop();
     }
 
-    public void StartTick()
+    public void ThreadRun()
     {
-      _tick_timer.Start();
+      _thread = new Thread(threadFunc);
+      _step.SetStep(0);
+      _IsThreadLife = true;
+      _thread.Start();
     }
+    public void ThreadStop()
+    {
+      threadStop();
+    }
+
+    private void threadStop()
+    {
+      if (_thread == null)
+        return;
+
+      _IsThreadLife = false;
+      if (_thread.IsAlive)   // Thread가 동작 중 일 경우 
+      {
+        _IsThreadLife = false;
+        //_thread.Abort();  // Thred를 강제 종료
+      }
+      _thread = null;
+    }
+
+    private void threadJob()
+    {
+      doRunStep();
+
+      if (recivePacket())
+      {
+
+        Ret_OkResponse();
+
+        string hex = "";
+        foreach (var elm in _packet.Buffer)
+        {
+          hex += string.Format("{0:X2} ", elm);
+        }
+        _refresh_ms = (uint)UTL.millis() - _refresh_ms;
+        hex += "response ms : " + _refresh_ms.ToString();
+        _refresh_ms = (uint)UTL.millis();
+        Console.WriteLine(hex);
+
+        if (callback != null)
+          callback.Invoke(hex);
+
+        ProcessCmd();
+      }
+    }
+
+
+    public void threadFunc()
+    {
+      try
+      {
+        // DisplayMessage("IO Thread가 시작하였습니다.");
+        while (_IsThreadLife)
+        {
+          threadJob();
+          Thread.Sleep(10);
+        }
+
+      }
+
+      catch (ThreadInterruptedException exInterrupt)
+      {
+        Trace.WriteLine(exInterrupt.Message);
+      }
+      catch (Exception ex)
+      {
+        //eventLog(ex.Message);
+        Trace.WriteLine(ex.Message);
+      }
+
+    }
+
+    private void doRunStep()
+    {
+
+      switch ((STEP)_step.GetStep())
+      {
+        case STEP.STEP_INIT:
+          {
+            _step.SetStep((byte)STEP.STEP_TODO);
+          }
+          break;
+
+        case STEP.STEP_TODO:
+          {
+            _step.SetStep((byte)STEP.STEP_REQUEST_MCU_DATE);
+          }
+          break;
+
+        case STEP.STEP_TIMEOUT:
+          _step.SetStep((byte)STEP.STEP_TODO);
+          break;
+
+        case STEP.STEP_WAIT_RETURN:
+          break;
+
+        case STEP.STEP_REQUEST_MCU_DATE:
+          _step.SetStep((byte)STEP.STEP_REQUEST_MCU_DATE_START);
+          break;
+
+        case STEP.STEP_REQUEST_MCU_DATE_START:
+          _step.SetStep((byte)STEP.STEP_REQUEST_MCU_DATE_WAIT);
+          _packet.OkResponse = false;
+          requestMcuState();
+          break;
+
+        case STEP.STEP_REQUEST_MCU_DATE_WAIT:
+          if (_step.MoreThan(100))
+          {
+            _step.SetStep((byte)STEP.STEP_TIMEOUT);
+            break;
+          }
+          if (_packet.OkResponse == false)
+            break;
+
+          _step.SetStep((byte)STEP.STEP_REQUEST_MCU_DATE_END);
+          break;
+
+        case STEP.STEP_REQUEST_MCU_DATE_END:
+          _step.SetStep((byte)STEP.STEP_TODO);
+          break;
+
+        default:
+          break;
+      }
+      //end of switch
+    }
+
+
+    //public void StartTick()
+    //{
+    //  _tick_timer.Start();
+    //}
 
     public void PutReceive_1ByteData(byte data)
     {
@@ -139,6 +305,13 @@ namespace VPRemote.ap
     {
       this.callback = callback;
     }
+
+    public void AddCommWriteFunc(Action<byte[], int, int> func)
+    {
+      this.commWrite = func;
+    }
+
+#if false
 
     private void SetTimer() // 타이머 셋팅 
     {
@@ -168,6 +341,7 @@ namespace VPRemote.ap
 
         ProcessCmd();
       }
+
 
 #if false
       byte get_data = 0;
@@ -201,11 +375,12 @@ namespace VPRemote.ap
 #endif
     }
 
+#endif
 
     private void ProcessCmd()
     {
       PacketData receive_data = _packet;
-      RX_TYPE type = (RX_TYPE)receive_data.Type;
+      RX_TYPE type = (RX_TYPE)receive_data.RXType;
 
       switch (type)
       {
@@ -256,20 +431,89 @@ namespace VPRemote.ap
 
 
 
+
+
+
+    public int SendCmd(List<byte> datas)
+    {
+      List<byte> packets = new List<byte>();
+      //std::vector<uint8_t> datas{ };
+      /*
+
+			 | SOF  | Type |funcId| Data Length |Data          |   Checksum   | EOF  |
+			 | :--- |:-----|:---- | :---------- |:-------------|:-------------| :--  |
+			 | 0x4A |1 byte|1 byte| 2 byte      |Data 0～Data n|2 byte(crc 16)| 0x4C |
+					|-> crc                                            crc <- |
+			*/
+      ushort crc = 0xffff;
+      packets.Add(MODULE_PEELER_CMD_STX);
+      foreach (var item in datas)
+      {
+        packets.Add(item);
+        UTL.crc16_update(ref crc, item);
+      }
+      packets.Add((byte)(crc >> 0));
+      packets.Add((byte)(crc >> 8));
+      packets.Add((byte)(MODULE_PEELER_CMD_ETX));
+
+      byte[] sc = packets.ToArray();
+      if (commWrite != null)
+      {
+        commWrite.Invoke(sc, 0, packets.Count);
+      }
+
+      return 0;
+    }
+
+    //inline bool SendCmdRxResp(uint8_t* p_data, uint32_t length, uint32_t timeout)
+    //{
+
+    //  return false;
+    //}
+
+
+    public int Ret_OkResponse()
+    {
+      _packet.OkResponse = true;
+      List<byte> datas = new List<byte>();
+      datas.Add((byte)CMD_TYPE.CMD_OK_RESPONSE);
+      datas.Add(0x00);
+      datas.Add(0x00);
+      datas.Add(0x00);
+
+      return SendCmd(datas);
+    }
+
+
+
+    private int requestMcuState()
+    {
+      List<byte> datas = new List<byte>();
+      datas.Add((byte)CMD_TYPE.CMD_READ_MCU_DATA);
+      datas.Add(0x00);
+      datas.Add(0x00);
+      datas.Add(0x00);
+
+      return SendCmd(datas);
+    }
+
+
+
+
+
     /// <summary>
     /// 수신된 데이터를 파싱해 분석하는 함수
     /// </summary>
-    /// <param name="data"></param>
     /// <returns></returns>
     private bool recivePacket()
     {
       /*
 
-    | SOF  | Type |funcId| Data Length |Data          |   Checksum   | EOF  |
-    | :--- |:-----|:---- | :---------- |:-------------|:-------------| :--  |
-    | 0x4A |1 byte|1 byte| 2 byte      |Data 0～Data n|2 byte(crc 16)| 0x4C |
+			 | SOF  | rx_Type | obj_Id| Data Length |Data          |   Checksum   | EOF  |
+			 | :--- |:--------|:----- | :---------- |:-------------|:-------------| :--  |
+			 | 0x4A | 1 byte  | 1 byte| 2 byte      |Data 0～Data n|2 byte(crc 16)| 0x4C |
 
-     */
+			*/
 
 
       const byte CMD_STX = 0x4A;
@@ -279,12 +523,12 @@ namespace VPRemote.ap
       const byte STATE_WAIT_STX = 0;
       const byte STATE_WAIT_TYPE = 1;
       const byte STATE_WAIT_ID = 2;
-      const byte STATE_WAIT_LENGTH_L = 4;
-      const byte STATE_WAIT_LENGTH_H = 5;
-      const byte STATE_WAIT_DATA = 6;
-      const byte STATE_WAIT_CHECKSUM_L = 7;
-      const byte STATE_WAIT_CHECKSUM_H = 8;
-      const byte STATE_WAIT_ETX = 9;
+      const byte STATE_WAIT_LENGTH_L = 3;
+      const byte STATE_WAIT_LENGTH_H = 4;
+      const byte STATE_WAIT_DATA = 5;
+      const byte STATE_WAIT_CHECKSUM_L = 6;
+      const byte STATE_WAIT_CHECKSUM_H = 7;
+      const byte STATE_WAIT_ETX = 8;
 
       List<byte> datas = new List<byte>();
       byte get_data = 0;
@@ -293,6 +537,9 @@ namespace VPRemote.ap
         _qReceiveBuffer.Get(ref get_data);
         datas.Add(get_data);
       }
+
+      if (datas.Count < 1)
+        return false;
       /*
       string hex = "";
       foreach (var elm in datas)
@@ -325,7 +572,7 @@ namespace VPRemote.ap
             break;
 
           case STATE_WAIT_TYPE:
-            _packet.Type = rx_data;
+            _packet.RXType = rx_data;
             _packet.Buffer.Add(rx_data);
             UTL.crc16_update(ref _packet.Checksum, rx_data);
             _packet.State.SetStep(STATE_WAIT_ID);

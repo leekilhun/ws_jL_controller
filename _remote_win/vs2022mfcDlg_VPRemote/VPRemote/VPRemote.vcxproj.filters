@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="framework">
+      <UniqueIdentifier>{1c8371bc-4c9c-475a-843c-384833928c35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\common">
+      <UniqueIdentifier>{357b54c2-d269-44ee-b2c9-692c4aa18ffd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\hal">
+      <UniqueIdentifier>{994fa1de-67f7-41e0-8f85-169a77c97fe4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\system">
+      <UniqueIdentifier>{2be12732-ae3c-4141-a06b-6064ae28dc85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\hal\_inc">
+      <UniqueIdentifier>{b1ad6eb8-0a99-466a-aefa-723782dbc002}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\hal\driver">
+      <UniqueIdentifier>{25893cd4-5c25-4207-b6d2-8a09edf0d6c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\hal\maker">
+      <UniqueIdentifier>{4a7ea427-253c-4107-b4b4-95acad51e5bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\system\_inc">
+      <UniqueIdentifier>{fc16726c-a15a-4cf6-bfb5-f0c443861ea7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\hal\interface">
+      <UniqueIdentifier>{10eada9f-131f-494e-8f05-1a71b7b0f93b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="VPRemote.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="VPRemoteDlg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\def.h">
+      <Filter>framework</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\framework_def.h">
+      <Filter>framework</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\common\syslog.h">
+      <Filter>framework\common</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\common\util.h">
+      <Filter>framework\common</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\hal\hal.h">
+      <Filter>framework\hal</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\hal\hal_def.h">
+      <Filter>framework\hal</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\hal\_inc\SerialComm.h">
+      <Filter>framework\hal\_inc</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\system\system.h">
+      <Filter>framework\system</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\system\system_def.h">
+      <Filter>framework\system</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\system\_inc\def_err.h">
+      <Filter>framework\system\_inc</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\system\_inc\def_io.h">
+      <Filter>framework\system\_inc</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\system\_inc\def_obj.h">
+      <Filter>framework\system\_inc</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\system\_inc\system_obj.h">
+      <Filter>framework\system\_inc</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\hal\interface\IComm.h">
+      <Filter>framework\hal\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\hal\_inc\module_peeler.h">
+      <Filter>framework\hal\_inc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="VPRemote.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="VPRemoteDlg.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\common\syslog.cpp">
+      <Filter>framework\common</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\common\util.cpp">
+      <Filter>framework\common</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\hal\driver\SerialComm.cpp">
+      <Filter>framework\hal\driver</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\system\system.cpp">
+      <Filter>framework\system</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\system\system_obj.cpp">
+      <Filter>framework\system</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VPRemote.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\VPRemote.rc2">
+      <Filter>리소스 파일</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\VPRemote.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
