@@ -40,6 +40,9 @@
     <Filter Include="framework\hal\interface">
       <UniqueIdentifier>{10eada9f-131f-494e-8f05-1a71b7b0f93b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{895d0a27-cc1a-4015-bd59-306a0ca697a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VPRemote.h">
@@ -105,6 +108,9 @@
     <ClInclude Include="framework\hal\_inc\module_peeler.h">
       <Filter>framework\hal\_inc</Filter>
     </ClInclude>
+    <ClInclude Include="ui\popMoonsControl.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VPRemote.cpp">
@@ -130,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="framework\system\system_obj.cpp">
       <Filter>framework\system</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\popMoonsControl.cpp">
+      <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
