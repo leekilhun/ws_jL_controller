@@ -13,8 +13,8 @@ void apInit(void)
 
 	i2cBegin(_DEF_I2C1, I2C_FREQ_400KHz);
 
-	uartOpen(_DEF_UART2, 115200);
-	cliOpen(_DEF_UART3, 115200);
+	//uartOpen(_DEF_UART2, 115200);
+	cliOpen(_DEF_UART2, 115200);
 
 }
 

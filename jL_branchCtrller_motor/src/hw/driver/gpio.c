@@ -69,7 +69,7 @@ const gpio_tbl_t gpio_tbl[GPIO_MAX_CH] =
 
 
 
-static void delayUs(uint32_t us);
+
 
 #ifdef _USE_HW_CLI
 static void cliGpio(cli_args_t *args);
@@ -216,16 +216,6 @@ bool gpioIsOn(uint8_t ch)
   return gpioPinRead(ch);
 }
 
-
-void delayUs(uint32_t us)
-{
-  volatile uint32_t i;
-
-  for (i=0; i<us*1; i++)
-  {
-
-  }
-}
 
 void EXTI4_15_IRQHandler(void)
 {

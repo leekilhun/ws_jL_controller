@@ -64,8 +64,9 @@ private:
 	bool m_IsInit;
 	cfg_t m_cfg;
 	RCTRL::uart_remote::rx_packet_t m_receiveData;
-	uint8_t m_txBuffer[UI_RCTRL_MAX_BUFFER_LENGTH];
-	uint8_t m_idxMotor;
+	//uint8_t m_txBuffer[UI_RCTRL_MAX_BUFFER_LENGTH];
+	std::array<uint8_t, UI_RCTRL_MAX_BUFFER_LENGTH> m_txBuffer;
+	AP_OBJ::MOTOR m_idxMotor;
 	bool m_waitReplyOK;
 	bool m_OkReply;
 public:

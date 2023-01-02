@@ -66,7 +66,7 @@ namespace RCTRL
 
 		CMD_CTRL_MOT_ORIGIN         = 0x20,
 		CMD_CTRL_MOT_ONOFF          = 0x21,
-		CMD_CTRL_MOT_RUN            = 0x22,
+		CMD_CTRL_MOT_MOVE           = 0x22,
 		CMD_CTRL_MOT_STOP           = 0x23,
 		CMD_CTRL_MOT_JOG            = 0x24,
 		CMD_CTRL_MOT_LIMIT          = 0x25,
@@ -74,21 +74,30 @@ namespace RCTRL
 		CMD_CTRL_MOT_RELMOVE        = 0x27,
 		CMD_CTRL_MOT_CLEAR_ALARM    = 0x28,
 		CMD_CTRL_MOT_CHANGE_VEL     = 0x29,
-		CMD_CTRL_MOTS_ONOFF         = 0x2A,
-		CMD_CTRL_MOTS_RUN           = 0x2B,
-		CMD_CTRL_MOTS_STOP          = 0x2C,
-		CMD_CTRL_MOTS_REL           = 0x2D,
+		CMD_CTRL_MOT_MOVE_VEL       = 0x2A,
+		CMD_CTRL_MOT_RELMOVE_VEL    = 0x2B,
 
-		CMD_WRITE_MOTOR_POS_DATA    = 0x40,
-		CMD_WRITE_CFG_DATA          = 0x41,
-		CMD_WRITE_CYL_DATA          = 0x42,
-		CMD_WRITE_VAC_DATA          = 0x43,
-		CMD_WRITE_SEQ_DATA          = 0x44,
-		CMD_CLEAR_ROM_DATA          = 0x45,
+		CMD_CTRL_MOTS_ONOFF         = 0x30,
+		CMD_CTRL_MOTS_RUN           = 0x31,
+		CMD_CTRL_MOTS_STOP          = 0x32,
+		CMD_CTRL_MOTS_REL           = 0x33,
+		CMD_CTRL_MOT_JOG_STOP       = 0x34,
+
+		CMD_WRITE_MOTOR_POS_DATA 		= 0x40,
+		CMD_WRITE_CFG_DATA 					= 0x41,
+		CMD_WRITE_CYL_DATA 					= 0x42,
+		CMD_WRITE_VAC_DATA 					= 0x43,
+		CMD_WRITE_SEQ_DATA 					= 0x44,
+		CMD_READ_MOTOR_POS_DATA 		= 0x45,
+		CMD_READ_CFG_DATA 					= 0x46,
+		CMD_READ_CYL_DATA 					= 0x47,
+		CMD_READ_VAC_DATA 					= 0x48,
+		CMD_READ_SEQ_DATA 					= 0x49,
+		CMD_CLEAR_ROM_DATA 					= 0x4A,
+		CMD_RELOAD_ROM_DATA         = 0x4B,
 
 		CMD_READ_MCU_DATA           = 0x50,
-		CMD_RELOAD_ROM_DATA         = 0x51,
-
+		CMD_READ_MOTOR_DATA         = 0x51,
 		CMD_OK_RESPONSE             = 0xAA,
 	};
 
@@ -512,18 +521,12 @@ namespace RCTRL
 
 					case STATE_WAIT_DATA:
 					{
-						if (m_packet.index == rx_packet->length)
-						{
-							m_packet.state = STATE_WAIT_CHECKSUM_L;
-							break;
-						}
-
 						if (m_packet.index == 0)
 							rx_packet->data = &rx_packet->buffer[m_packet.data_cnt];
 
 						if (m_packet.index < rx_packet->length)
 						{
-							rx_packet->data[m_packet.index++] = rx_data;
+							rx_packet->data[m_packet.index] = rx_data;
 							UTL::crc16_modbus_update(&rx_packet->check_sum, rx_data);
 							rx_packet->buffer[m_packet.data_cnt++] = rx_data;
 						}
@@ -532,6 +535,14 @@ namespace RCTRL
 							m_packet.state = STATE_WAIT_STX;
 							m_packet.index = 0;
 						}
+						m_packet.index++;
+						// check complete
+						if (m_packet.index == rx_packet->length)
+						{
+							m_packet.state = STATE_WAIT_CHECKSUM_L;
+							break;
+						}
+
 					}
 					break;
 					case STATE_WAIT_CHECKSUM_L:

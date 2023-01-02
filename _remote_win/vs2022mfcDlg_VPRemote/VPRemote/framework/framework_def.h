@@ -10,9 +10,8 @@
   *	gui timer id define
   ****************************************************/
 #define UPDATE_TIMER_MAIN_DLG			1
-#define UPDATE_TIMER_POP_IO_DLG			2
-#define UPDATE_TIMER_TAB_MAIN_DLG		3
-#define UPDATE_TIMER_POP_ROBOT_DLG		4
+#define UPDATE_TIMER_POP_MCU_DATA_DLG			2
+#define UPDATE_TIMER_POP_MOTOR_DATA_DLG		3
 
 
 

@@ -1,9 +1,16 @@
 ﻿#pragma once
 
 // CpopMoonsControl 대화 상자
+class CVPRemoteDlg;
 
 class Cui_PopMoonsControl : public CDialogEx
 {
+	UINT_PTR m_TimerID;
+	CVPRemoteDlg* m_pParent;
+	AP_SYS::MSystem* m_pSystem;
+	HAL::ModulePeeler* m_pPeeler;
+
+
 	DECLARE_DYNAMIC(Cui_PopMoonsControl)
 
 public:
@@ -27,7 +34,6 @@ public:
 	afx_msg void OnBnClickedMoonsBtnOrg();
 	afx_msg void OnBnClickedMoonsBtnPosmodeAbsmoveStart();
 	afx_msg void OnBnClickedMoonsBtnPosmodeAbsmoveStop();
-	afx_msg void OnBnClickedMoonsBtnPosmodeAbsmoveStop2();
 	afx_msg void OnBnClickedMoonsBtnPosmodeRelmoveStart();
 	afx_msg void OnBnClickedMoonsBtnPosmodeRelmoveStop();
 	afx_msg void OnBnClickedMoonsBtnJogPosmodeMoveStop();
@@ -39,4 +45,19 @@ public:
 	afx_msg void OnBnClickedMoonsBtnMotorSeekhome();
 	afx_msg void OnBnClickedMoonsBtnMotorOff();
 	afx_msg void OnBnClickedMoonsBtnMotorOn();
+	virtual BOOL OnInitDialog();
+	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+private:
+	void update();
+	CEdit m_txtDriveStatus;
+	CEdit m_txtAlarmStatus;
+	CEdit m_txtActSpeed;
+	CEdit m_txtTargetSpeed;
+	CEdit m_txtEncodePos;
+	CEdit m_txtCmdPos;
+public:
+	afx_msg void OnPaint();
+private:
+	CComboBox m_cmbDirection;
 };

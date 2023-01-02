@@ -13,13 +13,14 @@
 constexpr uint8_t STEP_INIT 							= 0x00;
 constexpr uint8_t	STEP_TODO 							= 0x01;
 constexpr uint8_t	STEP_TIMEOUT						= 0x02;
-constexpr uint8_t	STEP_WAIT_RETURN				= 0x03;
+constexpr uint8_t	STEP_RESET_COMM_ALARM		= 0x03;
 constexpr uint8_t	STEP_STATE_UPDATE				= 0x04;
 constexpr uint8_t	STEP_STATE_UPDATE_START	= 0x05;
 constexpr uint8_t	STEP_STATE_UPDATE_WAIT 	= 0x06;
 constexpr uint8_t	STEP_STATE_UPDATE_END 	= 0x07;
 
 constexpr uint8_t	COMM_TIMEOUT_MAX 				= 100;
+constexpr uint8_t COMM_ALARM_CNT_MAX      = 2;
 namespace MOTOR
 {
 
@@ -133,17 +134,25 @@ namespace MOTOR
 			}
 			break;
 			/*######################################################
-			  wait return
+			  comm alarm reset
 			######################################################*/
-			case STEP_WAIT_RETURN:
+			case STEP_RESET_COMM_ALARM:
 			{
-				if (m_step.LessThan(50))
-					break;
+				MOTOR::enMotor_moons* ptr_motor = &m_cfg.p_motor[m_requestMotor_idx];
+				uint8_t* alarm_cnt = &m_motorCommErrCnt[m_requestMotor_idx];
+				m_requestMotor_idx++;
 
-				if (0)//check
-					m_step.SetStep(STEP_TIMEOUT);
-				else
+				if (*alarm_cnt < COMM_ALARM_CNT_MAX)
+				{
 					m_step.SetStep(STEP_TODO);
+					break;
+				}
+				else
+				{
+					*alarm_cnt = 0;
+					ptr_motor->ClearState();
+				}
+				m_step.SetStep(STEP_TODO);
 			}
 			break;
 			/*######################################################
@@ -192,9 +201,19 @@ namespace MOTOR
 
 			case STEP_STATE_UPDATE_END:
 			{
-				m_commStatus.comm_err &= ~(1 << (m_requestMotor_idx));
-				++m_requestMotor_idx;
+				if(m_step.LessThan(50))
+					break;
 
+				m_commStatus.comm_err &= ~(1 << (m_requestMotor_idx));
+
+				if (m_cfg.p_motor[m_requestMotor_idx].IsCommAlarm())
+				{
+					m_motorCommErrCnt[m_requestMotor_idx]++;
+					m_step.SetStep(STEP_RESET_COMM_ALARM);
+					break;
+				}
+
+				++m_requestMotor_idx;
 				m_step.SetStep(STEP_TODO);
 			}
 			break;

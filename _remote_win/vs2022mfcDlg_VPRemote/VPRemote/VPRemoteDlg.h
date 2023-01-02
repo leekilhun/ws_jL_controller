@@ -5,14 +5,21 @@
 #pragma once
 
 class Cui_PopMoonsControl;
+class Cui_PopMcuData;
 
 // CVPRemoteDlg 대화 상자
 class CVPRemoteDlg : public CDialogEx
 {
 	Cui_PopMoonsControl* m_popMotor;
+	Cui_PopMcuData* m_popMcuData;
 	AP_SYS::MSystem* m_pSystem;
+
 	UINT_PTR m_TimerID;
 	bool m_lockUpdate;
+
+
+public:
+	MCU_OBJ::MOTOR m_motorIdx;
 
 // 생성입니다.
 public:
@@ -46,6 +53,7 @@ public:
 private:
 	void update();
 public:
+
 	afx_msg void OnBnClickedPeelerMainPopMotorCtrl();
 	afx_msg void OnDestroy();
 	afx_msg void OnBnClickedPeelerMainMotorStop();
@@ -99,4 +107,5 @@ public:
 	afx_msg void OnBnClickedCheckOption14();
 	afx_msg void OnBnClickedCheckOption15();
 	afx_msg void OnBnClickedCheckSetOutput();
+	afx_msg void OnBnClickedPeelerMainPopMcuData();
 };

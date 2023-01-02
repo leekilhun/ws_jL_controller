@@ -129,8 +129,6 @@ namespace MOTOR
 			moons_data_t() = default;
 
 			moons_data_t& operator = (const moons_data_t& data){
-				al_code 									= data.al_code;
-				drv_status 								= data.drv_status;
 				immediate_expanded_input	= data.immediate_expanded_input;
 				driver_board_inputs 			= data.driver_board_inputs;
 				encoder_position 					= data.encoder_position;
@@ -138,6 +136,8 @@ namespace MOTOR
 				abs_position_command 			= data.abs_position_command;
 				immediate_act_velocity 		= data.immediate_act_velocity;
 				immediate_target_velocity = data.immediate_target_velocity;
+				al_code										= data.al_code;
+				drv_status								= data.drv_status;
 				return *(this);
 			}
 		};
@@ -486,6 +486,9 @@ namespace MOTOR
 		}
 
 
+		inline bool IsCommAlarm() const{
+			return m_motorData.al_code.Comm_Error;
+		}
 
 		inline errno_t GetMotorData(){
 			return m_cfg.p_comm->RequestMotorData(m_nodeId);

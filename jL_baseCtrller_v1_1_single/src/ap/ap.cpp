@@ -343,7 +343,11 @@ void apInit(void)
 		cfg.ptr_vac_data = &vac_data;
 		cfg.ptr_sequence_data = &seq_data;
 		cfg.ptr_log = &mcu_log;
+		cfg.ptr_motors = &motors;
 		cfg.ptr_auto =&autoManager;
+		cfg.ptr_axis_data = &axis_data;
+		cfg.ptr_cfg_data = &apCfg_data;
+
 		remote_pc.Init(cfg);
 	}
 

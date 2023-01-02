@@ -105,6 +105,12 @@ BOOL CVPRemoteApp::InitInstance()
 	SYSLOG::syslog_Init();
 	
 	
+	std::array<byte, 40> test_array{};
+  
+	byte source[] = { 1,2,3,4,5 };
+	memcpy(&test_array[4], source, 5);
+
+
 	errno_t result = m_pSystem->Initialize();
 	if (result != ERROR_SUCCESS)
 	{

@@ -111,6 +111,9 @@
     <ClInclude Include="ui\popMoonsControl.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="ui\popMcuData.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VPRemote.cpp">
@@ -138,6 +141,9 @@
       <Filter>framework\system</Filter>
     </ClCompile>
     <ClCompile Include="ui\popMoonsControl.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\popMcuData.cpp">
       <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>

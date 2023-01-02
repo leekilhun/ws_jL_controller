@@ -12,6 +12,7 @@
 
 //3. 추가할 헤더
 #include "ui/popMoonsControl.h"
+#include "ui/popMcuData.h"
 
 
 
@@ -25,8 +26,9 @@
 static void receiveMainDlgCB(void* obj, void* w_parm, void* l_parm);
 
 CVPRemoteDlg::CVPRemoteDlg(CWnd* pParent /*=nullptr*/)
-	: CDialogEx(IDD_VPREMOTE_DIALOG, pParent),m_popMotor{}, m_pSystem{}, m_TimerID{}
+	: CDialogEx(IDD_VPREMOTE_DIALOG, pParent), m_popMotor{}, m_popMcuData{}, m_pSystem {}, m_TimerID{}
 	, m_lockUpdate{}
+	, m_motorIdx{}
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
@@ -133,6 +135,7 @@ BEGIN_MESSAGE_MAP(CVPRemoteDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_STATE_125, &CVPRemoteDlg::OnBnClickedCheckSetOutput)
 	ON_BN_CLICKED(IDC_CHECK_STATE_126, &CVPRemoteDlg::OnBnClickedCheckSetOutput)
 	ON_BN_CLICKED(IDC_CHECK_STATE_127, &CVPRemoteDlg::OnBnClickedCheckSetOutput)
+	ON_BN_CLICKED(IDC_PEELER_MAIN_POP_MCU_DATA, &CVPRemoteDlg::OnBnClickedPeelerMainPopMcuData)
 END_MESSAGE_MAP()
 
 
@@ -270,31 +273,58 @@ void CVPRemoteDlg::update()
 		return;
 
 	HAL::ModulePeeler* peeler = m_pSystem->GetModulePeelerComponent();
-	peeler->GetMcuState();
-	peeler->m_stateReg; 
-
-	for (int i = 0; i < 16; i++)
+	
+	if (m_popMcuData)
 	{
-		((CButton*)GetDlgItem(IDC_CHECK_STATE_0 + i))->SetCheck(((peeler->m_stateReg.ap_state >> i) & 1));
+		if (m_popMcuData->IsWindowVisible())
+		{
+			
+			return;
+		}
 	}
 	
-	for (int i = 0; i < 16; i++)
+
+	if (m_popMotor)
 	{
-		((CButton*)GetDlgItem(IDC_CHECK_STATE_16 + i))->SetCheck(((peeler->m_optionReg.ap_option >> i) & 1));
+		if (m_popMotor->IsWindowVisible())
+		{
+			HAL::ModulePeeler::moons_data_st motor_data{};
+			peeler->GetMotorState(m_motorIdx);
+			peeler->GetMotorData(motor_data, m_motorIdx);
+			return;
+		}
 	}
 
-	for (int i = 0; i < 32; i++)
+
+
 	{
-		((CButton*)GetDlgItem(IDC_CHECK_STATE_32 + i))->SetCheck(((peeler->m_errorReg.ap_error >> i) & 1));
+		peeler->GetMcuState();
+		peeler->m_stateReg;
+
+		for (int i = 0; i < 16; i++)
+		{
+			((CButton*)GetDlgItem(IDC_CHECK_STATE_0 + i))->SetCheck(((peeler->m_stateReg.ap_state >> i) & 1));
+		}
+
+		for (int i = 0; i < 16; i++)
+		{
+			((CButton*)GetDlgItem(IDC_CHECK_STATE_16 + i))->SetCheck(((peeler->m_optionReg.ap_option >> i) & 1));
+		}
+
+		for (int i = 0; i < 32; i++)
+		{
+			((CButton*)GetDlgItem(IDC_CHECK_STATE_32 + i))->SetCheck(((peeler->m_errorReg.ap_error >> i) & 1));
+		}
+		for (int i = 0; i < 32; i++)
+		{
+			((CButton*)GetDlgItem(IDC_CHECK_STATE_64 + i))->SetCheck(((peeler->m_inReg >> i) & 1));
+		}
+		for (int i = 0; i < 32; i++)
+		{
+			((CButton*)GetDlgItem(IDC_CHECK_STATE_96 + i))->SetCheck(((peeler->m_outReg >> i) & 1));
+		}
 	}
-	for (int i = 0; i < 32; i++)
-	{
-		((CButton*)GetDlgItem(IDC_CHECK_STATE_64 + i))->SetCheck(((peeler->m_inReg >> i) & 1));
-	}
-	for (int i = 0; i < 32; i++)
-	{
-		((CButton*)GetDlgItem(IDC_CHECK_STATE_96 + i))->SetCheck(((peeler->m_outReg >> i) & 1));
-	}
+	//end of if (m_popMcuData->IsWindowVisible())
 
 }
 
@@ -321,6 +351,13 @@ void CVPRemoteDlg::OnDestroy()
 		delete m_popMotor;
 	}
 	m_popMotor = nullptr;
+
+
+	if (m_popMcuData)
+	{
+		delete m_popMcuData;
+	}
+	m_popMcuData = nullptr;
 }
 
 
@@ -375,6 +412,14 @@ void CVPRemoteDlg::OnBnClickedPeelerMainCheckMotorOrg()
 void CVPRemoteDlg::OnBnClickedPeelerMainCyl_LoaderFor()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_lockUpdate = true;
+
+	HAL::ModulePeeler* peeler = m_pSystem->GetModulePeelerComponent();
+	peeler->CylOnOff(MCU_OBJ::CYL_PHONE_FORBACK, true);
+
+	m_lockUpdate = false;
+
+
 }
 
 
@@ -390,11 +435,11 @@ void CVPRemoteDlg::OnBnClickedPeelerMainCyl_JigOpen()
 }
 
 
-afx_msg void CVPRemoteDlg::OnBnClickedPeelerMainCyl_JigGrip()
+void CVPRemoteDlg::OnBnClickedPeelerMainCyl_JigGrip()
 {
 
 }
-afx_msg void CVPRemoteDlg::OnBnClickedPeelerMainCyl_JigClose()
+void CVPRemoteDlg::OnBnClickedPeelerMainCyl_JigClose()
 {
 
 }
@@ -570,6 +615,19 @@ void CVPRemoteDlg::OnBnClickedCheckSetOutput()
 	{
 		output_reg |= (((CButton*)GetDlgItem(IDC_CHECK_STATE_96 + i))->GetCheck()<<i);
 	}
+	peeler->SetIO_Output(output_reg);
 
 	m_lockUpdate = false;
+}
+
+
+void CVPRemoteDlg::OnBnClickedPeelerMainPopMcuData()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.m_popMcuData
+	if (m_popMcuData == nullptr)
+	{
+		m_popMcuData = new Cui_PopMcuData(this);
+		m_popMcuData->Create(IDD_MCU_DATA, this);
+	}
+	m_popMcuData->ShowWindow(SW_SHOW);
 }

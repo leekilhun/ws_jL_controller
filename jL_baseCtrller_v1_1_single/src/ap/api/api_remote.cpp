@@ -28,6 +28,11 @@ constexpr uint8_t	STEP_MOTOR_POS_VEL_START 						= 0x0d;
 constexpr uint8_t	STEP_MOTOR_POS_VEL_WAIT							= 0x0e;
 constexpr uint8_t	STEP_MOTOR_POS_VEL_END							= 0x0f;
 
+constexpr uint8_t	STEP_ROMDATA_POS_VEL								= 0x10;
+constexpr uint8_t	STEP_ROMDATA_POS_VEL_START 					= 0x11;
+constexpr uint8_t	STEP_ROMDATA_POS_VEL_WAIT						= 0x12;
+constexpr uint8_t	STEP_ROMDATA_POS_VEL_END						= 0x13;
+
 
 
 constexpr uint8_t	COMM_TIMEOUT_MAX 										= 100;
@@ -45,6 +50,13 @@ void api_remote::ThreadJob()
 
 void api_remote::doRunStep()
 {
+	auto make_packet = [&](auto offset, auto source)->uint8_t
+			{
+				memcpy(&m_txBuffer[offset],&source, sizeof(source));
+				return (uint8_t)(offset+sizeof(source));
+			};
+
+
 	switch(m_step.GetStep())
 	{
 		case STEP_INIT:
@@ -93,36 +105,21 @@ void api_remote::doRunStep()
 			######################################################*/
 		case STEP_MCU_STATE:
 		{
-			memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
+			m_txBuffer.fill(0);
 			m_step.SetStep(STEP_MCU_STATE_START);
 		}
 		break;
 
 		case STEP_MCU_STATE_START:
 		{
-			uint8_t idx = 0;	uint8_t size = 0;
-			size = (uint8_t)sizeof(m_cfg.ptr_mcu_reg->state_reg.ap_state);
-			memcpy(&m_txBuffer[idx],&m_cfg.ptr_mcu_reg->state_reg.ap_state, size);  // 0
+			uint8_t idx = 0;	//uint8_t size = 0;
 
-			idx += size; //2
-			size = (uint8_t)sizeof(m_cfg.ptr_mcu_reg->option_reg.ap_option);
-			memcpy(&m_txBuffer[idx],&m_cfg.ptr_mcu_reg->option_reg.ap_option, size);
-
-			idx += size; //4
-			size = (uint8_t)sizeof(m_cfg.ptr_mcu_reg->error_reg.ap_error);
-			memcpy(&m_txBuffer[idx],&m_cfg.ptr_mcu_reg->error_reg.ap_error, size); //
-
-			idx += size; //8
-			size = (uint8_t)sizeof(m_cfg.ptr_io->m_in.data);
-			memcpy(&m_txBuffer[idx],&m_cfg.ptr_io->m_in.data, size);
-
-			idx += size; //12
-			size = (uint8_t)sizeof(m_cfg.ptr_io->m_out.data);
-			memcpy(&m_txBuffer[idx],&m_cfg.ptr_io->m_out.data, size);
-
-			// total 16 bytes
-			uint8_t length = idx + size;
-			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_MCU_STATE_DATA, &m_txBuffer[0], length);
+			idx = make_packet(idx, m_cfg.ptr_mcu_reg->state_reg.ap_state);
+			idx = make_packet(idx, m_cfg.ptr_mcu_reg->option_reg.ap_option);
+			idx = make_packet(idx, m_cfg.ptr_mcu_reg->error_reg.ap_error);
+			idx = make_packet(idx, m_cfg.ptr_io->m_in.data);
+			idx = make_packet(idx, m_cfg.ptr_io->m_out.data);
+			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_MCU_STATE_DATA, m_txBuffer.data(), idx);
 
 			m_waitReplyOK = true;
 			m_step.SetStep(STEP_MCU_STATE_WAIT);
@@ -160,20 +157,35 @@ void api_remote::doRunStep()
 			######################################################*/
 		case STEP_MOTOR_DATA:
 		{
-			memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
+			//memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
+			m_txBuffer.fill(0);
 			m_step.SetStep(STEP_MOTOR_DATA_START);
 		}
 		break;
 
 		case STEP_MOTOR_DATA_START:
 		{
-#if 0
+			uint8_t idx = 0;
 			MOTOR::enMotor_moons* p_motor{};
 			MOTOR::enMotor_moons::moons_data_t motor_data{};
 
-			p_motor = m_cfg.ptr_motors->GetMotorObject(AP_OBJ::MOTOR::MOTOR_JIG);//m_idxMotor
+			p_motor = m_cfg.ptr_motors->GetMotorObject(m_idxMotor);//m_idxMotor
 			p_motor->GetMotorData(motor_data);
 
+			idx = make_packet(idx, motor_data.drv_status.sc_status);//2
+			idx = make_packet(idx, motor_data.al_code.al_status);//2
+			idx = make_packet(idx, motor_data.immediate_expanded_input);//2
+			idx = make_packet(idx, motor_data.driver_board_inputs);//2
+			idx = make_packet(idx, motor_data.encoder_position);//4
+			idx = make_packet(idx, motor_data.immediate_abs_position);//4
+			idx = make_packet(idx, motor_data.abs_position_command);//4
+			idx = make_packet(idx, motor_data.immediate_act_velocity);//2
+			idx = make_packet(idx, motor_data.immediate_target_velocity);//2
+
+			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_MOTOR_DATA, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
+			m_waitReplyOK = true;
+
+#if 0
 			idx += size; //16
 			size = (uint8_t)sizeof(motor_data.drv_status.sc_status);
 			memcpy(&m_txBuffer[idx],&motor_data.drv_status.sc_status, size);
@@ -209,13 +221,22 @@ void api_remote::doRunStep()
 
 		case STEP_MOTOR_DATA_WAIT:
 		{
+			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
+			{
+				m_step.SetStep(STEP_TIMEOUT);
+				break;
+			}
+
+			// check return flag
+			if (m_waitReplyOK)
+				break;
 			m_step.SetStep(STEP_MOTOR_DATA_END);
 		}
 		break;
 
 		case STEP_MOTOR_DATA_END:
 		{
-
+			m_waitReplyOK = false;
 			m_step.SetStep(STEP_TODO);
 		}
 		break;
@@ -283,6 +304,38 @@ void api_remote::doRunStep()
 			m_step.SetStep(STEP_TODO);
 		}
 		break;
+
+		/*######################################################
+				STEP_ROMDATA_POS_VEL
+			######################################################*/
+		case STEP_ROMDATA_POS_VEL:
+		{
+			memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_ROMDATA_POS_VEL_START);
+		}
+		break;
+
+		case STEP_ROMDATA_POS_VEL_START:
+		{
+
+
+		}
+		break;
+
+		case STEP_ROMDATA_POS_VEL_WAIT:
+		{
+			m_step.SetStep(STEP_ROMDATA_POS_VEL_END);
+		}
+		break;
+
+		case STEP_ROMDATA_POS_VEL_END:
+		{
+
+			m_step.SetStep(STEP_TODO);
+		}
+		break;
+
 		default:
 			break;
 	}
@@ -299,7 +352,230 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
   using TYPE = RCTRL::CMD_TYPE;
 	switch (m_receiveData.type)
 	{
+		case TYPE::CMD_CTRL_CYL:
+		{
+			AP_OBJ::CYL cyl_id{};
+			if (m_receiveData.obj_id < AP_OBJ::CYL::CYL_MAX)
+				cyl_id = (AP_OBJ::CYL)m_receiveData.obj_id;
+			else
+				break;
 
+			bool senser_skip = (bool)(m_receiveData.data[1]&1);
+			if (m_receiveData.data[0])
+				m_cfg.ptr_task->CylOpen(cyl_id, senser_skip);
+			else
+				m_cfg.ptr_task->CylClose(cyl_id, senser_skip);
+		}
+		break;
+
+		case TYPE::CMD_CTRL_IO_OUT:
+		{
+			uint32_t out_reg = utilDwToUint(m_receiveData.data);
+			m_cfg.ptr_io->SetOutputReg(out_reg);
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_ONOFF:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+				bool on_off = bool(m_receiveData.data[0]&1);
+				m_cfg.ptr_motors->MotorOnOff(on_off, m_idxMotor);
+			}
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_ZEROSET:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+				m_cfg.ptr_motors->MotorZeroEncode(m_idxMotor);
+			}
+			else
+			{
+				m_cfg.ptr_motors->MotorZeroEncode();
+			}
+
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_ORIGIN:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+				m_cfg.ptr_motors->Origin(m_idxMotor);
+			}
+			else
+			{
+				m_cfg.ptr_motors->Origin();
+			}
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_MOVE:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+
+				int pos = utilDwToInt(&m_receiveData.data[0]);
+
+				m_cfg.ptr_motors->Move(m_idxMotor,pos);
+			}
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_RELMOVE:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+
+				int pos = utilDwToInt(&m_receiveData.data[0]);
+
+				m_cfg.ptr_motors->RelMove(m_idxMotor, pos);
+			}
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_MOVE_VEL:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+
+				int pos = utilDwToInt(&m_receiveData.data[0]);
+
+				uint16_t vel = (uint16_t)(m_receiveData.data[4] << 0)
+										 | (uint16_t)(m_receiveData.data[5] << 8);
+
+				uint16_t acc = (uint16_t)(m_receiveData.data[6] << 0)
+										 | (uint16_t)(m_receiveData.data[7] << 8);
+
+				m_cfg.ptr_motors->Move(m_idxMotor,(uint32_t)vel, (uint32_t)acc, (uint32_t)acc ,pos);
+			}
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_RELMOVE_VEL:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+
+				int pos = utilDwToInt(&m_receiveData.data[0]);
+				uint16_t vel = (uint16_t)(m_receiveData.data[4] << 0)
+										 | (uint16_t)(m_receiveData.data[5] << 8);
+
+				uint16_t acc = (uint16_t)(m_receiveData.data[6] << 0)
+										 | (uint16_t)(m_receiveData.data[7] << 8);
+
+				m_cfg.ptr_motors->RelMove(m_idxMotor, (uint32_t)vel, (uint32_t)acc, (uint32_t)acc, pos);
+			}
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_STOP:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+				m_cfg.ptr_motors->MotorMoveStop(m_idxMotor);
+			}
+			else
+			{
+				m_cfg.ptr_motors->MotorMoveStop();
+			}
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_JOG:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+				bool is_cw = bool(m_receiveData.data[0]&1);
+				m_cfg.ptr_motors->MotorJogMove(m_idxMotor,is_cw);
+			}
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_JOG_STOP:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+				m_cfg.ptr_motors->MotorJogMoveStop(m_idxMotor);
+			}
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_CLEAR_ALARM:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+				m_cfg.ptr_motors->MotorClearAlarm(m_idxMotor);
+			}
+		}
+		break;
+
+		case TYPE::CMD_READ_MOTOR_POS_DATA:
+		{
+			/*
+			AP_OBJ::MOTOR motor_id{};
+			if (m_receiveData.obj_id < AP_OBJ::MOTOR_MAX)
+				motor_id = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+			else
+				break;
+
+			m_cfg.ptr_axis_data->cmd_pos_dat;
+			*/
+		}
+		break;
+
+		case TYPE::CMD_READ_CFG_DATA:
+		{
+
+		}
+		break;
+
+		case TYPE::CMD_READ_CYL_DATA:
+		{
+
+		}
+		break;
+
+		case TYPE::CMD_READ_VAC_DATA:
+		{
+
+		}
+		break;
+
+		case TYPE::CMD_READ_SEQ_DATA:
+		{
+
+		}
+		break;
+
+		case TYPE::CMD_CLEAR_ROM_DATA:
+		{
+
+		}
+		break;
+
+		case TYPE::CMD_READ_MOTOR_DATA:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				m_step.SetStep(STEP_MOTOR_DATA);
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+			}
+		}
+		break;
 
 		case TYPE::CMD_READ_MCU_DATA:
 		{
