@@ -23,7 +23,12 @@ bool exhwInit(void)
 	ret = kdr10K_IDswInit();
 #endif
 
+#ifdef _USE_EXHW_STEP_MOTORS
 	step_motorsInit();
+#endif
 
+#ifdef _USE_EXHW_MOTORS
+	motorsInit();
+#endif
   return ret;
 }

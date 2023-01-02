@@ -17,6 +17,7 @@ extern "C" {
 #include "at24c64.h"
 #include "kdr10K_IDsw.h"
 #include "step_motors.h"
+#include "motors.h"
 
 
 

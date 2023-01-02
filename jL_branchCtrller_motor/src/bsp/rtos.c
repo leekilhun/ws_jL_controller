@@ -14,6 +14,7 @@
 #include "hw_def.h"
 
 
+#ifdef _USE_HW_RTOS
 
 void rtosInit(void)
 {
@@ -150,3 +151,5 @@ void TIM6_IRQHandler(void)
 {
   HAL_TIM_IRQHandler(&TimHandle);
 }
+
+#endif

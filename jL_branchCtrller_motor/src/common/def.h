@@ -39,8 +39,6 @@ typedef enum
 {
   AXIS_1,
   AXIS_2,
-  AXIS_3,
-  AXIS_4,
 
   AXIS_MAX
 } axis_dir;

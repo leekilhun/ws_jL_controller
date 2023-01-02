@@ -98,7 +98,11 @@
 #define      HW_I2C_MAX_CH          2
 
 
-
+#define _USE_HW_TIM
+#ifdef  _USE_HW_TIM
+#define      HW_TIM_MAX_CH          1
+#define        _TIM_3               0
+#endif
 
 
 #endif /* SRC_HW_HW_DEF_H_ */

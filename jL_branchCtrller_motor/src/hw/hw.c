@@ -50,6 +50,10 @@ bool hwInit(void)
   ret &= uartInit();
 #endif
 
+#ifdef _USE_HW_TIM
+  ret &= timInit();
+#endif
+
 
 #ifdef _USE_HW_LOG
   ret &= logInit();

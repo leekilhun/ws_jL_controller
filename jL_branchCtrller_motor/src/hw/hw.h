@@ -25,7 +25,7 @@ extern "C" {
 #include "buzzer.h"
 #include "gpio.h"
 #include "codeID.h"
-
+#include "tim.h"
 
 
 bool hwInit(void);

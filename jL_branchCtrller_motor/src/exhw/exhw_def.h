@@ -17,7 +17,7 @@
 //#define _USE_EXHW_KDR10K_IDSW0
 
 
-#define _USE_EXHW_STEP_MOTORS
-
+//#define _USE_EXHW_STEP_MOTORS
+#define _USE_EXHW_MOTORS
 
 #endif /* SRC_EXHW_EXHW_DEF_H_ */

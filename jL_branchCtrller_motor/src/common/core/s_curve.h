@@ -8,10 +8,15 @@
 #ifndef SRC_COMMON_CORE_S_CURVE_H_
 #define SRC_COMMON_CORE_S_CURVE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 
 #define TABLE_LEN   200
 
+#if 1
 //================================================
 const unsigned int u32_Speed0[]={
 2100000,//0
@@ -415,7 +420,11 @@ unsigned int s_curve_table[TABLE_LEN]=
 //================================================
 
 
+#endif
 
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif /* SRC_COMMON_CORE_S_CURVE_H_ */
