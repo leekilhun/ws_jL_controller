@@ -47,6 +47,7 @@ struct prc_step_t
   uint8_t wait_step{};
   uint32_t prev_ms{};
   uint32_t elap_ms{};
+  uint8_t retry_cnt{};
 
   inline void SetStep(uint8_t step){
   	elap_ms = millis() - prev_ms;

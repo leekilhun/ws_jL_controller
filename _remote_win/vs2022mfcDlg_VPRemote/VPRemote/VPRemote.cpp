@@ -4,9 +4,16 @@
 
 #include "pch.h"
 #include "framework.h"
-
 #include "VPRemote.h"
 #include "VPRemoteDlg.h"
+
+#include <iostream>
+// MFC 프로젝에서 윈도우 콘솔 출력 
+#ifdef _UNICODE
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+#else
+#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+#endif
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -103,7 +110,6 @@ BOOL CVPRemoteApp::InitInstance()
 	app_threadRun();
 
 	SYSLOG::syslog_Init();
-	
 	
 	std::array<byte, 40> test_array{};
   

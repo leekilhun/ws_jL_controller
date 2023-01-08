@@ -19,41 +19,61 @@ constexpr uint8_t	STEP_MCU_STATE											= 0x04;
 constexpr uint8_t	STEP_MCU_STATE_START								= 0x05;
 constexpr uint8_t	STEP_MCU_STATE_WAIT 								= 0x06;
 constexpr uint8_t	STEP_MCU_STATE_END 									= 0x07;
+
 constexpr uint8_t	STEP_MOTOR_DATA 										= 0x08;
 constexpr uint8_t	STEP_MOTOR_DATA_START   						= 0x09;
 constexpr uint8_t	STEP_MOTOR_DATA_WAIT  							= 0x0a;
 constexpr uint8_t	STEP_MOTOR_DATA_END 								= 0x0b;
-constexpr uint8_t	STEP_MOTOR_POS_VEL									= 0x0c;
-constexpr uint8_t	STEP_MOTOR_POS_VEL_START 						= 0x0d;
-constexpr uint8_t	STEP_MOTOR_POS_VEL_WAIT							= 0x0e;
-constexpr uint8_t	STEP_MOTOR_POS_VEL_END							= 0x0f;
 
-constexpr uint8_t	STEP_ROMDATA_POS_VEL								= 0x10;
-constexpr uint8_t	STEP_ROMDATA_POS_VEL_START 					= 0x11;
-constexpr uint8_t	STEP_ROMDATA_POS_VEL_WAIT						= 0x12;
-constexpr uint8_t	STEP_ROMDATA_POS_VEL_END						= 0x13;
+constexpr uint8_t	STEP_MOTOR_CFG_MOTION_ORIGIN				= 0x0c;
+constexpr uint8_t	STEP_MOTOR_CFG_MOTION_ORIGIN_START	= 0x0d;
+constexpr uint8_t	STEP_MOTOR_CFG_MOTION_ORIGIN_WAIT		= 0x0e;
+constexpr uint8_t	STEP_MOTOR_CFG_MOTION_ORIGIN_END		= 0x0f;
+
+constexpr uint8_t	STEP_ROMDATA_POS_VEL_L							= 0x10;
+constexpr uint8_t	STEP_ROMDATA_POS_VEL_L_START				= 0x11;
+constexpr uint8_t	STEP_ROMDATA_POS_VEL_L_WAIT					= 0x12;
+constexpr uint8_t	STEP_ROMDATA_POS_VEL_L_END					= 0x13;
+
+constexpr uint8_t	STEP_ROMDATA_POS_VEL_H							= 0x14;
+constexpr uint8_t	STEP_ROMDATA_POS_VEL_H_START				= 0x15;
+constexpr uint8_t	STEP_ROMDATA_POS_VEL_H_WAIT					= 0x16;
+constexpr uint8_t	STEP_ROMDATA_POS_VEL_H_END					= 0x17;
+
+constexpr uint8_t	STEP_ROMDATA_LINK_POS_L							= 0x18;
+constexpr uint8_t	STEP_ROMDATA_LINK_POS_L_START				= 0x19;
+constexpr uint8_t	STEP_ROMDATA_LINK_POS_L_WAIT				= 0x1A;
+constexpr uint8_t	STEP_ROMDATA_LINK_POS_L_END					= 0x1B;
+
+constexpr uint8_t	STEP_ROMDATA_LINK_POS_H							= 0x1C;
+constexpr uint8_t	STEP_ROMDATA_LINK_POS_H_START				= 0x1D;
+constexpr uint8_t	STEP_ROMDATA_LINK_POS_H_WAIT				= 0x1E;
+constexpr uint8_t	STEP_ROMDATA_LINK_POS_H_END					= 0x1F;
 
 
-
+constexpr uint8_t STEP_DELAY_WAIT											= 30;
+constexpr uint8_t RETRY_CNT_MAX												= 3;
 constexpr uint8_t	COMM_TIMEOUT_MAX 										= 100;
 constexpr uint8_t COMM_ERR_RECOVERY_LIMIT_CNT         = 10;
 
 
 void api_remote::ThreadJob()
 {
-  doRunStep();
+	doRunStep();
 
-  m_cfg.ptr_comm->ReceiveProcess();
+	m_cfg.ptr_comm->ReceiveProcess();
 }
 
 
 
 void api_remote::doRunStep()
 {
+
+	using tx_t = RCTRL::TX_TYPE;
 	auto make_packet = [&](auto offset, auto source)->uint8_t
 			{
-				memcpy(&m_txBuffer[offset],&source, sizeof(source));
-				return (uint8_t)(offset+sizeof(source));
+		memcpy(&m_txBuffer[offset],&source, sizeof(source));
+		return (uint8_t)(offset+sizeof(source));
 			};
 
 
@@ -83,6 +103,7 @@ void api_remote::doRunStep()
 			{
 				m_cfg.ptr_comm->Recovery();
 			}
+			m_step.retry_cnt = 0;
 			m_step.SetStep(STEP_TODO);
 		}
 		break;
@@ -91,13 +112,17 @@ void api_remote::doRunStep()
 			######################################################*/
 		case STEP_WAIT_RETURN:
 		{
-			if (m_step.LessThan(50))
+			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
+			{
+				m_step.SetStep(STEP_TIMEOUT);
+				break;
+			}
+
+			// check return flag
+			if (m_waitReplyOK)
 				break;
 
-			if (0)//check
-				m_step.SetStep(STEP_TIMEOUT);
-			else
-				m_step.SetStep(STEP_TODO);
+			m_step.SetStep(STEP_TODO);
 		}
 		break;
 		/*######################################################
@@ -105,6 +130,7 @@ void api_remote::doRunStep()
 			######################################################*/
 		case STEP_MCU_STATE:
 		{
+			m_step.retry_cnt = 0;
 			m_txBuffer.fill(0);
 			m_step.SetStep(STEP_MCU_STATE_START);
 		}
@@ -119,7 +145,7 @@ void api_remote::doRunStep()
 			idx = make_packet(idx, m_cfg.ptr_mcu_reg->error_reg.ap_error);
 			idx = make_packet(idx, m_cfg.ptr_io->m_in.data);
 			idx = make_packet(idx, m_cfg.ptr_io->m_out.data);
-			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_MCU_STATE_DATA, m_txBuffer.data(), idx);
+			m_cfg.ptr_comm->SendData((uint8_t)tx_t::TX_MCU_STATE_DATA, m_txBuffer.data(), idx);
 
 			m_waitReplyOK = true;
 			m_step.SetStep(STEP_MCU_STATE_WAIT);
@@ -129,17 +155,23 @@ void api_remote::doRunStep()
 
 		case STEP_MCU_STATE_WAIT:
 		{
-			//timeout
-			//if ((millis() - m_elaps) > COMM_TIMEOUT_MAX)
-			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
-			{
-				m_step.SetStep(STEP_TIMEOUT);
+			if (m_step.LessThan(STEP_DELAY_WAIT))
 				break;
-			}
 
 			// check return flag
 			if (m_waitReplyOK)
-				break;
+			{
+				if (m_step.retry_cnt++ < RETRY_CNT_MAX)
+				{
+					m_step.SetStep(STEP_MCU_STATE_START);
+					break;
+				}
+				else
+				{
+					m_step.SetStep(STEP_TIMEOUT);
+					break;
+				}
+			}
 
 			m_step.SetStep(STEP_MCU_STATE_END);
 		}
@@ -182,39 +214,9 @@ void api_remote::doRunStep()
 			idx = make_packet(idx, motor_data.immediate_act_velocity);//2
 			idx = make_packet(idx, motor_data.immediate_target_velocity);//2
 
-			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_MOTOR_DATA, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
+			m_cfg.ptr_comm->SendData((uint8_t)tx_t::TX_MOTOR_DATA, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
 			m_waitReplyOK = true;
 
-#if 0
-			idx += size; //16
-			size = (uint8_t)sizeof(motor_data.drv_status.sc_status);
-			memcpy(&m_txBuffer[idx],&motor_data.drv_status.sc_status, size);
-			idx += size; //18
-			size = (uint8_t)sizeof(motor_data.al_code.al_status);
-			memcpy(&m_txBuffer[idx],&motor_data.al_code.al_status, size);
-			idx += size; //20
-			size = (uint8_t)sizeof(motor_data.immediate_expanded_input);
-			memcpy(&m_txBuffer[idx],&motor_data.immediate_expanded_input, size); //
-			idx += size; //22
-			size = (uint8_t)sizeof(motor_data.driver_board_inputs);
-			memcpy(&m_txBuffer[idx],&motor_data.driver_board_inputs, size); //
-			idx += size; //24
-			size = (uint8_t)sizeof(motor_data.encoder_position);
-			memcpy(&m_txBuffer[idx],&motor_data.encoder_position, size); // 엔코더 위치값
-			idx += size; //28
-			size = (uint8_t)sizeof(motor_data.immediate_abs_position);
-			memcpy(&m_txBuffer[idx],&motor_data.immediate_abs_position, size); //
-			idx += size; //32
-			size = (uint8_t)sizeof(motor_data.abs_position_command);
-			memcpy(&m_txBuffer[idx],&motor_data.abs_position_command, size);   // 현재
-			idx += size; //36
-			size = (uint8_t)sizeof(motor_data.immediate_act_velocity);
-			memcpy(&m_txBuffer[idx],&motor_data.immediate_act_velocity, size);	   // 현재 속도
-			idx += size; //38
-			size = (uint8_t)sizeof(motor_data.immediate_target_velocity);
-			memcpy(&m_txBuffer[idx],&motor_data.immediate_target_velocity, size); // 타켓 속도
-
-#endif
 			m_step.SetStep(STEP_MOTOR_DATA_WAIT);
 		}
 		break;
@@ -242,63 +244,189 @@ void api_remote::doRunStep()
 		break;
 
 		/*######################################################
-				STEP_MOTOR_POS_VEL
+				STEP_MOTOR_CFG_MOTION_ORIGIN
 			######################################################*/
-		case STEP_MOTOR_POS_VEL:
+		case STEP_MOTOR_CFG_MOTION_ORIGIN:
 		{
-			memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
+			m_txBuffer.fill(0);
 			m_waitReplyOK = true;
-			m_step.SetStep(STEP_MOTOR_POS_VEL_START);
+			m_step.SetStep(STEP_MOTOR_CFG_MOTION_ORIGIN_START);
 		}
 		break;
 
-		case STEP_MOTOR_POS_VEL_START:
+		case STEP_MOTOR_CFG_MOTION_ORIGIN_START:
 		{
 
-			uint8_t idx = 0;	uint8_t size = 0;
+			uint8_t idx = 0;
 
-			MOTOR::enMotor_moons* p_motor{};
-			MOTOR::enMotor_moons::moons_data_t motor_data{};
+			using motor_t = MOTOR::enMotor_moons;
+			motor_t* p_motor{};
+			motor_t::motion_param_t motion_cfg{};
+			motor_t::origin_param_t origin_cfg{};
 
-			p_motor = m_cfg.ptr_motors->GetMotorObject(AP_OBJ::MOTOR::MOTOR_JIG);//m_idxMotor
-			p_motor->GetMotorData(motor_data);
+			p_motor = m_cfg.ptr_motors->GetMotorObject(m_idxMotor);
 
-			idx += size; //0
-			size = (uint8_t)sizeof(motor_data.drv_status.sc_status);
-			memcpy(&m_txBuffer[idx],&motor_data.drv_status.sc_status, size);
-			idx += size; //2
-			size = (uint8_t)sizeof(motor_data.al_code.al_status);
-			memcpy(&m_txBuffer[idx],&motor_data.al_code.al_status, size);
-			idx += size; //4
-			size = (uint8_t)sizeof(motor_data.encoder_position);
-			memcpy(&m_txBuffer[idx],&motor_data.encoder_position, size); // 엔코더 위치값
-			idx += size; //8
-			size = (uint8_t)sizeof(motor_data.immediate_abs_position);
-			memcpy(&m_txBuffer[idx],&motor_data.immediate_abs_position, size); //
-			idx += size; //12
-			size = (uint8_t)sizeof(motor_data.abs_position_command);
-			memcpy(&m_txBuffer[idx],&motor_data.abs_position_command, size);   // 현재
-			idx += size; //16
-			size = (uint8_t)sizeof(motor_data.immediate_act_velocity);
-			memcpy(&m_txBuffer[idx],&motor_data.immediate_act_velocity, size);	   // 현재 속도
-			idx += size; //18
-			size = (uint8_t)sizeof(motor_data.immediate_target_velocity);
-			memcpy(&m_txBuffer[idx],&motor_data.immediate_target_velocity, size); // 타켓 속도
 
-			// total 20 bytes
-			uint8_t length = idx + size;
-			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_MOTOR_POS_VEL, &m_txBuffer[0], length);
-			m_step.SetStep(STEP_MOTOR_POS_VEL_WAIT);
+			p_motor->GetMotionParamData(motion_cfg);
+			p_motor->GetOriginParamData(origin_cfg);
+			idx = make_packet(idx, motion_cfg.jog_accelC);//4
+			idx = make_packet(idx, motion_cfg.jog_speedC);//4
+			idx = make_packet(idx, motion_cfg.move_accelC);//4
+			idx = make_packet(idx, motion_cfg.move_speedC);//4
+			idx = make_packet(idx, origin_cfg.accel);//2
+			idx = make_packet(idx, origin_cfg.home_x_no);//1
+			idx = make_packet(idx, origin_cfg.home_x_level);//1
+			idx = make_packet(idx, origin_cfg.find_home_dir);//4
+			idx = make_packet(idx, origin_cfg.speed);//2
+
+			// total 26 bytes
+			m_cfg.ptr_comm->SendData((uint8_t)tx_t::TX_MOTOR_CFG_MOTION_ORIGIN, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_MOTOR_CFG_MOTION_ORIGIN_WAIT);
 		}
 		break;
 
-		case STEP_MOTOR_POS_VEL_WAIT:
+		case STEP_MOTOR_CFG_MOTION_ORIGIN_WAIT:
 		{
-			m_step.SetStep(STEP_MOTOR_POS_VEL_END);
+			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
+			{
+				m_step.SetStep(STEP_TIMEOUT);
+				break;
+			}
+
+			// check return flag
+			if (m_waitReplyOK)
+				break;
+
+			m_step.SetStep(STEP_MOTOR_CFG_MOTION_ORIGIN_END);
 		}
 		break;
 
-		case STEP_MOTOR_POS_VEL_END:
+		case STEP_MOTOR_CFG_MOTION_ORIGIN_END:
+		{
+			m_waitReplyOK = false;
+			m_step.SetStep(STEP_TODO);
+		}
+		break;
+
+		/*######################################################
+				STEP_ROMDATA_POS_VEL_L
+			######################################################*/
+		case STEP_ROMDATA_POS_VEL_L:
+		{
+			m_txBuffer.fill(0);
+			m_step.retry_cnt = 0;
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_ROMDATA_POS_VEL_L_START);
+		}
+		break;
+
+		case STEP_ROMDATA_POS_VEL_L_START:
+		{
+			uint8_t idx = 0;
+
+			constexpr uint8_t data_size = 8;/*static_cast<uint8_t>(mt_jig_pos_addr::_max)*/
+			axis_dat::dat_t* p_data{};
+			p_data =  m_cfg.ptr_axis_data->cmd_pos_dat;
+			idx = make_packet(idx, p_data[0 + ( data_size * m_idxMotor)] );//8
+			idx = make_packet(idx, p_data[1 + ( data_size * m_idxMotor)] );//8
+			idx = make_packet(idx, p_data[2 + ( data_size * m_idxMotor)] );//8
+			idx = make_packet(idx, p_data[3 + ( data_size * m_idxMotor)] );//8
+
+			// total 32 bytes
+			m_cfg.ptr_comm->SendData((uint8_t)tx_t::TX_EEPROM_MOTION_DATA_L, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_ROMDATA_POS_VEL_L_WAIT);
+
+		}
+		break;
+
+		case STEP_ROMDATA_POS_VEL_L_WAIT:
+		{
+			if (m_step.LessThan(STEP_DELAY_WAIT))
+				break;
+
+			// check return flag
+			if (m_waitReplyOK)
+			{
+				if (m_step.retry_cnt++ < RETRY_CNT_MAX)
+				{
+					m_step.SetStep(STEP_ROMDATA_POS_VEL_L_START);
+					break;
+				}
+				else
+				{
+					m_step.SetStep(STEP_TIMEOUT);
+					break;
+				}
+			}
+
+			m_step.SetStep(STEP_ROMDATA_POS_VEL_L_END);
+		}
+		break;
+
+		case STEP_ROMDATA_POS_VEL_L_END:
+		{
+
+			m_step.SetStep(STEP_ROMDATA_POS_VEL_H);
+		}
+		break;
+		/*######################################################
+				STEP_ROMDATA_POS_VEL_H
+			######################################################*/
+		case STEP_ROMDATA_POS_VEL_H:
+		{
+			m_txBuffer.fill(0);
+			m_waitReplyOK = true;
+			m_step.retry_cnt = 0;
+			m_step.SetStep(STEP_ROMDATA_POS_VEL_H_START);
+		}
+		break;
+
+		case STEP_ROMDATA_POS_VEL_H_START:
+		{
+			uint8_t idx = 0;
+
+			constexpr uint8_t data_size = 8;/*static_cast<uint8_t>(mt_jig_pos_addr::_max)*/
+			axis_dat::dat_t* p_data{};
+			p_data =  m_cfg.ptr_axis_data->cmd_pos_dat;
+			idx = make_packet(idx, p_data[4 + ( data_size * m_idxMotor)] );//8
+			idx = make_packet(idx, p_data[5 + ( data_size * m_idxMotor)] );//8
+			idx = make_packet(idx, p_data[6 + ( data_size * m_idxMotor)] );//8
+			idx = make_packet(idx, p_data[7 + ( data_size * m_idxMotor)] );//8
+
+			// total 32 bytes
+			m_cfg.ptr_comm->SendData((uint8_t)tx_t::TX_EEPROM_MOTION_DATA_H, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_ROMDATA_POS_VEL_H_WAIT);
+		}
+		break;
+
+		case STEP_ROMDATA_POS_VEL_H_WAIT:
+		{
+			if (m_step.LessThan(STEP_DELAY_WAIT))
+				break;
+
+			// check return flag
+			if (m_waitReplyOK)
+			{
+				if (m_step.retry_cnt++ < RETRY_CNT_MAX)
+				{
+					m_step.SetStep(STEP_ROMDATA_POS_VEL_H_START);
+					break;
+				}
+				else
+				{
+					m_step.SetStep(STEP_TIMEOUT);
+					break;
+				}
+			}
+
+			m_step.SetStep(STEP_ROMDATA_POS_VEL_H_END);
+		}
+		break;
+
+		case STEP_ROMDATA_POS_VEL_H_END:
 		{
 
 			m_step.SetStep(STEP_TODO);
@@ -306,36 +434,106 @@ void api_remote::doRunStep()
 		break;
 
 		/*######################################################
-				STEP_ROMDATA_POS_VEL
+				STEP_ROMDATA_LINK_POS_L
 			######################################################*/
-		case STEP_ROMDATA_POS_VEL:
+		case STEP_ROMDATA_LINK_POS_L:
 		{
-			memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
+			m_txBuffer.fill(0);
 			m_waitReplyOK = true;
-			m_step.SetStep(STEP_ROMDATA_POS_VEL_START);
+			m_step.SetStep(STEP_ROMDATA_LINK_POS_L_START);
 		}
 		break;
 
-		case STEP_ROMDATA_POS_VEL_START:
+		case STEP_ROMDATA_LINK_POS_L_START:
+		{
+			uint8_t idx = 0;
+
+			idx = make_packet(idx, m_cfg.ptr_linkPose_data->linkpose_dat[0] );//8
+			idx = make_packet(idx, m_cfg.ptr_linkPose_data->linkpose_dat[1] );//8
+			idx = make_packet(idx, m_cfg.ptr_linkPose_data->linkpose_dat[2] );//8
+			idx = make_packet(idx, m_cfg.ptr_linkPose_data->linkpose_dat[3] );//8
+
+			// total 36 bytes
+			m_cfg.ptr_comm->SendData((uint8_t)tx_t::TX_EEPROM_LINK_POS_DATA_L, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_ROMDATA_LINK_POS_L_WAIT);
+
+		}
+		break;
+
+		case STEP_ROMDATA_LINK_POS_L_WAIT:
+		{
+			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
+			{
+				m_step.SetStep(STEP_TIMEOUT);
+				break;
+			}
+
+			// check return flag
+			if (m_waitReplyOK)
+				break;
+			m_step.SetStep(STEP_ROMDATA_LINK_POS_L_END);
+		}
+		break;
+
+		case STEP_ROMDATA_LINK_POS_L_END:
 		{
 
-
+			m_step.SetStep(STEP_ROMDATA_LINK_POS_H);
 		}
 		break;
-
-		case STEP_ROMDATA_POS_VEL_WAIT:
+		/*######################################################
+				STEP_ROMDATA_LINK_POS_H
+			######################################################*/
+		case STEP_ROMDATA_LINK_POS_H:
 		{
-			m_step.SetStep(STEP_ROMDATA_POS_VEL_END);
+			if(m_step.LessThan(50))
+				return;
+
+			m_txBuffer.fill(0);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_ROMDATA_LINK_POS_H_START);
 		}
 		break;
 
-		case STEP_ROMDATA_POS_VEL_END:
+		case STEP_ROMDATA_LINK_POS_H_START:
+		{
+			uint8_t idx = 0;
+
+			idx = make_packet(idx, m_cfg.ptr_linkPose_data->linkpose_dat[4] );//8
+			idx = make_packet(idx, m_cfg.ptr_linkPose_data->linkpose_dat[5] );//8
+			idx = make_packet(idx, m_cfg.ptr_linkPose_data->linkpose_dat[6] );//8
+			idx = make_packet(idx, m_cfg.ptr_linkPose_data->linkpose_dat[7] );//8
+
+			// total 36 bytes
+			m_cfg.ptr_comm->SendData((uint8_t)tx_t::TX_EEPROM_LINK_POS_DATA_H, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_ROMDATA_LINK_POS_H_WAIT);
+
+		}
+		break;
+
+		case STEP_ROMDATA_LINK_POS_H_WAIT:
+		{
+			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
+			{
+				m_step.SetStep(STEP_TIMEOUT);
+				break;
+			}
+
+			// check return flag
+			if (m_waitReplyOK)
+				break;
+			m_step.SetStep(STEP_ROMDATA_LINK_POS_H_END);
+		}
+		break;
+
+		case STEP_ROMDATA_LINK_POS_H_END:
 		{
 
 			m_step.SetStep(STEP_TODO);
 		}
 		break;
-
 		default:
 			break;
 	}
@@ -344,14 +542,32 @@ void api_remote::doRunStep()
 
 
 void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
+	m_receiveData.Init();
 	m_receiveData = ptr_data;
 
 	m_waitReplyOK = false;
 
+	if (m_receiveData.type != RCTRL::CMD_TYPE::CMD_OK_RESPONSE)
+		ok_Response();
+	else
+		return;
 
-  using TYPE = RCTRL::CMD_TYPE;
+	auto make_packet = [&](auto offset, auto source)->uint8_t
+			{
+		memcpy(&m_txBuffer[offset],&source, sizeof(source));
+		return (uint8_t)(offset+sizeof(source));
+			};
+
+	using TYPE = RCTRL::CMD_TYPE;
+
 	switch (m_receiveData.type)
 	{
+		case TYPE::CMD_CTRL_MCU_OPTION_REG:
+		{
+			uint32_t option_reg = (m_receiveData.data[0]<<0) | (m_receiveData.data[1]<<8) ;
+			m_cfg.ptr_mcu_reg->SetOptionRegister(option_reg);
+		}
+		break;
 		case TYPE::CMD_CTRL_CYL:
 		{
 			AP_OBJ::CYL cyl_id{};
@@ -377,41 +593,24 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 
 		case TYPE::CMD_CTRL_MOT_ONOFF:
 		{
-			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
-			{
-				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
-				bool on_off = bool(m_receiveData.data[0]&1);
-				m_cfg.ptr_motors->MotorOnOff(on_off, m_idxMotor);
-			}
+
+			m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+			bool on_off = bool(m_receiveData.data[0]&1);
+			m_cfg.ptr_motors->MotorOnOff(on_off, m_idxMotor);
 		}
 		break;
 
 		case TYPE::CMD_CTRL_MOT_ZEROSET:
 		{
-			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
-			{
-				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
-				m_cfg.ptr_motors->MotorZeroEncode(m_idxMotor);
-			}
-			else
-			{
-				m_cfg.ptr_motors->MotorZeroEncode();
-			}
-
+			m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+			m_cfg.ptr_motors->MotorZeroEncode(m_idxMotor);
 		}
 		break;
 
 		case TYPE::CMD_CTRL_MOT_ORIGIN:
 		{
-			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
-			{
-				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
-				m_cfg.ptr_motors->Origin(m_idxMotor);
-			}
-			else
-			{
-				m_cfg.ptr_motors->Origin();
-			}
+			m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+			m_cfg.ptr_motors->Origin(m_idxMotor);
 		}
 		break;
 
@@ -450,10 +649,10 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 				int pos = utilDwToInt(&m_receiveData.data[0]);
 
 				uint16_t vel = (uint16_t)(m_receiveData.data[4] << 0)
-										 | (uint16_t)(m_receiveData.data[5] << 8);
+												 | (uint16_t)(m_receiveData.data[5] << 8);
 
 				uint16_t acc = (uint16_t)(m_receiveData.data[6] << 0)
-										 | (uint16_t)(m_receiveData.data[7] << 8);
+												 | (uint16_t)(m_receiveData.data[7] << 8);
 
 				m_cfg.ptr_motors->Move(m_idxMotor,(uint32_t)vel, (uint32_t)acc, (uint32_t)acc ,pos);
 			}
@@ -468,10 +667,10 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 
 				int pos = utilDwToInt(&m_receiveData.data[0]);
 				uint16_t vel = (uint16_t)(m_receiveData.data[4] << 0)
-										 | (uint16_t)(m_receiveData.data[5] << 8);
+												 | (uint16_t)(m_receiveData.data[5] << 8);
 
 				uint16_t acc = (uint16_t)(m_receiveData.data[6] << 0)
-										 | (uint16_t)(m_receiveData.data[7] << 8);
+												 | (uint16_t)(m_receiveData.data[7] << 8);
 
 				m_cfg.ptr_motors->RelMove(m_idxMotor, (uint32_t)vel, (uint32_t)acc, (uint32_t)acc, pos);
 			}
@@ -523,47 +722,149 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 		}
 		break;
 
-		case TYPE::CMD_READ_MOTOR_POS_DATA:
+		case TYPE::CMD_EEPROM_WRITE_MOTOR_POS_DATA_L:
 		{
-			/*
-			AP_OBJ::MOTOR motor_id{};
 			if (m_receiveData.obj_id < AP_OBJ::MOTOR_MAX)
-				motor_id = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
 			else
 				break;
 
-			m_cfg.ptr_axis_data->cmd_pos_dat;
-			*/
+			m_cfg.ptr_task->WriteROMData_Pose(m_receiveData);
 		}
 		break;
 
-		case TYPE::CMD_READ_CFG_DATA:
+		case TYPE::CMD_EEPROM_WRITE_MOTOR_POS_DATA_H:
 		{
+			if (m_receiveData.obj_id < AP_OBJ::MOTOR_MAX)
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+			else
+				break;
+
+			ok_Response();
+			m_cfg.ptr_task->WriteROMData_Pose(m_receiveData, false);
+		}
+		break;
+
+		case TYPE::CMD_EEPROM_WRITE_CFG_DATA:
+		{
+			m_cfg.ptr_task->WriteROMData_Config(m_receiveData);
+		}
+		break;
+
+		case TYPE::CMD_EEPROM_WRITE_CYL_DATA:
+		{
+			m_cfg.ptr_task->WriteROMData_Cylinder(m_receiveData);
+		}
+		break;
+
+		case TYPE::CMD_EEPROM_WRITE_VAC_DATA:
+		{
+			m_cfg.ptr_task->WriteROMData_Vacuum(m_receiveData);
+		}
+		break;
+
+		case TYPE::CMD_EEPROM_WRITE_SEQ_DATA:
+		{
+			m_cfg.ptr_task->WriteROMData_Sequence(m_receiveData);
+		}
+		break;
+
+		case TYPE::CMD_EEPROM_WRITE_LINK_POS_L:
+		{
+			m_cfg.ptr_task->WriteROMData_LinkPose(m_receiveData);
+		}
+		break;
+
+		case TYPE::CMD_EEPROM_WRITE_LINK_POS_H:
+		{
+			m_cfg.ptr_task->WriteROMData_LinkPose(m_receiveData, false);
+		}
+		break;
+
+		case TYPE::CMD_EEPROM_READ_MOTOR_POS_DATA:
+		{
+			if (m_receiveData.obj_id < AP_OBJ::MOTOR_MAX)
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+			else
+				break;
+			ok_Response();
+			m_step.SetStep(STEP_ROMDATA_POS_VEL_L);
 
 		}
 		break;
 
-		case TYPE::CMD_READ_CYL_DATA:
+		case TYPE::CMD_EEPROM_READ_CFG_DATA:
 		{
+			uint8_t idx = 0;
+			for (uint8_t i = 0 ; i < APDAT_CNT_MAX ; i++ )
+			{
+				idx = make_packet(idx, m_cfg.ptr_cfg_data->apcfg_dat[i]);// total 32
+			}
+			ok_Response();
+			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_EEPROM_CONFIG_DATA, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_WAIT_RETURN);
+		}
+		break;
+
+		case TYPE::CMD_EEPROM_READ_CYL_DATA:
+		{
+			uint8_t idx = 0;
+			for (uint8_t i = 0 ; i < APDAT_CYL_ACT_DATA_CNT_MAX ; i++ )
+			{
+				idx = make_packet(idx, m_cfg.ptr_cyl_data->cyl_act_dat[i]);// total 32
+			}
+			ok_Response();
+			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_EEPROM_CYLINDER_DATA, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_WAIT_RETURN);
+		}
+		break;
+
+		case TYPE::CMD_EEPROM_READ_VAC_DATA:
+		{
+			uint8_t idx = 0;
+			for (uint8_t i = 0 ; i < APDAT_VAC_ACT_DATA_CNT_MAX ; i++ )
+			{
+				idx = make_packet(idx, m_cfg.ptr_vac_data->vac_act_dat[i]);// total 32
+			}
+			ok_Response();
+			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_EEPROM_VACUUM_DATA, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_WAIT_RETURN);
 
 		}
 		break;
 
-		case TYPE::CMD_READ_VAC_DATA:
+		case TYPE::CMD_EEPROM_READ_SEQ_DATA:
 		{
-
+			uint8_t idx = 0;
+			for (uint8_t i = 0 ; i < APDAT_SEQ_DATA_CNT_MAX ; i++ )
+			{
+				idx = make_packet(idx, m_cfg.ptr_sequence_data->sequencing_dat[i]);// total 32
+			}
+			ok_Response();
+			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_EEPROM_SEQUNCE_DATA, m_txBuffer.data(), idx, (uint8_t)m_idxMotor);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_WAIT_RETURN);
 		}
 		break;
 
-		case TYPE::CMD_READ_SEQ_DATA:
+		case TYPE::CMD_EEPROM_READ_LINK_POS:
 		{
-
+			m_step.SetStep(STEP_ROMDATA_LINK_POS_L);
 		}
 		break;
 
-		case TYPE::CMD_CLEAR_ROM_DATA:
+		case TYPE::CMD_EEPROM_CLEAR_ROM_DATA:
 		{
+			m_cfg.ptr_task->ClearROMData();
+		}
+		break;
 
+		case TYPE::CMD_EEPROM_RELOAD_ROM_DATA:
+		{
+			m_cfg.ptr_task->ReloadROMData();
 		}
 		break;
 
@@ -571,14 +872,22 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 		{
 			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
 			{
-				m_step.SetStep(STEP_MOTOR_DATA);
 				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+				m_step.SetStep(STEP_MOTOR_DATA);
 			}
+		}
+		break;
+
+		case TYPE::CMD_READ_MOTION_ORG_CFG_DATA:
+		{
+			m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+			m_step.SetStep(STEP_MOTOR_CFG_MOTION_ORIGIN);
 		}
 		break;
 
 		case TYPE::CMD_READ_MCU_DATA:
 		{
+			//ok_Response();
 			m_step.SetStep(STEP_MCU_STATE);
 		}
 		break;
@@ -591,310 +900,310 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 
 
 #if 0
-  m_Packet.is_wait_resp = false;
-  m_Packet.reqMotor_id = m_Packet.rx_packet.motor_id;
-  switch (m_Packet.rx_packet.cmd_type)
-  {
-    case UI_REMOTECTRL_CMD_START_SEND_MCU_STATE:
-      m_lockSendMsg = false;
-      response();
+	m_Packet.is_wait_resp = false;
+	m_Packet.reqMotor_id = m_Packet.rx_packet.motor_id;
+	switch (m_Packet.rx_packet.cmd_type)
+	{
+		case UI_REMOTECTRL_CMD_START_SEND_MCU_STATE:
+			m_lockSendMsg = false;
+			response();
 
-      break;
+			break;
 
-    case UI_REMOTECTRL_CMD_STOP_SEND_MCU_STATE:
-      m_lockSendMsg = true;
-      m_Packet.is_wait_resp = true;  //stop communication that sends mcu status to pc
-      response();
-      break;
+		case UI_REMOTECTRL_CMD_STOP_SEND_MCU_STATE:
+			m_lockSendMsg = true;
+			m_Packet.is_wait_resp = true;  //stop communication that sends mcu status to pc
+			response();
+			break;
 
-    case UI_REMOTECTRL_CMD_OK_RESPONSE:
-      break;
+		case UI_REMOTECTRL_CMD_OK_RESPONSE:
+			break;
 
-    case UI_REMOTECTRL_CMD_READ_ALL_STATE:
-      //eventDispatch(UI_REMOTECTRL_STEP_SEND_MCU_ALL_DATA);
-      PcUpdate();
-      break;
+		case UI_REMOTECTRL_CMD_READ_ALL_STATE:
+			//eventDispatch(UI_REMOTECTRL_STEP_SEND_MCU_ALL_DATA);
+			PcUpdate();
+			break;
 
-    case UI_REMOTECTRL_CMD_READ_BOOT_INFO:
-      break;
+		case UI_REMOTECTRL_CMD_READ_BOOT_INFO:
+			break;
 
-    case UI_REMOTECTRL_CMD_READ_FIRM_INFO:
-      break;
+		case UI_REMOTECTRL_CMD_READ_FIRM_INFO:
+			break;
 
-    case UI_REMOTECTRL_CMD_CONTROL_IO_OUT:
-    {
-      bool value = (bool)m_Packet.rx_packet.data[0];
-      uint32_t addr = utilDwToUint(&m_Packet.rx_packet.data[1]);
-      m_pAp->ControlIO(addr, value);
-      response();
-    }
-    break;
+		case UI_REMOTECTRL_CMD_CONTROL_IO_OUT:
+		{
+			bool value = (bool)m_Packet.rx_packet.data[0];
+			uint32_t addr = utilDwToUint(&m_Packet.rx_packet.data[1]);
+			m_pAp->ControlIO(addr, value);
+			response();
+		}
+		break;
 
-    case UI_REMOTECTRL_CMD_CONTROL_MOT_JOG:
-    {
-      //eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_MOVE_JOG);
-      uint32_t cmd_vel = 0;
-      cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[0]);
-      bool is_cw = (bool)(m_Packet.rx_packet.data[4]);
-      if(m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].JogMove(cmd_vel, is_cw) == OK)
-      {
-        response();
-      }
-      else
-      {
-        //timeout
-        response(ret_e::timeout);
-      }
-    }
-    break;
+		case UI_REMOTECTRL_CMD_CONTROL_MOT_JOG:
+		{
+			//eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_MOVE_JOG);
+			uint32_t cmd_vel = 0;
+			cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[0]);
+			bool is_cw = (bool)(m_Packet.rx_packet.data[4]);
+			if(m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].JogMove(cmd_vel, is_cw) == OK)
+			{
+				response();
+			}
+			else
+			{
+				//timeout
+				response(ret_e::timeout);
+			}
+		}
+		break;
 
-    case UI_REMOTECTRL_CMD_CONTROL_MOT_LIMIT:
-    {
-      //eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_MOVE_JOG);
-      uint32_t cmd_vel = 0;
-      cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[0]);
-      bool is_cw = (bool)(m_Packet.rx_packet.data[4]);
-      if(m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].MoveToLimit(cmd_vel, is_cw) == enFaxis::err_e::success)
-      {
-        response();
-      }
-      else
-      {
-        //timeout
-        response(ret_e::timeout);
-      }
-    }
-    break;
+		case UI_REMOTECTRL_CMD_CONTROL_MOT_LIMIT:
+		{
+			//eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_MOVE_JOG);
+			uint32_t cmd_vel = 0;
+			cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[0]);
+			bool is_cw = (bool)(m_Packet.rx_packet.data[4]);
+			if(m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].MoveToLimit(cmd_vel, is_cw) == enFaxis::err_e::success)
+			{
+				response();
+			}
+			else
+			{
+				//timeout
+				response(ret_e::timeout);
+			}
+		}
+		break;
 
-    case UI_REMOTECTRL_CMD_CONTROL_MOT_ORIGIN:
-    {
-      // eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_MOVE_ORIGIN);
-      if(m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].MoveOrigin() == enFaxis::err_e::success)
-      {
-        response();
-      }
-      else
-      {
-        //timeout
-        response(ret_e::timeout);
-      }
-    }
-    break;
+		case UI_REMOTECTRL_CMD_CONTROL_MOT_ORIGIN:
+		{
+			// eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_MOVE_ORIGIN);
+			if(m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].MoveOrigin() == enFaxis::err_e::success)
+			{
+				response();
+			}
+			else
+			{
+				//timeout
+				response(ret_e::timeout);
+			}
+		}
+		break;
 
-    case UI_REMOTECTRL_CMD_CONTROL_MOT_ONOFF:
-    {
-      //eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_ONOFF);
-      // check response ok , 상태 확인은 따로 해야함
-      m_Packet.is_wait_resp = true;
-      if(m_pMotors->MotorOnOff((bool)m_Packet.rx_packet.data[0], m_Packet.reqMotor_id) == OK)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-      m_Packet.is_wait_resp = false;
-    }
-    break;
+		case UI_REMOTECTRL_CMD_CONTROL_MOT_ONOFF:
+		{
+			//eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_ONOFF);
+			// check response ok , 상태 확인은 따로 해야함
+			m_Packet.is_wait_resp = true;
+			if(m_pMotors->MotorOnOff((bool)m_Packet.rx_packet.data[0], m_Packet.reqMotor_id) == OK)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
+			m_Packet.is_wait_resp = false;
+		}
+		break;
 
-    case UI_REMOTECTRL_CMD_CONTROL_MOT_RUN:
-    {
-      // eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_RUN);
-      m_Packet.is_wait_resp = true;
-      int cmd_pos = 0;
-      cmd_pos = utilDwToInt(&m_Packet.rx_packet.data[0]);
-      uint32_t cmd_vel = 0;
-      cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[4]);
-      uint32_t acc = 0;
-      acc = utilDwToUint(&m_Packet.rx_packet.data[8]);
-      uint32_t decel = 0;
-      decel = utilDwToUint(&m_Packet.rx_packet.data[12]);
-      if (m_pMotors->Move(m_Packet.reqMotor_id,cmd_pos, cmd_vel, acc, decel) == OK)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-      m_Packet.is_wait_resp = false;
-    }
-    break;
+		case UI_REMOTECTRL_CMD_CONTROL_MOT_RUN:
+		{
+			// eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_RUN);
+			m_Packet.is_wait_resp = true;
+			int cmd_pos = 0;
+			cmd_pos = utilDwToInt(&m_Packet.rx_packet.data[0]);
+			uint32_t cmd_vel = 0;
+			cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[4]);
+			uint32_t acc = 0;
+			acc = utilDwToUint(&m_Packet.rx_packet.data[8]);
+			uint32_t decel = 0;
+			decel = utilDwToUint(&m_Packet.rx_packet.data[12]);
+			if (m_pMotors->Move(m_Packet.reqMotor_id,cmd_pos, cmd_vel, acc, decel) == OK)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
+			m_Packet.is_wait_resp = false;
+		}
+		break;
 
-    case UI_REMOTECTRL_CMD_CONTROL_MOT_STOP:
-    {
-      //eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_STOP);
-      if (m_pMotors->Stop(m_Packet.reqMotor_id) == OK)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-    }
-    break;
-
-
-    case UI_REMOTECTRL_CMD_CONTROL_MOTS_ONOFF:
-    {
-      //motors control on off
-      m_Packet.is_wait_resp = true;
-      if(m_pMotors->MotorOnOff((bool)m_Packet.rx_packet.data[0]) == OK)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-      m_Packet.is_wait_resp = false;
-    }
-    break;
-
-    case UI_REMOTECTRL_CMD_CONTROL_MOTS_RUN:
-    { //motors control
-      m_Packet.is_wait_resp = true;
-
-      int cmd_pos = 0;
-      cmd_pos = utilDwToInt(&m_Packet.rx_packet.data[0]);
-      uint32_t cmd_vel = 0;
-      cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[4]);
-      uint32_t acc = 0;
-      acc = utilDwToUint(&m_Packet.rx_packet.data[8]);
-      uint32_t decel = 0;
-      decel = utilDwToUint(&m_Packet.rx_packet.data[12]);
-      if (m_pMotors->LinkMove(cmd_pos, cmd_vel, acc, decel) == OK)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-
-      m_Packet.is_wait_resp = false;
-    }
-    break;
-    case UI_REMOTECTRL_CMD_CONTROL_MOTS_REL:
-    { //motors control
-      m_Packet.is_wait_resp = true;
-
-      int cmd_pos = 0;
-      cmd_pos = utilDwToInt(&m_Packet.rx_packet.data[0]);
-      uint32_t cmd_vel = 0;
-      cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[4]);
-      uint32_t acc = 0;
-      acc = utilDwToUint(&m_Packet.rx_packet.data[8]);
-      uint32_t decel = 0;
-      decel = utilDwToUint(&m_Packet.rx_packet.data[12]);
-      if (m_pMotors->LinkMoveRel(cmd_pos, cmd_vel, acc, decel) == OK)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-
-      m_Packet.is_wait_resp = false;
-    }
-    break;
-    case UI_REMOTECTRL_CMD_CONTROL_MOTS_STOP:
-      //motors control on off
-      break;
+		case UI_REMOTECTRL_CMD_CONTROL_MOT_STOP:
+		{
+			//eventDispatch(UI_REMOTECTRL_STEP_CTRL_AXIS_STOP);
+			if (m_pMotors->Stop(m_Packet.reqMotor_id) == OK)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
+		}
+		break;
 
 
-    case UI_REMOTECTRL_CMD_CONTROL_CYL:
-    {
-      switch (m_Packet.rx_packet.data[0])
-      {
-        case AP_DEF_OBJ_CYLINDER_ID_PHONE_JIG:
-        case AP_DEF_OBJ_CYLINDER_ID_SQUEEZE:
-        {
-          switch (m_Packet.rx_packet.data[1])
-          {
-            case UI_REMOTECTRL_CYL_ACT_CLOSE:
-              m_pAp->CylClose(m_Packet.rx_packet.data[0], true);
-              break;
+		case UI_REMOTECTRL_CMD_CONTROL_MOTS_ONOFF:
+		{
+			//motors control on off
+			m_Packet.is_wait_resp = true;
+			if(m_pMotors->MotorOnOff((bool)m_Packet.rx_packet.data[0]) == OK)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
+			m_Packet.is_wait_resp = false;
+		}
+		break;
 
-            case UI_REMOTECTRL_CYL_ACT_GRIP:
-              m_pAp->GripPhone(m_Packet.rx_packet.data[0]);
-              break;
+		case UI_REMOTECTRL_CMD_CONTROL_MOTS_RUN:
+		{ //motors control
+			m_Packet.is_wait_resp = true;
 
-            case UI_REMOTECTRL_CYL_ACT_OPEN:
-            default:
-              m_pAp->CylOpen(m_Packet.rx_packet.data[0], false);
-              break;
-          }
-        }
-        break;
-        default:
-          break;
-      }
-    }
-    break;
+			int cmd_pos = 0;
+			cmd_pos = utilDwToInt(&m_Packet.rx_packet.data[0]);
+			uint32_t cmd_vel = 0;
+			cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[4]);
+			uint32_t acc = 0;
+			acc = utilDwToUint(&m_Packet.rx_packet.data[8]);
+			uint32_t decel = 0;
+			decel = utilDwToUint(&m_Packet.rx_packet.data[12]);
+			if (m_pMotors->LinkMove(cmd_pos, cmd_vel, acc, decel) == OK)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
 
-    case UI_REMOTECTRL_CMD_CONTROL_MOT_CHANGE_VEL:
-    {
-      m_Packet.is_wait_resp = true;
-      uint32_t cmd_vel = 0;
-      cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[0]);
-      if (m_pMotors->ChangeSpeed(m_Packet.reqMotor_id,cmd_vel) == OK)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-      m_Packet.is_wait_resp = false;
-    }
-    break;
+			m_Packet.is_wait_resp = false;
+		}
+		break;
+		case UI_REMOTECTRL_CMD_CONTROL_MOTS_REL:
+		{ //motors control
+			m_Packet.is_wait_resp = true;
 
-    case UI_REMOTECTRL_CMD_CONTROL_VAC:
-    {
-      // data 0 - id, data 1 - on off
-      bool on_off = (bool)m_Packet.rx_packet.data[1];
-      switch (m_Packet.rx_packet.data[0])
-      {
-        case AP_DEF_OBJ_VACUUM_ID_PHONE_JIG:
-        {
-          if (on_off)
-          {
-            m_pAp->VacOn(m_Packet.rx_packet.data[0], false);
-          }
-          else
-          {
-            m_pAp->VacOff(m_Packet.rx_packet.data[0], false);
-          }
-        }
-        break;
-        default:
-          break;
-      }
-    }
-    break;
-    case UI_REMOTECTRL_CMD_CONTROL_MOT_RELMOVE:
-    {
-      int cmd_dist = 0;
-      uint32_t cmd_vel = 0;
-      cmd_dist = utilDwToInt(&m_Packet.rx_packet.data[0]);
-      cmd_vel =utilDwToUint(&m_Packet.rx_packet.data[4]);
-      m_pAp->RelMove(m_Packet.reqMotor_id, cmd_dist, cmd_vel);
-    }
-    break;
+			int cmd_pos = 0;
+			cmd_pos = utilDwToInt(&m_Packet.rx_packet.data[0]);
+			uint32_t cmd_vel = 0;
+			cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[4]);
+			uint32_t acc = 0;
+			acc = utilDwToUint(&m_Packet.rx_packet.data[8]);
+			uint32_t decel = 0;
+			decel = utilDwToUint(&m_Packet.rx_packet.data[12]);
+			if (m_pMotors->LinkMoveRel(cmd_pos, cmd_vel, acc, decel) == OK)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
 
-    case UI_REMOTECTRL_CMD_AP_CONFIG_WRITE:
-    {
-      m_pApReg->SetConfReg(m_Packet.rx_packet.data[0]);
-    }
-    // m_step.SetStep(UI_REMOTECTRL_STEP_CTRL_AP_CONF_WRITE);
-    break;
+			m_Packet.is_wait_resp = false;
+		}
+		break;
+		case UI_REMOTECTRL_CMD_CONTROL_MOTS_STOP:
+			//motors control on off
+			break;
 
-    case UI_REMOTECTRL_CMD_READ_MCU_DATA:
-    {/*
+
+		case UI_REMOTECTRL_CMD_CONTROL_CYL:
+		{
+			switch (m_Packet.rx_packet.data[0])
+			{
+				case AP_DEF_OBJ_CYLINDER_ID_PHONE_JIG:
+				case AP_DEF_OBJ_CYLINDER_ID_SQUEEZE:
+				{
+					switch (m_Packet.rx_packet.data[1])
+					{
+						case UI_REMOTECTRL_CYL_ACT_CLOSE:
+							m_pAp->CylClose(m_Packet.rx_packet.data[0], true);
+							break;
+
+						case UI_REMOTECTRL_CYL_ACT_GRIP:
+							m_pAp->GripPhone(m_Packet.rx_packet.data[0]);
+							break;
+
+						case UI_REMOTECTRL_CYL_ACT_OPEN:
+						default:
+							m_pAp->CylOpen(m_Packet.rx_packet.data[0], false);
+							break;
+					}
+				}
+				break;
+				default:
+					break;
+			}
+		}
+		break;
+
+		case UI_REMOTECTRL_CMD_CONTROL_MOT_CHANGE_VEL:
+		{
+			m_Packet.is_wait_resp = true;
+			uint32_t cmd_vel = 0;
+			cmd_vel = utilDwToUint(&m_Packet.rx_packet.data[0]);
+			if (m_pMotors->ChangeSpeed(m_Packet.reqMotor_id,cmd_vel) == OK)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
+			m_Packet.is_wait_resp = false;
+		}
+		break;
+
+		case UI_REMOTECTRL_CMD_CONTROL_VAC:
+		{
+			// data 0 - id, data 1 - on off
+			bool on_off = (bool)m_Packet.rx_packet.data[1];
+			switch (m_Packet.rx_packet.data[0])
+			{
+				case AP_DEF_OBJ_VACUUM_ID_PHONE_JIG:
+				{
+					if (on_off)
+					{
+						m_pAp->VacOn(m_Packet.rx_packet.data[0], false);
+					}
+					else
+					{
+						m_pAp->VacOff(m_Packet.rx_packet.data[0], false);
+					}
+				}
+				break;
+				default:
+					break;
+			}
+		}
+		break;
+		case UI_REMOTECTRL_CMD_CONTROL_MOT_RELMOVE:
+		{
+			int cmd_dist = 0;
+			uint32_t cmd_vel = 0;
+			cmd_dist = utilDwToInt(&m_Packet.rx_packet.data[0]);
+			cmd_vel =utilDwToUint(&m_Packet.rx_packet.data[4]);
+			m_pAp->RelMove(m_Packet.reqMotor_id, cmd_dist, cmd_vel);
+		}
+		break;
+
+		case UI_REMOTECTRL_CMD_AP_CONFIG_WRITE:
+		{
+			m_pApReg->SetConfReg(m_Packet.rx_packet.data[0]);
+		}
+		// m_step.SetStep(UI_REMOTECTRL_STEP_CTRL_AP_CONF_WRITE);
+		break;
+
+		case UI_REMOTECTRL_CMD_READ_MCU_DATA:
+		{/*
     if (eventDispatch(UI_REMOTECTRL_STEP_DATA_SEND_ALL_DATA) == uiRemoteCtrl::ret_e::cplt)
     {
       response();
@@ -903,224 +1212,224 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
     {
       response(ret_e::timeout);
     }*/
-      if (sendData(UI_ROM_DATA_TYPE_MOTOR_POS) == uiRemoteCtrl::ret_e::cplt)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
+			if (sendData(UI_ROM_DATA_TYPE_MOTOR_POS) == uiRemoteCtrl::ret_e::cplt)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
 
-      if (sendData(UI_ROM_DATA_TYPE_AP) == uiRemoteCtrl::ret_e::cplt)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
+			if (sendData(UI_ROM_DATA_TYPE_AP) == uiRemoteCtrl::ret_e::cplt)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
 
-      if (sendData(UI_ROM_DATA_TYPE_CYL) == uiRemoteCtrl::ret_e::cplt)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-      if (sendData(UI_ROM_DATA_TYPE_VAC) == uiRemoteCtrl::ret_e::cplt)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-      if (sendData(UI_ROM_DATA_TYPE_SEQ) == uiRemoteCtrl::ret_e::cplt)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
+			if (sendData(UI_ROM_DATA_TYPE_CYL) == uiRemoteCtrl::ret_e::cplt)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
+			if (sendData(UI_ROM_DATA_TYPE_VAC) == uiRemoteCtrl::ret_e::cplt)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
+			if (sendData(UI_ROM_DATA_TYPE_SEQ) == uiRemoteCtrl::ret_e::cplt)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
 
-      if (sendData(UI_ROM_DATA_TYPE_LINK) == uiRemoteCtrl::ret_e::cplt)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-
-
-    }
-    break;
-
-    case UI_REMOTECTRL_CMD_RELOAD_ROM_DATA:
-      m_Packet.is_wait_resp = true;
-      if(m_pAp->ReloadRomData())
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-      m_Packet.is_wait_resp = false;
-      break;
-    case UI_REMOTECTRL_CMD_CLEAR_ROM_DATA:
-      m_Packet.is_wait_resp = true;
-      if(m_pAp->ClearRomData())
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-      m_Packet.is_wait_resp = false;
-      break;
-
-    case UI_REMOTECTRL_CMD_WRITE_MOTOR_POS_DATA:
-      m_Packet.is_wait_resp = true;
-      m_pAp->WriteRomData(UI_ROM_DATA_TYPE_MOTOR_POS, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
-      //writeData(UI_ROM_DATA_TYPE_MOTOR_POS, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
-      response();
-      m_Packet.is_wait_resp = false;
-      break;
-
-    case UI_REMOTECTRL_CMD_WRITE_AP_DATA:
-      m_Packet.is_wait_resp = true;
-      m_pAp->WriteRomData(UI_ROM_DATA_TYPE_AP, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
-      response();
-      m_Packet.is_wait_resp = false;
-      break;
-
-    case UI_REMOTECTRL_CMD_WRITE_CYL_DATA:
-      m_Packet.is_wait_resp = true;
-      m_pAp->WriteRomData(UI_ROM_DATA_TYPE_CYL, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
-      response();
-      m_Packet.is_wait_resp = false;
-      break;
-
-    case UI_REMOTECTRL_CMD_WRITE_VAC_DATA:
-      m_Packet.is_wait_resp = true;
-      m_pAp->WriteRomData(UI_ROM_DATA_TYPE_VAC, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
-      response();
-      m_Packet.is_wait_resp = false;
-      break;
-
-    case UI_REMOTECTRL_CMD_WRITE_SEQ_DATA:
-      m_Packet.is_wait_resp = true;
-      m_pAp->WriteRomData(UI_ROM_DATA_TYPE_SEQ, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
-      response();
-      m_Packet.is_wait_resp = false;
-      break;
-
-    case UI_REMOTECTRL_CMD_WRITE_LINK_DATA:
-      m_Packet.is_wait_resp = true;
-      m_pAp->WriteRomData(UI_ROM_DATA_TYPE_LINK, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
-      response();
-      m_Packet.is_wait_resp = false;
-      break;
-
-    case UI_REMOTECTRL_CMD_MOTOR_PARM_GET:
-    {
-      int ret_value = 0;
-      if (m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].GetMotorParameter(&ret_value,m_Packet.rx_packet.data[0]) == enFaxis::err_e::success)
-      {
-        m_retParamData.index = m_Packet.rx_packet.data[0];
-        memcpy(&m_retParamData.data, &ret_value, sizeof(m_retParamData.data));
-        retGetValue();
-        //response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
+			if (sendData(UI_ROM_DATA_TYPE_LINK) == uiRemoteCtrl::ret_e::cplt)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
 
 
+		}
+		break;
 
-    }
-    break;
+		case UI_REMOTECTRL_CMD_RELOAD_ROM_DATA:
+			m_Packet.is_wait_resp = true;
+			if(m_pAp->ReloadRomData())
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
+			m_Packet.is_wait_resp = false;
+			break;
+		case UI_REMOTECTRL_CMD_CLEAR_ROM_DATA:
+			m_Packet.is_wait_resp = true;
+			if(m_pAp->ClearRomData())
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
+			m_Packet.is_wait_resp = false;
+			break;
 
-    case UI_REMOTECTRL_CMD_MOTOR_PARM_SET:
-    {
-      int value = utilDwToInt(&m_Packet.rx_packet.data[1]);
-      if (m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].SetMotorParameter(m_Packet.rx_packet.data[0], value) == enFaxis::err_e::success)
-      {
-        response();
-      }
-      else
-      {
-        response(ret_e::timeout);
-      }
-      // response();
-    }
-    break;
+		case UI_REMOTECTRL_CMD_WRITE_MOTOR_POS_DATA:
+			m_Packet.is_wait_resp = true;
+			m_pAp->WriteRomData(UI_ROM_DATA_TYPE_MOTOR_POS, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
+			//writeData(UI_ROM_DATA_TYPE_MOTOR_POS, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
+			response();
+			m_Packet.is_wait_resp = false;
+			break;
 
-    case UI_REMOTECTRL_CMD_CONTROL_MOT_CLEAR_ALARM:
-      m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].ClearState();
-      break;
+		case UI_REMOTECTRL_CMD_WRITE_AP_DATA:
+			m_Packet.is_wait_resp = true;
+			m_pAp->WriteRomData(UI_ROM_DATA_TYPE_AP, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
+			response();
+			m_Packet.is_wait_resp = false;
+			break;
 
-    case UI_REMOTECTRL_CMD_MOT_ENCODER_ZEROSET:
-      m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].ClearPos();
-      break;
+		case UI_REMOTECTRL_CMD_WRITE_CYL_DATA:
+			m_Packet.is_wait_resp = true;
+			m_pAp->WriteRomData(UI_ROM_DATA_TYPE_CYL, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
+			response();
+			m_Packet.is_wait_resp = false;
+			break;
 
-    case UI_REMOTECTRL_CMD_EVENT_MCU_VIRTUAL_SW:
-    {
-      switch (m_Packet.rx_packet.data[0])
-      {
-        case _GPIO_OP_SW_START:
-          m_pAuto->UiStartSw();
-          break;
+		case UI_REMOTECTRL_CMD_WRITE_VAC_DATA:
+			m_Packet.is_wait_resp = true;
+			m_pAp->WriteRomData(UI_ROM_DATA_TYPE_VAC, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
+			response();
+			m_Packet.is_wait_resp = false;
+			break;
 
-        case _GPIO_OP_SW_STOP:
-          m_pApReg->SetRunState(AP_REG_AUTO_RUNNING, false);
-          m_pAuto->StopSw();
-          m_pAp->ResetStep();
-          break;
+		case UI_REMOTECTRL_CMD_WRITE_SEQ_DATA:
+			m_Packet.is_wait_resp = true;
+			m_pAp->WriteRomData(UI_ROM_DATA_TYPE_SEQ, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
+			response();
+			m_Packet.is_wait_resp = false;
+			break;
 
-        case _GPIO_OP_SW_RESET:
-          m_pAuto->ResetSw();
-          m_pAp->ResetStep();
-          break;
+		case UI_REMOTECTRL_CMD_WRITE_LINK_DATA:
+			m_Packet.is_wait_resp = true;
+			m_pAp->WriteRomData(UI_ROM_DATA_TYPE_LINK, &m_Packet.rx_packet.data[0], m_Packet.rx_packet.length);
+			response();
+			m_Packet.is_wait_resp = false;
+			break;
 
-        case _GPIO_OP_SW_ESTOP:
-        default:
-          break;
-      }
-      response();
-    }
-    break;
-    case UI_REMOTECTRL_CMD_CONTROL_JOB_INITIAL:
-    {
-      m_pAp->Initialize();
-      m_pJob->Initialize();
-    }
-    break;
-    case UI_REMOTECTRL_CMD_TEST_STRESS:
-    {
-      uint32_t cnt = utilDwToUint(&m_Packet.rx_packet.data[1]) ;
-      if (m_Packet.rx_packet.data[0])
-      {
-        m_pAp->TestStressVertical(cnt);
-      }
-      else
-      {
-        m_pAp->TestStressHolizontal(cnt);
-      }
-    }
-    break;
-    default:
-      // cmdRobotro_SendCmd(m_pCmd, m_pCmd->rx_packet.cmd_type, UI_REMOTECTRL_ERR_WRONG_CMD, NULL);
-      break;
-  }
+		case UI_REMOTECTRL_CMD_MOTOR_PARM_GET:
+		{
+			int ret_value = 0;
+			if (m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].GetMotorParameter(&ret_value,m_Packet.rx_packet.data[0]) == enFaxis::err_e::success)
+			{
+				m_retParamData.index = m_Packet.rx_packet.data[0];
+				memcpy(&m_retParamData.data, &ret_value, sizeof(m_retParamData.data));
+				retGetValue();
+				//response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
 
-  m_pre_time = millis();
+
+
+		}
+		break;
+
+		case UI_REMOTECTRL_CMD_MOTOR_PARM_SET:
+		{
+			int value = utilDwToInt(&m_Packet.rx_packet.data[1]);
+			if (m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].SetMotorParameter(m_Packet.rx_packet.data[0], value) == enFaxis::err_e::success)
+			{
+				response();
+			}
+			else
+			{
+				response(ret_e::timeout);
+			}
+			// response();
+		}
+		break;
+
+		case UI_REMOTECTRL_CMD_CONTROL_MOT_CLEAR_ALARM:
+			m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].ClearState();
+			break;
+
+		case UI_REMOTECTRL_CMD_MOT_ENCODER_ZEROSET:
+			m_pMotors->m_Cfg.p_Fm[m_Packet.reqMotor_id].ClearPos();
+			break;
+
+		case UI_REMOTECTRL_CMD_EVENT_MCU_VIRTUAL_SW:
+		{
+			switch (m_Packet.rx_packet.data[0])
+			{
+				case _GPIO_OP_SW_START:
+					m_pAuto->UiStartSw();
+					break;
+
+				case _GPIO_OP_SW_STOP:
+					m_pApReg->SetRunState(AP_REG_AUTO_RUNNING, false);
+					m_pAuto->StopSw();
+					m_pAp->ResetStep();
+					break;
+
+				case _GPIO_OP_SW_RESET:
+					m_pAuto->ResetSw();
+					m_pAp->ResetStep();
+					break;
+
+				case _GPIO_OP_SW_ESTOP:
+				default:
+					break;
+			}
+			response();
+		}
+		break;
+		case UI_REMOTECTRL_CMD_CONTROL_JOB_INITIAL:
+		{
+			m_pAp->Initialize();
+			m_pJob->Initialize();
+		}
+		break;
+		case UI_REMOTECTRL_CMD_TEST_STRESS:
+		{
+			uint32_t cnt = utilDwToUint(&m_Packet.rx_packet.data[1]) ;
+			if (m_Packet.rx_packet.data[0])
+			{
+				m_pAp->TestStressVertical(cnt);
+			}
+			else
+			{
+				m_pAp->TestStressHolizontal(cnt);
+			}
+		}
+		break;
+		default:
+			// cmdRobotro_SendCmd(m_pCmd, m_pCmd->rx_packet.cmd_type, UI_REMOTECTRL_ERR_WRONG_CMD, NULL);
+			break;
+	}
+
+	m_pre_time = millis();
 #endif
 
 }

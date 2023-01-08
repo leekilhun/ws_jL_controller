@@ -35,6 +35,7 @@ public:
 		cyl_dat* ptr_cyl_data{};
 		vac_dat* ptr_vac_data{};
 		seq_dat* ptr_sequence_data{};
+		link_dat* ptr_linkPose_data{};
 		ap_log* ptr_log{};
 		cnAuto* ptr_auto{};
 		MOTOR::cnMotors* ptr_motors{};
@@ -50,6 +51,8 @@ public:
 			ptr_cyl_data 					= cfg.ptr_cyl_data;
 			ptr_vac_data 					= cfg.ptr_vac_data;
 			ptr_sequence_data 		= cfg.ptr_sequence_data;
+			ptr_linkPose_data     = cfg.ptr_linkPose_data;
+			ptr_axis_data 				= cfg.ptr_axis_data;
 			ptr_log 							= cfg.ptr_log;
 			ptr_auto 							= cfg.ptr_auto;
 			ptr_motors 						= cfg.ptr_motors;
@@ -89,11 +92,12 @@ public:
 	 ****************************************************/
 private:
 	void doRunStep();
-	void response(api_remote::ret_e ret_value = ret_e::cplt);
-	void retGetValue();
+	inline void ok_Response(){
+		m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_OK_RESPONSE, nullptr, 0);
 
-	//eeprom 데이터를 pc로 보냄
-	api_remote::ret_e sendData(uint8_t type);
+	}
+	//void retGetValue();
+
 
 	// callback function
 	inline static void receiveDataFunc(void* obj, void* w_parm, void* l_parm) {

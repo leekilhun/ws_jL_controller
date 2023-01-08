@@ -30,6 +30,7 @@
 #include "system_obj.h"
 
 /* data */
+#include "system_dat.h"
 
 /* io*/
 
@@ -57,6 +58,7 @@ namespace AP_SYS
         char m_ProjectDir[_MAX_DIR];
 
         MSystemObject* m_pObjinfo;
+        AP_DATA::GConfig_dat* m_pCfgDat;
         IComm* m_pSerialComm;
         ModulePeeler* m_pModulePeeler;
 

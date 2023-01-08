@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <algorithm>
 
+#include <iostream>
 // 프로젝트 전역
  /****************************************************
   *	prject define

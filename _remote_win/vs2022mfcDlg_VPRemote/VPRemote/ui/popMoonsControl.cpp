@@ -14,6 +14,21 @@
 constexpr int select_cw = 0;
 constexpr int select_ccw = 1;
 
+
+ constexpr wchar_t* DEF_MOONS_EDIT_JOG_VELOCITY(L"10");
+ constexpr wchar_t* DEF_MOONS_EDIT_JOG_ACCDEC(L"100");
+
+ constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_VELOCITY(L"10");
+ constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_DECEL(L"100");
+ constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_ACCEL(L"100");
+
+ constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_ABSMOVE_POS(L"20000");
+ constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_RELMOVE_POS(L"20000");
+
+
+
+
+
 IMPLEMENT_DYNAMIC(Cui_PopMoonsControl, CDialogEx)
 
 Cui_PopMoonsControl::Cui_PopMoonsControl(CWnd* pParent /*=nullptr*/)
@@ -215,15 +230,15 @@ BOOL Cui_PopMoonsControl::OnInitDialog()
 
 	{
 		CString str{};
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_JOG_VELOCITY))->SetWindowText(L"10");
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_JOG_ACCDEC))->SetWindowText(L"100");
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_JOG_VELOCITY))->SetWindowText(DEF_MOONS_EDIT_JOG_VELOCITY);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_JOG_ACCDEC))->SetWindowText(DEF_MOONS_EDIT_JOG_ACCDEC);
 
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_VELOCITY))->SetWindowText(L"10");
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_DECEL))->SetWindowText(L"100");
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_ACCEL))->SetWindowText(L"100");
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_VELOCITY))->SetWindowText(DEF_MOONS_EDIT_POSMODE_VELOCITY);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_DECEL))->SetWindowText(DEF_MOONS_EDIT_POSMODE_DECEL);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_ACCEL))->SetWindowText(DEF_MOONS_EDIT_POSMODE_ACCEL);
 
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_ABSMOVE_POS))->SetWindowTextW(L"20000");
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_RELMOVE_POS))->SetWindowTextW(L"20000");
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_ABSMOVE_POS))->SetWindowTextW(DEF_MOONS_EDIT_POSMODE_ABSMOVE_POS);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_RELMOVE_POS))->SetWindowTextW(DEF_MOONS_EDIT_POSMODE_RELMOVE_POS);
 	}
 
 	{

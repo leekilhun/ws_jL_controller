@@ -14,7 +14,7 @@ using namespace AP_OBJ;
 
 
 MSystem::MSystem() :m_ProjectDir()
-, m_pSerialComm(), m_pObjinfo(nullptr), m_pModulePeeler{}
+, m_pSerialComm(), m_pObjinfo(nullptr), m_pCfgDat{}, m_pModulePeeler{}
 {
 
 	init();
@@ -44,6 +44,7 @@ void MSystem::destroy()
 
 	if (m_pModulePeeler) { delete m_pModulePeeler; } m_pModulePeeler = nullptr;
 	if (m_pSerialComm) { delete m_pSerialComm; }  m_pSerialComm = nullptr;
+	if (m_pCfgDat) { delete m_pCfgDat; } m_pCfgDat = nullptr;
 	if (m_pObjinfo) { delete m_pObjinfo; } m_pObjinfo = nullptr;
 }
 
@@ -66,12 +67,17 @@ errno_t MSystem::_createSerialCommComponents()
 {
 	errno_t ret = ERROR_SUCCESS;
 
+	assert(m_pCfgDat);
+
+	AP_DATA::GConfig_dat::serialCfgDat_t data{};
+
+	m_pCfgDat->GetSerialConfig(AP_OBJ::SERIAL_OBJ::module_peeler, data);
 
 
 	HAL::GSerialComm::cfg_t cfg = {};
-	cfg.SetPortName("COM4");
-	cfg.port_no = 5;
-	cfg.baudrate = 115200;
+	cfg.SetPortName(data.port_str);
+	cfg.port_no = 5; // ignore
+	cfg.baudrate = data.baudrate;
 
 
 	int serial_idx = static_cast<int>(SERIAL_OBJ::module_peeler);
@@ -114,6 +120,31 @@ errno_t MSystem::Initialize()
 	assert(this != nullptr);
 
 	m_pObjinfo = new MSystemObject();
+
+	m_pCfgDat = new AP_DATA::GConfig_dat();
+	std::string table;
+	int file_size = m_pCfgDat->LoadData();
+	if (file_size > 0)
+	{
+		if (m_pCfgDat->IsAssignedData())
+		{
+			table.reserve(size_t(file_size) + 1);
+			table = m_pCfgDat->PrintData();
+		}
+		else
+		{
+			ERR_PRINT("System Config file 내용이 assinged 상태가 아닙니다.");
+			AfxMessageBox(L"System Config file 내용이 assinged 상태가 아닙니다.");
+			return -1;
+		}
+
+	}
+	else
+	{
+		ERR_PRINT("System Config file를 열지 못했습니다.");
+		AfxMessageBox(L"System Config file를 열지 못했습니다.");
+		return -1;
+	}
 
 	if (_createSerialCommComponents() != ERROR_SUCCESS)
 	{

@@ -202,6 +202,7 @@
     <ClInclude Include="framework\system\_inc\def_err.h" />
     <ClInclude Include="framework\system\_inc\def_io.h" />
     <ClInclude Include="framework\system\_inc\def_obj.h" />
+    <ClInclude Include="framework\system\_inc\system_dat.h" />
     <ClInclude Include="framework\system\_inc\system_obj.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
@@ -216,6 +217,7 @@
     <ClCompile Include="framework\common\util.cpp" />
     <ClCompile Include="framework\hal\driver\SerialComm.cpp" />
     <ClCompile Include="framework\system\system.cpp" />
+    <ClCompile Include="framework\system\system_dat.cpp" />
     <ClCompile Include="framework\system\system_obj.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -232,6 +234,7 @@
     <ResourceCompile Include="VPRemote.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Data\config_dat.json" />
     <None Include="res\VPRemote.rc2" />
   </ItemGroup>
   <ItemGroup>

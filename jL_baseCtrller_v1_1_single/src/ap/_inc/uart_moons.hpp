@@ -1181,7 +1181,7 @@ namespace MOTOR
 		inline void receiveCplt()	{
 			--m_packet.request_flag;
 			m_packet.resp_ms = millis() - m_packet_sending_ms;
-
+      m_Isconnected = true;
 			uint8_t instance_no = M_GetMotorInstanceId(m_packet.rx_packet.node_id);
 			if (instance_no < m_objs.size())
 			{

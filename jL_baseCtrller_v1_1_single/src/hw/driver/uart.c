@@ -361,6 +361,15 @@ uint32_t uartWrite(uint8_t ch, uint8_t *p_data, uint32_t length)
     break;
     case _DEF_UART2:
     {
+    /*	uint32_t pre_time;
+    	pre_time = millis();
+    	while(HAL_UART_GetState(&huart2) == HAL_UART_STATE_BUSY_TX)
+    	{ // UART is busy transmitting data
+    		if (millis()-pre_time >= 100)
+    		{
+    			break;
+    		}
+    	}*/
       status = HAL_UART_Transmit(&huart2, p_data, length, 100);
       if (status == HAL_OK)
         ret = length;

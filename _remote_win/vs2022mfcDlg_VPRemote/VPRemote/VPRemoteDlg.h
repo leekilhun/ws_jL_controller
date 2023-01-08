@@ -16,6 +16,7 @@ class CVPRemoteDlg : public CDialogEx
 
 	UINT_PTR m_TimerID;
 	bool m_lockUpdate;
+	CStatusBar		m_statusBar;
 
 
 public:
@@ -69,10 +70,10 @@ public:
 	afx_msg void OnBnClickedPeelerMainCyl_JigOpen();
 	afx_msg void OnBnClickedPeelerMainCyl_JigGrip();
 	afx_msg void OnBnClickedPeelerMainCyl_JigClose();
-	afx_msg void OnBnClickedPeelerMainCyl_VinylLock();
-	afx_msg void OnBnClickedPeelerMainCyl_VinylUnlock();
-	afx_msg void OnBnClickedPeelerMainCyl_VinylPush();
+	afx_msg void OnBnClickedPeelerMainCyl_VinylHoldUp();
 	afx_msg void OnBnClickedPeelerMainCyl_VinylBack();
+	afx_msg void OnBnClickedPeelerMainCyl_VinylPush();
+	afx_msg void OnBnClickedPeelerMainCyl_VinylHoldDown();
 	afx_msg void OnBnClickedCheckState0();
 	afx_msg void OnBnClickedCheckState1();
 	afx_msg void OnBnClickedCheckState2();
@@ -108,4 +109,6 @@ public:
 	afx_msg void OnBnClickedCheckOption15();
 	afx_msg void OnBnClickedCheckSetOutput();
 	afx_msg void OnBnClickedPeelerMainPopMcuData();
+
+	void SetMcuOptionBit(HAL::ModulePeeler::mcu_option_e bit_reg, bool enable = true);
 };

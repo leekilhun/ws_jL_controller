@@ -9,7 +9,7 @@
 #include "ap.h"
 
 
-constexpr uint8_t COMM_RECOVERY_LIMIT_COUNT_LCD  = 10;
+constexpr uint8_t COMM_RECOVERY_LIMIT_COUNT  = 10;
 
 void updateApReg();
 void updateErr();
@@ -33,6 +33,7 @@ axis_dat axis_data;
 cyl_dat cyl_data;
 vac_dat vac_data;
 seq_dat seq_data;
+link_dat linkPose_data;
 ap_log mcu_log;
 /****************************************************
   1. ap에서 생성할 객체
@@ -41,10 +42,12 @@ ap_log mcu_log;
 MOTOR::uart_moons moons_comm;
 
 
-MOTOR::enMotor_moons moons_motors[AP_DEF_OBJ_MOTOR_ID_MAX]
-																	{M_SetMotorId(AP_DEF_OBJ_MOTOR_ID_JIG),2,3};
-ACT::enCyl cyl[AP_DEF_OBJ_CYL_ID_MAX];
-ACT::enVac vac[AP_DEF_OBJ_VACUUM_ID_MAX];
+MOTOR::enMotor_moons moons_motors[AP_OBJ::MOTOR_MAX]
+																{M_SetMotorId(AP_OBJ::MOTOR_JIG)
+																,M_SetMotorId(AP_OBJ::MOTOR_ROLL)
+																,M_SetMotorId(AP_OBJ::MOTOR_HIGH)};
+ACT::enCyl cyl[AP_OBJ::CYL_MAX];
+ACT::enVac vac[AP_OBJ::VAC_MAX];
 enOp op_panel;
 
 
@@ -150,71 +153,56 @@ void apInit(void)
 
 		/*phone jig open close*/
 		enCyl::cfg_t cyl_cfg = {0, };
-		cyl_cfg.cyl_id = AP_DEF_OBJ_CYL_ID_PHONE_OPEN_CLOSE;
+		cyl_cfg.cyl_id = AP_OBJ::CYL_PHONE_OPENCLOSE;
 		cyl_cfg.cyl_type = enCyl::type_e::open_close;
 		cyl_cfg.sol_type = enCyl::two;
 		cyl_cfg.pApIo = (iio *)&mcu_io;
-		cyl_cfg.pCylDat = cyl_data.GetData(cyl_dat::addr_e::phone_clamp_cyl);
-		cyl_cfg.sensor_io[enCyl::dir_e::up] = MCU_IO::ap_io::in_cyl_1_on;
-		cyl_cfg.sensor_io[enCyl::dir_e::down] = MCU_IO::ap_io::in_cyl_1_off;
-		cyl_cfg.sol_io[enCyl::dir_e::up] = MCU_IO::ap_io::in_cyl_1_on;
-		cyl_cfg.sol_io[enCyl::dir_e::down] = MCU_IO::ap_io::in_cyl_1_off;
+		cyl_cfg.pCylDat = cyl_data.GetData(cyl_dat::addr_e::phone_jig_open_close);
+		cyl_cfg.sensor_io[enCyl::dir_e::up] = MCU_IO::ap_io::in_cyl_jig_open;
+		cyl_cfg.sensor_io[enCyl::dir_e::down] = MCU_IO::ap_io::in_cyl_jig_close;
+		cyl_cfg.sol_io[enCyl::dir_e::up] = MCU_IO::ap_io::out_cyl_jig_open;
+		cyl_cfg.sol_io[enCyl::dir_e::down] = MCU_IO::ap_io::out_cyl_jig_close;
 
-		cyl[AP_DEF_OBJ_CYL_ID_PHONE_OPEN_CLOSE].SetConfigData(cyl_cfg);
+		cyl[AP_OBJ::CYL_PHONE_OPENCLOSE].SetConfigData(cyl_cfg);
 
-		/*phone jig for align gripper*/
-		cyl_cfg.cyl_id = AP_DEF_OBJ_CYL_ID_PHONE_LOCK_UNLOCK;
-		cyl_cfg.cyl_type = enCyl::type_e::lock_unlock;
-		cyl_cfg.sol_type = enCyl::two;
-		cyl_cfg.pApIo = (iio *)&mcu_io;
-		cyl_cfg.pCylDat = cyl_data.GetData(cyl_dat::addr_e::drum_updown_cyl);
-		cyl_cfg.sensor_io[enCyl::dir_e::up] = MCU_IO::ap_io::out_cyl_2_on;
-		cyl_cfg.sensor_io[enCyl::dir_e::down] = MCU_IO::ap_io::out_cyl_2_off;
-		cyl_cfg.sol_io[enCyl::dir_e::up] = MCU_IO::ap_io::in_cyl_2_on;
-		cyl_cfg.sol_io[enCyl::dir_e::down] = MCU_IO::ap_io::in_cyl_2_off;
-
-		cyl[AP_DEF_OBJ_CYL_ID_PHONE_LOCK_UNLOCK].SetConfigData(cyl_cfg);
-
-		/*phone jig forward-backward for loading*/
-		cyl_cfg.cyl_id = AP_DEF_OBJ_CYL_ID_PHONE_FOR_BACK;
+		/*phone jig forward backward*/
+		cyl_cfg.cyl_id = AP_OBJ::CYL_PHONE_FORBACK;
 		cyl_cfg.cyl_type = enCyl::type_e::forward_backward;
 		cyl_cfg.sol_type = enCyl::two;
 		cyl_cfg.pApIo = (iio *)&mcu_io;
-		cyl_cfg.pCylDat = cyl_data.GetData(cyl_dat::addr_e::drum_updown_cyl);
-		cyl_cfg.sensor_io[enCyl::dir_e::up] = MCU_IO::ap_io::out_cyl_2_on;
-		cyl_cfg.sensor_io[enCyl::dir_e::down] = MCU_IO::ap_io::out_cyl_2_off;
-		cyl_cfg.sol_io[enCyl::dir_e::up] = MCU_IO::ap_io::in_cyl_2_on;
-		cyl_cfg.sol_io[enCyl::dir_e::down] = MCU_IO::ap_io::in_cyl_2_off;
+		cyl_cfg.pCylDat = cyl_data.GetData(cyl_dat::addr_e::phone_jig_for_back);
+		cyl_cfg.sensor_io[enCyl::dir_e::up] = MCU_IO::ap_io::in_cyl_jig_open;
+		cyl_cfg.sensor_io[enCyl::dir_e::down] = MCU_IO::ap_io::in_cyl_jig_close;
+		cyl_cfg.sol_io[enCyl::dir_e::up] = MCU_IO::ap_io::out_cyl_jig_open;
+		cyl_cfg.sol_io[enCyl::dir_e::down] = MCU_IO::ap_io::out_cyl_jig_close;
 
-		cyl[AP_DEF_OBJ_CYL_ID_PHONE_FOR_BACK].SetConfigData(cyl_cfg);
+		cyl[AP_OBJ::CYL_PHONE_FORBACK].SetConfigData(cyl_cfg);
 
-
-		/*vinyl gripper for detach at roller*/
-		cyl_cfg.cyl_id = AP_DEF_OBJ_CYL_ID_VINYL_GRIP_UNGRIP;
-		cyl_cfg.cyl_type = enCyl::type_e::lock_unlock;
+		/*vinyl holder up down*/
+		cyl_cfg.cyl_id = AP_OBJ::CYL_VINYLHOLD_UPDOWN;
+		cyl_cfg.cyl_type = enCyl::type_e::up_down;
 		cyl_cfg.sol_type = enCyl::two;
 		cyl_cfg.pApIo = (iio *)&mcu_io;
-		cyl_cfg.pCylDat = cyl_data.GetData(cyl_dat::addr_e::drum_updown_cyl);
-		cyl_cfg.sensor_io[enCyl::dir_e::up] = MCU_IO::ap_io::out_cyl_2_on;
-		cyl_cfg.sensor_io[enCyl::dir_e::down] = MCU_IO::ap_io::out_cyl_2_off;
-		cyl_cfg.sol_io[enCyl::dir_e::up] = MCU_IO::ap_io::in_cyl_2_on;
-		cyl_cfg.sol_io[enCyl::dir_e::down] = MCU_IO::ap_io::in_cyl_2_off;
+		cyl_cfg.pCylDat = cyl_data.GetData(cyl_dat::addr_e::vinylhold_up_down);
+		cyl_cfg.sensor_io[enCyl::dir_e::up] = MCU_IO::ap_io::in_cyl_vinylhold_up;
+		cyl_cfg.sensor_io[enCyl::dir_e::down] = MCU_IO::ap_io::in_cyl_vinylhold_down;
+		cyl_cfg.sol_io[enCyl::dir_e::up] = MCU_IO::ap_io::out_cyl_vinylhold_up;
+		cyl_cfg.sol_io[enCyl::dir_e::down] = MCU_IO::ap_io::out_cyl_vinylhold_down;
 
-		cyl[AP_DEF_OBJ_CYL_ID_VINYL_GRIP_UNGRIP].SetConfigData(cyl_cfg);
-
+		cyl[AP_OBJ::CYL_VINYLHOLD_UPDOWN].SetConfigData(cyl_cfg);
 
 		/*vinyl gripper for detach at roller*/
-		cyl_cfg.cyl_id = AP_DEF_OBJ_CYL_ID_VINYL_PUSH;
+		cyl_cfg.cyl_id = AP_OBJ::CYL_VINYL_PUSHBACK;
 		cyl_cfg.cyl_type = enCyl::type_e::forward_backward;
 		cyl_cfg.sol_type = enCyl::two;
 		cyl_cfg.pApIo = (iio *)&mcu_io;
-		cyl_cfg.pCylDat = cyl_data.GetData(cyl_dat::addr_e::drum_updown_cyl);
-		cyl_cfg.sensor_io[enCyl::dir_e::up] = MCU_IO::ap_io::out_cyl_2_on;
-		cyl_cfg.sensor_io[enCyl::dir_e::down] = MCU_IO::ap_io::out_cyl_2_off;
-		cyl_cfg.sol_io[enCyl::dir_e::up] = MCU_IO::ap_io::in_cyl_2_on;
-		cyl_cfg.sol_io[enCyl::dir_e::down] = MCU_IO::ap_io::in_cyl_2_off;
+		cyl_cfg.pCylDat = cyl_data.GetData(cyl_dat::addr_e::vinyl_push_back);
+		cyl_cfg.sensor_io[enCyl::dir_e::up] = MCU_IO::ap_io::in_cyl_vinyl_push;
+		cyl_cfg.sensor_io[enCyl::dir_e::down] = MCU_IO::ap_io::in_cyl_vinyl_back;
+		cyl_cfg.sol_io[enCyl::dir_e::up] = MCU_IO::ap_io::out_cyl_vinyl_push;
+		cyl_cfg.sol_io[enCyl::dir_e::down] = MCU_IO::ap_io::out_cyl_vinyl_back;
 
-		cyl[AP_DEF_OBJ_CYL_ID_VINYL_PUSH].SetConfigData(cyl_cfg);
+		cyl[AP_OBJ::CYL_VINYL_PUSHBACK].SetConfigData(cyl_cfg);
 
 	}
 
@@ -224,15 +212,15 @@ void apInit(void)
 
 		/*drum head vacuum*/
 		enVac::cfg_t vac_cfg = { 0, };
-		vac_cfg.vac_id = AP_DEF_OBJ_VACUUM_ID_PHONE_JIG;
+		vac_cfg.vac_id = AP_OBJ::VAC_DETECT;
 		vac_cfg.vac_type = enVac::type_e::suction_blow;
 		vac_cfg.pApIo = (iio *)&mcu_io;
-		vac_cfg.pVacDat = vac_data.GetData(vac_dat::addr_e::peel_drum_vac);
-		vac_cfg.sensor_io = MCU_IO::ap_io::in_drum_vac_on;
-		vac_cfg.sol_io[enVac::on_suction] = MCU_IO::ap_io::out_vac_1_on;
-		vac_cfg.sol_io[enVac::on_blow] = MCU_IO::ap_io::out_vac_1_off;
+		vac_cfg.pVacDat = vac_data.GetData(vac_dat::addr_e::vinyl_detect);
+		vac_cfg.sensor_io = MCU_IO::ap_io::in_grip_vinyle_detect;
+		vac_cfg.sol_io[enVac::on_suction] = MCU_IO::ap_io::out_vac_detect_on;
+		vac_cfg.sol_io[enVac::on_blow] = MCU_IO::ap_io::out_vac_detect_blow;
 
-		vac[AP_DEF_OBJ_VACUUM_ID_PHONE_JIG].SetConfigData(vac_cfg);
+		vac[AP_OBJ::VAC_DETECT].SetConfigData(vac_cfg);
 	}
 
 	/* motor initial */
@@ -308,6 +296,7 @@ void apInit(void)
 		cfg.p_apVacDat = &vac_data;
 		cfg.p_apCfgDat = &apCfg_data;
 		cfg.p_apSeqDat = &seq_data;
+		cfg.p_linkPosDat = &linkPose_data;
 		tasks.Init(cfg);
 	}
 
@@ -342,6 +331,7 @@ void apInit(void)
 		cfg.ptr_cyl_data = &cyl_data;
 		cfg.ptr_vac_data = &vac_data;
 		cfg.ptr_sequence_data = &seq_data;
+		cfg.ptr_linkPose_data = &linkPose_data;
 		cfg.ptr_log = &mcu_log;
 		cfg.ptr_motors = &motors;
 		cfg.ptr_auto =&autoManager;
@@ -370,6 +360,8 @@ void apInit(void)
 	//seq_data.ClearRomData();
 	seq_data.LoadRomData();
 
+	linkPose_data.LoadRomData();
+
 	/****************************/
 	//mcu_reg.status[AP_REG_BANK_SETTING][AP_REG_USE_BEEP] = true;
 	mcu_reg.option_reg.use_beep = true;
@@ -388,7 +380,7 @@ void apMain(void)
 {
 	uint32_t pre_main_ms = millis();
 	uint32_t pre_loop = millis();
-	uint8_t io_idx = 0;
+	//uint8_t io_idx = 0;
 	while (1)
 	{
 		loop_ms = millis() - pre_loop;
@@ -401,7 +393,7 @@ void apMain(void)
 			refresh_time =300;
 		if (millis() - pre_main_ms >= refresh_time)
 		{
-			mcu_io.OutputToggle(MCU_IO::ap_io::out20 + (io_idx++ % 16));
+			//mcu_io.OutputToggle(MCU_IO::ap_io::out_cyl_jig_for + (io_idx++ % 16));
 
 			ledToggle(_DEF_LED1);
 			pre_main_ms = millis();
@@ -653,7 +645,7 @@ void updateApReg()
    /* 2. lcd  통신 체크  */
 	 if (op_lcd.IsConnected() == false)
 	 {
-		 if (nextion_lcd.GetErrCnt() >= COMM_RECOVERY_LIMIT_COUNT_LCD)
+		 if (nextion_lcd.GetErrCnt() >= COMM_RECOVERY_LIMIT_COUNT)
 		 {
 			 mcu_reg.SetErrRegister(error_reg::no_response_lcd, true);
 			 op_lcd.CommRecovery();
@@ -666,14 +658,14 @@ void updateApReg()
 
 
 	 /* 3. motor communication */
-	 if (motors.GetCommStatus() > 0)
+	 if (motors.IsConnected())
 	 {
-		 mcu_reg.SetErrRegister(error_reg::no_response_mot, true);
-		 // recovery는 motors객체에서 전체 모터 연결이 안되면 실시
+		 mcu_reg.SetErrRegister(error_reg::no_response_mot, false);
 	 }
 	 else
 	 {
-		 mcu_reg.SetErrRegister(error_reg::no_response_mot, false);
+		 // recovery는 motors객체에서 전체 모터 연결이 안되면 실시
+		 mcu_reg.SetErrRegister(error_reg::no_response_mot, true);
 	 }
 
 	 // Check the error status of the constructed unit

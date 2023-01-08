@@ -279,7 +279,7 @@ public:
 		bool ret = false;
 		if (!m_cfg.p_apReg->IsSkipSafeSensor())//not
 		{
-			ret = m_cfg.p_ApIo->IsOff(MCU_IO::ap_io::in_e::in_area_sensor);
+			ret = m_cfg.p_ApIo->IsOff(MCU_IO::ap_io::in_e::in_safety_sensor);
 			//ret = m_IsDetectedPauseSensor;
 		}
 		return ret;

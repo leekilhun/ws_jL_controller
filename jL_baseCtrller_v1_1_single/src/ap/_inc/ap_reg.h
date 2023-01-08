@@ -96,6 +96,27 @@ namespace MCU_REG
 			ALL_CHECK_OK,
 		};
 
+		enum option_e
+		{
+			USE_BEEP,
+			USE_DRYRUN,
+			SKIP_DOORSENSOR,
+			SKIP_SAFETYSENSOR,
+			OPTION_04,
+			OPTION_05,
+			OPTION_06,
+			OPTION_07,
+
+			OPTION_10,
+			OPTION_11,
+			OPTION_12,
+			OPTION_13,
+			OPTION_14,
+			OPTION_15,
+			OPTION_16,
+			OPTION_17,
+		};
+
 		union AP_ERR_REG
 		{
 			uint32_t ap_error{};
@@ -239,6 +260,11 @@ namespace MCU_REG
 		inline void SetConfigRegister(uint16_t data){
 			state_reg.ap_state = data;
 		}
+
+		inline void SetOptionRegister(uint16_t data){
+			option_reg.ap_option = data;
+		}
+
 
 		inline uint32_t GetAlarmState(){
 			return error_reg.ap_error;

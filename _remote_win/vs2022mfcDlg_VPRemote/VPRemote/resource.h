@@ -5,6 +5,9 @@
 #define IDD_VPREMOTE_DIALOG             102
 #define IDP_SOCKETS_INIT_FAILED         103
 #define IDD_MOONSMODBUS_DIALOG          103
+#define IDS_INDICATOR_COMM_STATUS       104
+#define IDS_INDICATOR_MOTOR_STATUS      105
+#define IDS_INDICATOR_INFOR             106
 #define IDR_MAINFRAME                   128
 #define IDD_MCU_DATA                    130
 #define IDC_CHECK_STATE_0               1001
@@ -359,12 +362,48 @@
 #define IDC_MCU_DATA_VAC_NAME_3         1339
 #define IDC_MCU_DATA_VAC_NAME_4         1340
 #define IDC_STATIC_CYL_2                1341
+#define IDC_MCU_DATA_CYL_NAME_5         1341
 #define IDC_STATIC_CYL_3                1342
+#define IDC_MCU_DATA_EDIT_CYLCFG_9      1342
 #define IDC_STATIC_CYL_4                1343
+#define IDC_MCU_DATA_EDIT_CYLCFG_10     1343
 #define IDC_STATIC_CYL_5                1344
+#define IDC_MCU_DATA_CYL_NAME_6         1344
 #define IDC_PEELER_MAIN_POP_MCU_DATA    1345
+#define IDC_MCU_DATA_EDIT_CYLCFG_11     1345
 #define IDC_CHECK1                      1346
 #define IDC_MOONS_CHECK_MOTOR_ON        1346
+#define IDC_MCU_DATA_EDIT_CYLCFG_12     1346
+#define IDC_MCU_DATA_BTN_POS_VEL_READ   1347
+#define IDC_MCU_DATA_BTN_POS_VEL_WRITE  1348
+#define IDC_MCU_DATA_BTN_ACT_READ       1349
+#define IDC_MCU_DATA_BTN_ACT_WRITE      1350
+#define IDC_MCU_DATA_BTN_CFG_READ       1351
+#define IDC_MCU_DATA_BTN_CFG_WRITE      1352
+#define IDC_MCU_DATA_BTN_SEQ_READ       1353
+#define IDC_MCU_DATA_BTN_SEQ_WRITE      1354
+#define IDC_MCU_DATA_BTN_ROM_WRITE_INIT 1355
+#define IDC_MCU_DATA_BTN_ROM_UPDATE     1356
+#define IDC_MCU_DATA_BTN_VAC_READ       1357
+#define IDC_MCU_DATA_BTN_VAC_WRITE      1358
+#define IDC_MCU_DATA_CYL_NAME_7         1359
+#define IDC_MCU_DATA_EDIT_CYLCFG_13     1360
+#define IDC_MCU_DATA_EDIT_CYLCFG_14     1361
+#define IDC_MCU_DATA_CYL_NAME_8         1362
+#define IDC_MCU_DATA_EDIT_CYLCFG_15     1363
+#define IDC_MCU_DATA_EDIT_CYLCFG_16     1364
+#define IDC_MCU_DATA_EDIT_VACCFG_9      1365
+#define IDC_MCU_DATA_EDIT_VACCFG_10     1366
+#define IDC_MCU_DATA_VAC_NAME_5         1367
+#define IDC_MCU_DATA_EDIT_VACCFG_11     1368
+#define IDC_MCU_DATA_EDIT_VACCFG_12     1369
+#define IDC_MCU_DATA_VAC_NAME_6         1370
+#define IDC_MCU_DATA_EDIT_VACCFG_13     1371
+#define IDC_MCU_DATA_EDIT_VACCFG_14     1372
+#define IDC_MCU_DATA_VAC_NAME_7         1373
+#define IDC_MCU_DATA_EDIT_VACCFG_15     1374
+#define IDC_MCU_DATA_EDIT_VACCFG_16     1375
+#define IDC_MCU_DATA_VAC_NAME_8         1376
 
 // Next default values for new objects
 // 
@@ -372,7 +411,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1347
+#define _APS_NEXT_CONTROL_VALUE         1348
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

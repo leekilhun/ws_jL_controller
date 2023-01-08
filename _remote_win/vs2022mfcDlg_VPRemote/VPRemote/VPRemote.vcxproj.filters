@@ -43,6 +43,9 @@
     <Filter Include="ui">
       <UniqueIdentifier>{895d0a27-cc1a-4015-bd59-306a0ca697a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include=".doc">
+      <UniqueIdentifier>{3ba23b02-ae3b-48dd-a4d6-5b505ca81cfa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VPRemote.h">
@@ -114,6 +117,9 @@
     <ClInclude Include="ui\popMcuData.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="framework\system\_inc\system_dat.h">
+      <Filter>framework\system\_inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VPRemote.cpp">
@@ -146,6 +152,9 @@
     <ClCompile Include="ui\popMcuData.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="framework\system\system_dat.cpp">
+      <Filter>framework\system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VPRemote.rc">
@@ -155,6 +164,9 @@
   <ItemGroup>
     <None Include="res\VPRemote.rc2">
       <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="Data\config_dat.json">
+      <Filter>.doc</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

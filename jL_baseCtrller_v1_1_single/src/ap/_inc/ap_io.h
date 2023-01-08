@@ -31,14 +31,14 @@ namespace MCU_IO
 	public:
 		enum in_e// in_name
 		{
-			in_cyl_1_on = AP_DEF_START_IN_ADDR,
-			in_cyl_1_off,
-			in_cyl_2_on,
-			in_cyl_2_off,
-			in_drum_vac_on,
-			in_drum_tail_vac_on,
-			in_phonejig_vac_on,
-			in_area_sensor, //
+			in_vinyl_vac_on = AP_DEF_START_IN_ADDR,
+			in_jig_on_phone,
+			in_mode_key_manual,
+			in_modde_key_auto,
+			in_04,
+			in_05,
+			in_06,
+			in_safety_sensor, //
 
 			in10, // reserved
 			in11,
@@ -49,17 +49,17 @@ namespace MCU_IO
 			in16,
 			in17,
 
-			in20, // ext_io 1
-			in21,
-			in22,
-			in23,
-			in24,
-			in25,
-			in26,
-			in27,
+			in_cyl_jig_for, // ext_io 1
+			in_cyl_jig_back,
+			in_cyl_jig_open,
+			in_cyl_jig_close,
+			in_cyl_vinyl_push,
+			in_cyl_vinyl_back,
+			in_cyl_vinylhold_up,
+			in_cyl_vinylhold_down,
 
-			in30,
-			in31,
+			in_30,
+			in_grip_vinyle_detect,
 			in32,
 			in33,
 			in34,
@@ -71,14 +71,14 @@ namespace MCU_IO
 
 		enum out_e//out_name
 		{
-			out_cyl_1_on = AP_DEF_START_OUT_ADDR,
-			out_cyl_1_off,
-			out_cyl_2_on,
-			out_cyl_2_off,
-			out_vac_1_on,
-			out_vac_1_off,
-			out_vac_2_on,
-			out_vac_2_off, //
+			out00 = AP_DEF_START_OUT_ADDR,
+			out01,
+			out02,
+			out03,
+			out_jig_axis_dir,
+			out_jig_axis_pulse,
+			out_roll_axis_dir,
+			out_roll_axis_pulse,
 
 			out10, // reserved
 			out11,
@@ -89,17 +89,17 @@ namespace MCU_IO
 			out16,
 			out17,
 
-			out20, // ext_io 1
-			out21,
-			out22,
-			out23,
-			out24,
-			out25,
-			out26,
-			out27,
+			out_cyl_jig_for, // ext_io 1
+			out_cyl_jig_back,
+			out_cyl_jig_open,
+			out_cyl_jig_close,
+			out_cyl_vinyl_push,
+			out_cyl_vinyl_back,
+			out_cyl_vinylhold_up,
+			out_cyl_vinylhold_down,
 
-			out30,
-			out31,
+			out_vac_detect_on,
+			out_vac_detect_blow,
 			out32,
 			out33,
 			out34,
@@ -113,14 +113,14 @@ namespace MCU_IO
 			uint32_t data{};
 			struct
 			{
-				unsigned in00:1;
-				unsigned in01:1;
-				unsigned in02:1;
-				unsigned in03:1;
+				unsigned in_vinyl_vac_on:1;
+				unsigned in_jig_on_phone:1;
+				unsigned in_mode_key_manual:1;
+				unsigned in_modde_key_auto:1;
 				unsigned in04:1;
 				unsigned in05:1;
 				unsigned in06:1;
-				unsigned in07:1;
+				unsigned in_safety_sensor:1;
 
 				unsigned in10:1;
 				unsigned in11:1;
@@ -131,17 +131,17 @@ namespace MCU_IO
 				unsigned in16:1;
 				unsigned in17:1;
 
-				unsigned in20:1;
-				unsigned in21:1;
-				unsigned in22:1;
-				unsigned in23:1;
-				unsigned in24:1;
-				unsigned in25:1;
-				unsigned in26:1;
-				unsigned in27:1;
+				unsigned in_cyl_jig_for:1;
+				unsigned in_cyl_jig_back:1;
+				unsigned in_cyl_jig_open:1;
+				unsigned in_cyl_jig_close:1;
+				unsigned in_cyl_vinyl_push:1;
+				unsigned in_cyl_vinyl_back:1;
+				unsigned in_cyl_vinylhold_up:1;
+				unsigned in_cyl_vinylhold_down:1;
 
 				unsigned in30:1;
-				unsigned in31:1;
+				unsigned in_grip_vinyle_detect:1;
 				unsigned in32:1;
 				unsigned in33:1;
 				unsigned in34:1;
@@ -161,10 +161,10 @@ namespace MCU_IO
 				unsigned out01:1;
 				unsigned out02:1;
 				unsigned out03:1;
-				unsigned out04:1;
-				unsigned out05:1;
-				unsigned out06:1;
-				unsigned out07:1;
+				unsigned out_jig_axis_dir:1;
+				unsigned out_jig_axis_pulse:1;
+				unsigned out_roll_axis_dir:1;
+				unsigned out_roll_axis_pulse:1;
 
 				unsigned out10:1;
 				unsigned out11:1;
@@ -175,17 +175,17 @@ namespace MCU_IO
 				unsigned out16:1;
 				unsigned out17:1;
 
-				unsigned out20:1;
-				unsigned out21:1;
-				unsigned out22:1;
-				unsigned out23:1;
-				unsigned out24:1;
-				unsigned out25:1;
-				unsigned out26:1;
-				unsigned out27:1;
+				unsigned out_cyl_jig_for:1;
+				unsigned out_cyl_jig_back:1;
+				unsigned out_cyl_jig_open:1;
+				unsigned out_cyl_jig_close:1;
+				unsigned out_cyl_vinyl_push:1;
+				unsigned out_cyl_vinyl_back:1;
+				unsigned out_cyl_vinylhold_up:1;
+				unsigned out_cyl_vinylhold_down:1;
 
-				unsigned out30:1;
-				unsigned out31:1;
+				unsigned out_vac_detect_on:1;
+				unsigned out_vac_detect_blow:1;
 				unsigned out32:1;
 				unsigned out33:1;
 				unsigned out34:1;
@@ -239,28 +239,28 @@ namespace MCU_IO
 			AP_IO_LOCK_BEGIN;
 			switch (out_idx)
 			{
-				case out_cyl_1_on:
+				case out00:
 					gpioPinWrite(_GPIO_IO_OUT_01, onoff);
 					break;
-				case out_cyl_1_off:
+				case out01:
 					gpioPinWrite(_GPIO_IO_OUT_02, onoff);
 					break;
-				case out_cyl_2_on:
+				case out02:
 					gpioPinWrite(_GPIO_IO_OUT_03, onoff);
 					break;
-				case out_cyl_2_off:
+				case out03:
 					gpioPinWrite(_GPIO_IO_OUT_04, onoff);
 					break;
-				case out_vac_1_on:
+				case out_jig_axis_dir:
 					gpioPinWrite(_GPIO_IO_OUT_05, onoff);
 					break;
-				case out_vac_1_off:
+				case out_jig_axis_pulse:
 					gpioPinWrite(_GPIO_IO_OUT_06, onoff);
 					break;
-				case out_vac_2_on:
+				case out_roll_axis_dir:
 					gpioPinWrite(_GPIO_IO_OUT_07, onoff);
 					break;
-				case out_vac_2_off:
+				case out_roll_axis_pulse:
 					gpioPinWrite(_GPIO_IO_OUT_08, onoff);
 					break;
 				case out_e::out10:
@@ -272,16 +272,16 @@ namespace MCU_IO
 				case out_e::out16:
 				case out_e::out17:
 
-				case out_e::out20:
-				case out_e::out21:
-				case out_e::out22:
-				case out_e::out23:
-				case out_e::out24:
-				case out_e::out25:
-				case out_e::out26:
-				case out_e::out27:
-				case out_e::out30:
-				case out_e::out31:
+				case out_e::out_cyl_jig_for:
+				case out_e::out_cyl_jig_back:
+				case out_e::out_cyl_jig_open:
+				case out_e::out_cyl_jig_close:
+				case out_e::out_cyl_vinyl_push:
+				case out_e::out_cyl_vinyl_back:
+				case out_e::out_cyl_vinylhold_up:
+				case out_e::out_cyl_vinylhold_down:
+				case out_e::out_vac_detect_on:
+				case out_e::out_vac_detect_blow:
 				case out_e::out32:
 				case out_e::out33:
 				case out_e::out34:
@@ -292,12 +292,12 @@ namespace MCU_IO
 					uint32_t no = 0;
 					if (onoff)
 					{
-						no = 1<<((uint32_t)out_idx - (uint32_t)out20 );
+						no = 1<<((uint32_t)out_idx - (uint32_t)out_cyl_jig_for );
 						m_extOut = m_extOut | no;
 					}
 					else
 					{
-						no = ~(1<<((uint32_t)out_idx - (uint32_t)out20  ));
+						no = ~(1<<((uint32_t)out_idx - (uint32_t)out_cyl_jig_for  ));
 						m_extOut = m_extOut & no;
 					}
 				}

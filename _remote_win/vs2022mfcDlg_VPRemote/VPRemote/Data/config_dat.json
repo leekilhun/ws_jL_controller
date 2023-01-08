@@ -1,0 +1,11 @@
+[
+  {    
+    "SerialComm_MCU": [
+      { "NAME": "PEELER_MCU_232" },
+      { "PORT_NAME": "COM4" },
+      { "BAUDRATE": 115200 }
+    ]
+  }
+]
+
+//

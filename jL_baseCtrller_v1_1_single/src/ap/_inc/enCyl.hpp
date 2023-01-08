@@ -16,7 +16,8 @@ namespace ACT
 	{
 	public:
 		enum time_e{ move, settle };
-		enum type_e{
+		//solvalve on state / off state
+ 		enum type_e{
 			unknwn,
 			up_down,
 			left_right,
@@ -29,7 +30,7 @@ namespace ACT
 			front_mid_back,
 		};
 		enum sol_e{
-			one, reserse_one, two
+			one, reserse_one, two, reverse_two
 		};
 
 

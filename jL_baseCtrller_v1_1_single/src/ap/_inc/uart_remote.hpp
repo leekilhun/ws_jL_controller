@@ -34,9 +34,21 @@ namespace RCTRL
 	//TX  (mcu -> pc) provide information
   enum TX_TYPE:uint8_t
   {
-    TX_MCU_STATE_DATA = 0x00,
-    TX_MOTOR_DATA 		= 0x01,
-    TX_MOTOR_POS_VEL 	= 0x02,
+    TX_MCU_STATE_DATA = 0x01,
+    TX_MOTOR_DATA 		= 0x02,
+		TX_MOTOR_CFG_MOTION_ORIGIN 	= 0x03,
+
+		TX_EEPROM_MOTION_DATA_L 	= 0x11,
+		TX_EEPROM_MOTION_DATA_H 	= 0x12,
+		TX_EEPROM_CONFIG_DATA   	= 0x13,
+		TX_EEPROM_CYLINDER_DATA   = 0x14,
+		TX_EEPROM_VACUUM_DATA   	= 0x15,
+		TX_EEPROM_SEQUNCE_DATA   	= 0x16,
+		TX_EEPROM_LINK_POS_DATA_L = 0x17,
+		TX_EEPROM_LINK_POS_DATA_H = 0x18,
+		TX_EEPROM_LOG_DATA 				= 0x19,
+
+		TX_OK_RESPONSE						= 0xAA,
   };
 
 
@@ -54,51 +66,63 @@ namespace RCTRL
   //RX (pc -> mcu) request information or action
 	enum CMD_TYPE:uint8_t
 	{
-		CMD_READ_ALL_STATE          = 0x00,
-		CMD_READ_BOOT_INFO          = 0x01,
-		CMD_READ_FIRM_INFO          = 0x02,
+		CMD_READ_ALL_STATE                = 0x00,
+		CMD_READ_BOOT_INFO                = 0x01,
+		CMD_READ_FIRM_INFO                = 0x02,
 
-		CMD_CTRL_IO_OUT             = 0x10,
-		CMD_CTRL_CYL                = 0x11,
-		CMD_CTRL_VAC                = 0x12,
-		CMD_CTRL_JOB_INITIAL        = 0x1A,
-		CMD_CTRL_VIRTUAL_SW         = 0x1B,
+		CMD_CTRL_IO_OUT                   = 0x10,
+		CMD_CTRL_CYL                      = 0x11,
+		CMD_CTRL_VAC                      = 0x12,
+		CMD_CTRL_MCU_OPTION_REG 					= 0x13,
 
-		CMD_CTRL_MOT_ORIGIN         = 0x20,
-		CMD_CTRL_MOT_ONOFF          = 0x21,
-		CMD_CTRL_MOT_MOVE           = 0x22,
-		CMD_CTRL_MOT_STOP           = 0x23,
-		CMD_CTRL_MOT_JOG            = 0x24,
-		CMD_CTRL_MOT_LIMIT          = 0x25,
-		CMD_CTRL_MOT_ZEROSET        = 0x26,
-		CMD_CTRL_MOT_RELMOVE        = 0x27,
-		CMD_CTRL_MOT_CLEAR_ALARM    = 0x28,
-		CMD_CTRL_MOT_CHANGE_VEL     = 0x29,
-		CMD_CTRL_MOT_MOVE_VEL       = 0x2A,
-		CMD_CTRL_MOT_RELMOVE_VEL    = 0x2B,
+		CMD_CTRL_JOB_INITIAL              = 0x1A,
+		CMD_CTRL_VIRTUAL_SW               = 0x1B,
 
-		CMD_CTRL_MOTS_ONOFF         = 0x30,
-		CMD_CTRL_MOTS_RUN           = 0x31,
-		CMD_CTRL_MOTS_STOP          = 0x32,
-		CMD_CTRL_MOTS_REL           = 0x33,
-		CMD_CTRL_MOT_JOG_STOP       = 0x34,
+		CMD_CTRL_MOT_ORIGIN               = 0x20,
+		CMD_CTRL_MOT_ONOFF                = 0x21,
+		CMD_CTRL_MOT_MOVE                 = 0x22,
+		CMD_CTRL_MOT_STOP                 = 0x23,
+		CMD_CTRL_MOT_JOG                  = 0x24,
+		CMD_CTRL_MOT_LIMIT                = 0x25,
+		CMD_CTRL_MOT_ZEROSET              = 0x26,
+		CMD_CTRL_MOT_RELMOVE              = 0x27,
+		CMD_CTRL_MOT_CLEAR_ALARM          = 0x28,
+		CMD_CTRL_MOT_CHANGE_VEL           = 0x29,
+		CMD_CTRL_MOT_MOVE_VEL             = 0x2A,
+		CMD_CTRL_MOT_RELMOVE_VEL          = 0x2B,
 
-		CMD_WRITE_MOTOR_POS_DATA 		= 0x40,
-		CMD_WRITE_CFG_DATA 					= 0x41,
-		CMD_WRITE_CYL_DATA 					= 0x42,
-		CMD_WRITE_VAC_DATA 					= 0x43,
-		CMD_WRITE_SEQ_DATA 					= 0x44,
-		CMD_READ_MOTOR_POS_DATA 		= 0x45,
-		CMD_READ_CFG_DATA 					= 0x46,
-		CMD_READ_CYL_DATA 					= 0x47,
-		CMD_READ_VAC_DATA 					= 0x48,
-		CMD_READ_SEQ_DATA 					= 0x49,
-		CMD_CLEAR_ROM_DATA 					= 0x4A,
-		CMD_RELOAD_ROM_DATA         = 0x4B,
+		CMD_CTRL_MOTS_ONOFF               = 0x30,
+		CMD_CTRL_MOTS_RUN                 = 0x31,
+		CMD_CTRL_MOTS_STOP                = 0x32,
+		CMD_CTRL_MOTS_REL                 = 0x33,
+		CMD_CTRL_MOT_JOG_STOP             = 0x34,
 
-		CMD_READ_MCU_DATA           = 0x50,
-		CMD_READ_MOTOR_DATA         = 0x51,
-		CMD_OK_RESPONSE             = 0xAA,
+		CMD_EEPROM_WRITE_MOTOR_POS_DATA_L	= 0x40,
+		CMD_EEPROM_WRITE_MOTOR_POS_DATA_H	= 0x41,
+		CMD_EEPROM_WRITE_CFG_DATA 				= 0x42,
+		CMD_EEPROM_WRITE_CYL_DATA 				= 0x43,
+		CMD_EEPROM_WRITE_VAC_DATA 				= 0x44,
+		CMD_EEPROM_WRITE_SEQ_DATA 				= 0x45,
+		CMD_EEPROM_WRITE_LINK_POS_L       = 0x46,
+		CMD_EEPROM_WRITE_LINK_POS_H       = 0x47,
+
+		CMD_EEPROM_READ_MOTOR_POS_DATA		= 0x48,
+		//0x49,
+		CMD_EEPROM_READ_CFG_DATA 					= 0x4A,
+		CMD_EEPROM_READ_CYL_DATA 					= 0x4B,
+		CMD_EEPROM_READ_VAC_DATA 					= 0x4C,
+		CMD_EEPROM_READ_SEQ_DATA 					= 0x4D,
+		CMD_EEPROM_READ_LINK_POS          = 0x4E,
+		CMD_EEPROM_READ_LOG								= 0x4F,
+
+		CMD_EEPROM_CLEAR_ROM_DATA 				= 0x50,
+		CMD_EEPROM_RELOAD_ROM_DATA 				= 0x51,
+
+		CMD_READ_MCU_DATA                 = 0x60,
+		CMD_READ_MOTOR_DATA               = 0x61,
+		CMD_READ_MOTION_ORG_CFG_DATA      = 0x62,
+
+		CMD_OK_RESPONSE                   = 0xAA,
 	};
 
 
@@ -144,29 +168,35 @@ namespace RCTRL
 
 			rx_packet_t() = default;
 
+			inline void Init(){
+				type = 0;
+				obj_id = 0;
+				length = 0;
+				data = 0;
+				check_sum = 0;
+				check_sum_recv = 0;
+				buffer.fill(0);
+			}
+
 			rx_packet_t& operator = (const rx_packet_t& dat){
-				if ( this != &dat){
-					type = dat.type;
-					obj_id = dat.obj_id;
-					length = dat.length;
-					data = dat.data;
-					check_sum = dat.check_sum;
-					check_sum_recv = dat.check_sum_recv;
-					buffer = dat.buffer;
-				}
+				type = dat.type;
+				obj_id = dat.obj_id;
+				length = dat.length;
+				data = dat.data;
+				check_sum = dat.check_sum;
+				check_sum_recv = dat.check_sum_recv;
+				buffer = dat.buffer;
 				return *this;
 			}
 
 			rx_packet_t& operator = (const rx_packet_t* dat){
-				if ( this != dat){
-					type = dat->type;
-					obj_id = dat->obj_id;
-					length = dat->length;
-					data = dat->data;
-					check_sum = dat->check_sum;
-					check_sum_recv = dat->check_sum_recv;
-					buffer = dat->buffer;
-				}
+				type = dat->type;
+				obj_id = dat->obj_id;
+				length = dat->length;
+				data = dat->data;
+				check_sum = dat->check_sum;
+				check_sum_recv = dat->check_sum_recv;
+				buffer = dat->buffer;
 				return *this;
 			}
 		} ;
@@ -297,6 +327,7 @@ namespace RCTRL
 
 			return uartWrite(m_cfg.ch, value.data(), idx);
 		}
+
 
 #if 0
 

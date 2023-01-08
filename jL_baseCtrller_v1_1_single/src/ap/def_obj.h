@@ -27,16 +27,15 @@
 #define M_GetMotorObjId(obj)                    AP_DEF_OBJ_BASE_MOTOR|obj
 
 #define AP_DEF_OBJ_CYL_ID_PHONE_OPEN_CLOSE      0
-#define AP_DEF_OBJ_CYL_ID_PHONE_LOCK_UNLOCK     1
-#define AP_DEF_OBJ_CYL_ID_PHONE_FOR_BACK        2
-#define AP_DEF_OBJ_CYL_ID_VINYL_GRIP_UNGRIP     3
-#define AP_DEF_OBJ_CYL_ID_VINYL_PUSH            4
-#define AP_DEF_OBJ_CYL_ID_MAX                   5
+#define AP_DEF_OBJ_CYL_ID_PHONE_FOR_BACK        1
+#define AP_DEF_OBJ_CYL_ID_VINYLHOLD_UP_DOWN     2
+#define AP_DEF_OBJ_CYL_ID_VINYL_PUSH_BACK       3
+#define AP_DEF_OBJ_CYL_ID_MAX                   4
 #define M_GetCylinderObjId(obj)              AP_DEF_OBJ_BASE_CYLINDER|obj
 
 
-#define AP_DEF_OBJ_VACUUM_ID_PHONE_JIG       0
-#define AP_DEF_OBJ_VACUUM_ID_MAX             1
+#define AP_DEF_OBJ_VACUUM_ID_VINYL_DETECT       0
+#define AP_DEF_OBJ_VACUUM_ID_MAX                1
 #define GetVacObjId(obj)                     AP_DEF_OBJ_BASE_VACUUM|obj
 
 
@@ -55,10 +54,9 @@ namespace AP_OBJ
 	enum CYL
 	{
 		CYL_PHONE_OPENCLOSE,
-		CYL_PHONE_LOCKUNLOCK,
 		CYL_PHONE_FORBACK,
-		CYL_VINYL_GRIP,
-		CYL_VINYL_PUSH,
+		CYL_VINYLHOLD_UPDOWN,
+		CYL_VINYL_PUSHBACK,
 
 		CYL_MAX,
 
@@ -66,7 +64,7 @@ namespace AP_OBJ
 
 	enum VAC
 	{
-		VAC_PHONE,
+		VAC_DETECT,
 
 		VAC_MAX,
 	};

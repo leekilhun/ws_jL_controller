@@ -32,6 +32,7 @@ public:
 		vac_dat *p_apVacDat{};
 		ap_dat *p_apCfgDat{};
 		seq_dat *p_apSeqDat{};
+		link_dat *p_linkPosDat{};
 		enOp* p_Op{};
 		ACT::enCyl *p_Cyl{};
 		ACT::enVac *p_Vac{};
@@ -41,20 +42,19 @@ public:
 		cfg_t() = default;
 		inline cfg_t& operator = (const cfg_t& cfg)
 		{
-			if (this != & cfg){
-				p_apReg = cfg.p_apReg;
-				p_apIo = cfg.p_apIo;
-				p_apAxisDat = cfg.p_apAxisDat;
-				p_apCylDat = cfg.p_apCylDat;
-				p_apVacDat = cfg.p_apVacDat;
-				p_apCfgDat = cfg.p_apCfgDat;
-				p_apSeqDat = cfg.p_apSeqDat;
-				p_Op = cfg.p_Op;
-				p_Cyl = cfg.p_Cyl;
-				p_Vac = cfg.p_Vac;
-				p_motors = cfg.p_motors;
-				p_AutoManger = cfg.p_AutoManger;
-			}
+			p_apReg = cfg.p_apReg;
+			p_apIo = cfg.p_apIo;
+			p_apAxisDat = cfg.p_apAxisDat;
+			p_apCylDat = cfg.p_apCylDat;
+			p_apVacDat = cfg.p_apVacDat;
+			p_apCfgDat = cfg.p_apCfgDat;
+			p_apSeqDat = cfg.p_apSeqDat;
+			p_linkPosDat = cfg.p_linkPosDat;
+			p_Op = cfg.p_Op;
+			p_Cyl = cfg.p_Cyl;
+			p_Vac = cfg.p_Vac;
+			p_motors = cfg.p_motors;
+			p_AutoManger = cfg.p_AutoManger;
 			return *this;
 		}
 
@@ -104,6 +104,178 @@ public:
 		}
 		return ret;
 	}
+
+	inline errno_t ClearROMData(){
+		errno_t ret = ERROR_SUCCESS;
+		m_cfg.p_apAxisDat->ClearRomData();
+		m_cfg.p_apCfgDat->ClearRomData();
+		m_cfg.p_apCylDat->ClearRomData();
+		m_cfg.p_apVacDat->ClearRomData();
+		m_cfg.p_apSeqDat->ClearRomData();
+		m_cfg.p_linkPosDat->ClearRomData();
+		return ret;
+	}
+
+	inline errno_t ReloadROMData(){
+		errno_t ret = ERROR_SUCCESS;
+		m_cfg.p_apAxisDat->LoadRomData();
+		m_cfg.p_apCfgDat->LoadRomData();
+		m_cfg.p_apCylDat->LoadRomData();
+		m_cfg.p_apVacDat->LoadRomData();
+		m_cfg.p_apSeqDat->LoadRomData();
+		m_cfg.p_linkPosDat->LoadRomData();
+		return ret;
+	}
+
+	inline errno_t WriteROMData_LinkPose(RCTRL::uart_remote::rx_packet_t& ref_data, bool is_low = true){
+		link_dat::dat_t data{};
+		if (is_low)
+		{
+			if (ref_data.length == 32)
+			{
+				for (uint8_t i = 0; i < (APDAT_LINK_DATA_CNT_MAX/2) ; i++)
+				{
+					data = {
+							utilDwToInt(&ref_data.data[0 + ((uint8_t)sizeof(data) * i)]),
+							utilDwToUint(&ref_data.data[4 + ((uint8_t)sizeof(data) * i)])};
+					m_cfg.p_linkPosDat->WriteData((link_dat::addr_e)i, data);
+				}
+			}
+			return 0;
+		}
+		else
+		{
+			if (ref_data.length == 32)
+			{
+				for (uint8_t i = 0; i < (APDAT_LINK_DATA_CNT_MAX/2) ; i++)
+				{
+					data = {
+							utilDwToInt(&ref_data.data[0 + ((uint8_t)sizeof(data) * i)]),
+							utilDwToUint(&ref_data.data[4 + ((uint8_t)sizeof(data) * i)])};
+					m_cfg.p_linkPosDat->WriteData((link_dat::addr_e)(i + 4), data);
+				}
+
+			}
+			return 0;
+		}
+		return -1;
+	}
+
+
+	inline errno_t WriteROMData_Sequence(RCTRL::uart_remote::rx_packet_t& ref_data){
+		seq_dat::dat_t data{};
+		if (ref_data.length == 32)
+		{
+			for (uint8_t i = 0; i < APDAT_CNT_MAX ; i++)
+			{
+				data = {
+						(uint16_t)(ref_data.data[0 + ((uint8_t)sizeof(data) * i)]<<0
+								|ref_data.data[1 + ((uint8_t)sizeof(data) * i)]<<8)
+								,(uint16_t)(ref_data.data[2 + ((uint8_t)sizeof(data)* i)]<<0
+										|ref_data.data[3 + ((uint8_t)sizeof(data)* i)]<<8)};
+				m_cfg.p_apSeqDat->WriteData((seq_dat::addr_e)i, data);
+			}
+			return 0;
+		}
+		return -1;
+	}
+
+	inline errno_t WriteROMData_Vacuum(RCTRL::uart_remote::rx_packet_t& ref_data){
+		vac_dat::dat_t data{};
+		if (ref_data.length == 32)
+		{
+			for (uint8_t i = 0; i < APDAT_CNT_MAX ; i++)
+			{
+				data = {
+						(uint16_t)(ref_data.data[0 + ((uint8_t)sizeof(data) * i)]<<0
+								|ref_data.data[1 + ((uint8_t)sizeof(data) * i)]<<8)
+								,(uint16_t)(ref_data.data[2 + ((uint8_t)sizeof(data) * i)]<<0
+										|ref_data.data[3 + ((uint8_t)sizeof(data) * i)]<<8)};
+				m_cfg.p_apVacDat->WriteData((vac_dat::addr_e)i, data);
+			}
+			return 0;
+		}
+		return -1;
+	}
+
+	inline errno_t WriteROMData_Cylinder(RCTRL::uart_remote::rx_packet_t& ref_data){
+		cyl_dat::dat_t data{};
+		if (ref_data.length == 32)
+		{
+			for (uint8_t i = 0; i < APDAT_CNT_MAX ; i++)
+			{
+				data = {
+						(uint16_t)(ref_data.data[0 + ((uint8_t)sizeof(data) * i)]<<0
+								|ref_data.data[1 + ((uint8_t)sizeof(data) * i)]<<8)
+								,(uint16_t)(ref_data.data[2 + ((uint8_t)sizeof(data) * i)]<<0
+										|ref_data.data[3 + ((uint8_t)sizeof(data) * i)]<<8)};
+				m_cfg.p_apCylDat->WriteData((cyl_dat::addr_e)i, data);
+			}
+			return 0;
+		}
+		return -1;
+	}
+
+	inline errno_t WriteROMData_Config(RCTRL::uart_remote::rx_packet_t& ref_data){
+		ap_dat::dat_t data{};
+		if (ref_data.length == 32)
+		{
+			for (uint8_t i = 0; i < APDAT_CNT_MAX ; i++)
+			{
+				data = {
+						(uint16_t)(ref_data.data[0 + ((uint8_t)sizeof(data) * i)]<<0
+								|ref_data.data[1 + ((uint8_t)sizeof(data) * i)]<<8)
+								,(uint16_t)(ref_data.data[2 + ((uint8_t)sizeof(data) * i)]<<0
+										|ref_data.data[3 + ((uint8_t)sizeof(data) * i)]<<8)};
+				m_cfg.p_apCfgDat->WriteData((ap_dat::addr_e)i, data);
+			}
+			return 0;
+		}
+		return -1;
+	}
+
+	inline errno_t WriteROMData_Pose(RCTRL::uart_remote::rx_packet_t& ref_data, bool is_low = true){
+		axis_dat::dat_t data{};
+		uint8_t each_size = APDAT_AXIS_POS_DATA_CNT_MAX/AP_OBJ::MOTOR_MAX;
+		if (is_low)
+		{
+			if (ref_data.length == 32)
+			{
+				for (uint8_t i = 0; i < (each_size/2) ; i++)
+				{
+					data = {
+							(int)(ref_data.data[0 + ((uint8_t)sizeof(data) * i)]<<0
+									|ref_data.data[1 + ((uint8_t)sizeof(data) * i)]<<8
+									|ref_data.data[2 + ((uint8_t)sizeof(data) * i)]<<16
+									|ref_data.data[3 + ((uint8_t)sizeof(data) * i)]<<24)
+									,(uint32_t)(ref_data.data[4 + ( (uint8_t)sizeof(data) * i)]<<0
+											|ref_data.data[5 + ((uint8_t)sizeof(data) * i)]<<8
+											|ref_data.data[6 + ((uint8_t)sizeof(data) * i)]<<16
+											|ref_data.data[7 + ((uint8_t)sizeof(data) * i)]<<24)};
+					m_cfg.p_apAxisDat->WriteData(i + ((uint8_t)sizeof(data) * ref_data.obj_id), data);
+				}
+			}
+			return 0;
+		}
+		else
+		{
+			if (ref_data.length == 32)
+			{
+				for (uint8_t i = 0; i < (each_size/2) ; i++)
+				{
+					data = {
+							utilDwToInt(&ref_data.data[0 + ((uint8_t)sizeof(data) * i)]),
+							utilDwToUint(&ref_data.data[4 + ((uint8_t)sizeof(data) * i)])
+					};
+					m_cfg.p_apAxisDat->WriteData((i + 4) + ((uint8_t)sizeof(data) * ref_data.obj_id), data);
+				}
+
+			}
+			return 0;
+		}
+		return -1;
+	}
+
 
 	inline errno_t MotorOnOff(bool on_off, AP_OBJ::MOTOR motor_id = AP_OBJ::MOTOR_MAX){
 

@@ -320,9 +320,18 @@ namespace MOTOR
 			return &m_receiveData;
 		}
 
+		inline void GetMotionParamData(motion_param_t& ret_data) const {
+			ret_data = m_cfg.motor_param;
+		}
+
+		inline void GetOriginParamData(origin_param_t& ret_data) const {
+			ret_data = m_cfg.origin_param;
+		}
+
 		inline void GetMotorData(moons_data_t& ret_data) {
 			ret_data = m_motorData;
 		}
+
 		inline uint8_t GetInstanceNo() {
 			return m_cfg.instance_no;
 		}

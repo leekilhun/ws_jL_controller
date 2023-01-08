@@ -92,7 +92,7 @@ struct ap_dat
     uint16_t  parm2;
   };
 
-  enum class addr_e //
+  enum addr_e:uint8_t //
   {
     ap_mot_move, ap_mot_1_cfg, ap_mot_2_cfg, ap_3 ,ap_4, ap_5, ap_6, ap_7,
     _max
@@ -104,25 +104,25 @@ struct ap_dat
   };*/
 
   inline void WriteData(addr_e addr, dat_t data){
-    apcfg_dat[static_cast<uint8_t>(addr)]=data;
+    apcfg_dat[addr]=data;
     uint16_t rcv_data[2] = {data.parm1, data.parm2};
-    at24c64Write(APDAT_ADDR(static_cast<uint8_t>(addr)), (uint8_t *)&rcv_data[0], APDAT_LENGTH);
+    at24c64Write(APDAT_ADDR(addr), (uint8_t *)&rcv_data[0], APDAT_LENGTH);
   }
 
   inline dat_t ReadData(addr_e addr){
-    return apcfg_dat[static_cast<uint8_t>(addr)];
+    return apcfg_dat[addr];
   }
 
   inline dat_t LoadData(addr_e addr){
     uint16_t rcv_data[2] = {0,};
-    uint8_t idx = static_cast<uint8_t>(addr);
+    uint8_t idx = addr;
     at24c64Read(APDAT_ADDR(idx), (uint8_t*)&rcv_data, APDAT_LENGTH);
     apcfg_dat[idx].parm1 =rcv_data[0];
     apcfg_dat[idx].parm2 =rcv_data[1];
     return apcfg_dat[idx];
   }
   inline dat_t* GetData(addr_e addr){
-    return &apcfg_dat[static_cast<uint8_t>(addr)];
+    return &apcfg_dat[addr];
   }
 
   inline bool LoadRomData(){
@@ -284,32 +284,36 @@ struct cyl_dat{
   };
 
   /* multiply by length 4*/
-  enum class addr_e //
+  enum addr_e : uint8_t //
   {
-  	phone_clamp_cyl,
-  	drum_updown_cyl, drum_z_up_cyl, drum_stop_cyl,
+  	phone_jig_open_close,
+  	phone_jig_for_back,
+		vinylhold_up_down,
+		vinyl_push_back,
+
+		cyl4, cyl_5,cyl_6,cyl_7,
   	_max
   };
 
   dat_t cyl_act_dat[APDAT_CYL_ACT_DATA_CNT_MAX];
 
   inline void WriteData(addr_e addr, dat_t data){
-    cyl_act_dat[static_cast<uint8_t>(addr)]=data;
+    cyl_act_dat[addr]=data;
     uint16_t rcv_data[2] = {data.timeout, data.on_settling};
-    at24c64Write(APDAT_CYL_ACT_DATA_ADDR(static_cast<uint8_t>(addr)), (uint8_t *)&rcv_data[0], APDAT_CYL_ACT_DATA_LENGTH);
+    at24c64Write(APDAT_CYL_ACT_DATA_ADDR(addr), (uint8_t *)&rcv_data[0], APDAT_CYL_ACT_DATA_LENGTH);
   }
 
   inline dat_t* GetData(addr_e addr){
-    return &cyl_act_dat[static_cast<uint8_t>(addr)];
+    return &cyl_act_dat[addr];
   }
 
   inline dat_t ReadData(addr_e addr){
-    return cyl_act_dat[static_cast<uint8_t>(addr)];
+    return cyl_act_dat[addr];
   }
 
   inline dat_t LoadData(addr_e addr){
     uint16_t rcv_data[2] = {0,};
-    uint8_t idx = static_cast<uint8_t>(addr);
+    uint8_t idx = addr;
     at24c64Read(APDAT_CYL_ACT_DATA_ADDR(idx), (uint8_t*)&rcv_data, APDAT_CYL_ACT_DATA_LENGTH);
     cyl_act_dat[idx] = {rcv_data[0], rcv_data[1]};
     return cyl_act_dat[idx];
@@ -349,10 +353,10 @@ struct vac_dat{
     uint16_t  on_settling;
   };
 
-  enum class addr_e //
+  enum addr_e:uint8_t //
   {
-    peel_drum_vac,
-    peel_drum_tail_vac, peel_phone_jig, vac_3,
+    vinyl_detect,
+		vac_1, vac_2, vac_3,
     vac_4, vac_5, vac_6, vac_7,
     _max
   };
@@ -360,22 +364,22 @@ struct vac_dat{
   dat_t vac_act_dat[APDAT_VAC_ACT_DATA_CNT_MAX];
 
   inline void WriteData(addr_e addr, dat_t data){
-    vac_act_dat[static_cast<uint8_t>(addr)]=data;
+    vac_act_dat[addr]=data;
     uint16_t rcv_data[2] = {data.timeout, data.on_settling};
-    at24c64Write(APDAT_VAC_ACT_DATA_ADDR(static_cast<uint8_t>(addr)), (uint8_t *)&rcv_data[0], APDAT_VAC_ACT_DATA_LENGTH);
+    at24c64Write(APDAT_VAC_ACT_DATA_ADDR(addr), (uint8_t *)&rcv_data[0], APDAT_VAC_ACT_DATA_LENGTH);
   }
 
   inline dat_t* GetData(addr_e addr){
-    return &vac_act_dat[static_cast<uint8_t>(addr)];
+    return &vac_act_dat[addr];
   }
 
   inline dat_t ReadData(addr_e addr){
-    return vac_act_dat[static_cast<uint8_t>(addr)];
+    return vac_act_dat[addr];
   }
 
   inline dat_t LoadData(addr_e addr){
     uint16_t rcv_data[2] = {0,};
-    uint8_t idx = static_cast<uint8_t>(addr);
+    uint8_t idx = addr;
     at24c64Read(APDAT_VAC_ACT_DATA_ADDR(idx), (uint8_t*)&rcv_data, APDAT_VAC_ACT_DATA_LENGTH);
     vac_act_dat[idx] = {rcv_data[0], rcv_data[1]};
     return vac_act_dat[idx];
@@ -414,7 +418,7 @@ struct seq_dat{
     uint16_t  parm2;
   };
 
-  enum class addr_e //
+  enum addr_e:uint8_t //
   {
     seq_max_val, seq_peel_try, seq_reattach, seq_loop,
     seq_4, seq_5, seq_6, seq_7,
@@ -424,22 +428,22 @@ struct seq_dat{
   dat_t sequencing_dat[APDAT_SEQ_DATA_CNT_MAX];
 
   inline void WriteData(addr_e addr, dat_t data){
-    sequencing_dat[static_cast<uint8_t>(addr)]=data;
+    sequencing_dat[addr]=data;
     uint16_t rcv_data[2] = {data.parm1, data.parm2};
-    at24c64Write(APDAT_SEQ_DATA_ADDR(static_cast<uint8_t>(addr)), (uint8_t *)&rcv_data[0], APDAT_SEQ_DATA_LENGTH);
+    at24c64Write(APDAT_SEQ_DATA_ADDR(addr), (uint8_t *)&rcv_data[0], APDAT_SEQ_DATA_LENGTH);
   }
 
   inline dat_t* GetData(addr_e addr){
-    return &sequencing_dat[static_cast<uint8_t>(addr)];
+    return &sequencing_dat[addr];
   }
 
   inline dat_t ReadData(addr_e addr){
-    return sequencing_dat[static_cast<uint8_t>(addr)];
+    return sequencing_dat[addr];
   }
 
   inline dat_t LoadData(addr_e addr){
     uint16_t rcv_data[2] = {0,};
-    uint8_t idx = static_cast<uint8_t>(addr);
+    uint8_t idx = addr;
     at24c64Read(APDAT_SEQ_DATA_ADDR(idx), (uint8_t*)&rcv_data, APDAT_SEQ_DATA_LENGTH);
     sequencing_dat[idx] = {rcv_data[0], rcv_data[1]};
     return sequencing_dat[idx];
@@ -475,12 +479,12 @@ struct seq_dat{
 
   inline uint32_t GetMaxSpeed() const
   {
-    return (uint32_t)sequencing_dat[static_cast<uint8_t>(seq_dat::addr_e::seq_max_val)].parm1;
+    return (uint32_t)sequencing_dat[addr_e::seq_max_val].parm1;
   }
 
   inline uint32_t GetMaxLoopCnt() const
   {
-    return (uint32_t)sequencing_dat[static_cast<uint8_t>(seq_dat::addr_e::seq_max_val)].parm2;
+    return (uint32_t)sequencing_dat[addr_e::seq_max_val].parm2;
   }
 
   inline void SetMaxLoopCnt(uint8_t cnt)
@@ -502,7 +506,7 @@ struct link_dat{
   };
 
 
-  enum class addr_e //
+  enum addr_e:uint8_t //
   {
     link_pose_stick,//0,
     link_pose_peel_check,//1,
@@ -518,22 +522,22 @@ struct link_dat{
   dat_t linkpose_dat[APDAT_LINK_DATA_CNT_MAX];
 
   inline void WriteData(addr_e addr, dat_t data){
-    linkpose_dat[static_cast<uint8_t>(addr)]=data;
+    linkpose_dat[addr]=data;
     uint32_t rcv_data[2] = {(uint32_t)data.cmd_pos, data.cmd_vel};
-    at24c64Write(APDAT_LINK_DATA_ADDR(static_cast<uint8_t>(addr)), (uint8_t *)&rcv_data[0], APDAT_LINK_DATA_LENGTH);
+    at24c64Write(APDAT_LINK_DATA_ADDR(addr), (uint8_t *)&rcv_data[0], APDAT_LINK_DATA_LENGTH);
   }
 
   inline dat_t* GetData(addr_e addr){
-    return &linkpose_dat[static_cast<uint8_t>(addr)];
+    return &linkpose_dat[addr];
   }
 
   inline dat_t ReadData(addr_e addr){
-    return linkpose_dat[static_cast<uint8_t>(addr)];
+    return linkpose_dat[addr];
   }
 
   inline dat_t LoadData(addr_e addr){
     uint32_t rcv_data[2] = {0,};
-    uint8_t idx = static_cast<uint8_t>(addr);
+    uint8_t idx = addr;
     at24c64Read(APDAT_LINK_DATA_ADDR(idx), (uint8_t*)&rcv_data, APDAT_LINK_DATA_LENGTH);
     linkpose_dat[idx] = {(int)rcv_data[0], rcv_data[1]};
     return linkpose_dat[idx];
@@ -603,7 +607,7 @@ struct log_dat{
 
   };
 
-  enum class addr_e //
+  enum addr_e:uint8_t //
   {
     log_00, log_01, log_02, log_03, log_04, log_05, log_06, log_07,
     log_10, log_11, log_12, log_13, log_14, log_15, log_16, log_17,
@@ -623,16 +627,16 @@ struct log_dat{
   }
   inline void WriteData(addr_e addr, dat_t* p_data){
     memcpy(&log_buff, p_data, APDAT_LOG_DATA_LENGTH);
-    at24c64Write(APDAT_LOG_DATA_ADDR(static_cast<uint8_t>(addr)), (uint8_t *)&log_buff, APDAT_LOG_DATA_LENGTH);
+    at24c64Write(APDAT_LOG_DATA_ADDR(addr), (uint8_t *)&log_buff, APDAT_LOG_DATA_LENGTH);
   }
 
   inline dat_t* GetData(addr_e addr){
-    at24c64Read(APDAT_LOG_DATA_ADDR(static_cast<uint8_t>(addr)), (uint8_t*)&log_buff, APDAT_LOG_DATA_LENGTH);
+    at24c64Read(APDAT_LOG_DATA_ADDR(addr), (uint8_t*)&log_buff, APDAT_LOG_DATA_LENGTH);
     return &log_buff;
   }
 
   inline uint8_t* Get(addr_e addr){
-    at24c64Read(APDAT_LOG_DATA_ADDR(static_cast<uint8_t>(addr)), (uint8_t*)&log_buff, APDAT_LOG_DATA_LENGTH);
+    at24c64Read(APDAT_LOG_DATA_ADDR(addr), (uint8_t*)&log_buff, APDAT_LOG_DATA_LENGTH);
     return (uint8_t*)&log_buff;
 
   }
