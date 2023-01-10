@@ -427,6 +427,13 @@ void apMain(void)
  */
 void eventOpPanel()
 {
+	/*check request initial*/
+	if (mcu_reg.state_reg.request_initial)
+	{
+		mcu_reg.state_reg.request_initial = false;
+		tasks.Initialize();
+	}
+	/* op key*/
 	if (op_panel.GetPressed(enOp::panel_e::SW_ESTOP))
 	{
 		mcu_reg.SetReg_State(MCU_REG::ap_reg::state_e::EMG_STOP, true);
@@ -555,12 +562,12 @@ void updateApReg()
 	 /* 2. mcu register */
 	 using reg = MCU_REG::ap_reg::state_e;
 
-	 if (autoManager.IsDetectAreaSensor()) //
-		 mcu_reg.SetReg_State(reg::DETECT_AREA_SEN, true);
-	 else
-		 mcu_reg.SetReg_State(reg::DETECT_AREA_SEN, false);
+	 mcu_reg.state_reg.detect_safe_sensor = autoManager.IsDetectAreaSensor();
+	 mcu_reg.state_reg.motor_on = motors.IsMotorOn();
+	 mcu_reg.state_reg.system_origin_cplt = !(tasks.m_IsInit);
 
 
+	 /* mode */
 	 switch (autoManager.GetOPStatus())
 	 {
 		 case enOp::status_e::INIT:
@@ -632,15 +639,15 @@ void updateApReg()
 
 	 /* 1. error register */
 
-	 using state_reg = MCU_REG::ap_reg::state_e;
+	 //using state_reg = MCU_REG::ap_reg::state_e;
 	 using error_reg = MCU_REG::ap_reg::err_e;
 
 	 //process 에러 체크
-	 if (mcu_reg.GetAlarmState() != 1)
+	 /*if (mcu_reg.GetAlarmState() != 1)
 		 mcu_reg.SetReg_State(state_reg::ALARM_STATUS, true);
 	 else
-		 mcu_reg.SetReg_State(state_reg::ALARM_STATUS, false);
-
+		 mcu_reg.SetReg_State(state_reg::ALARM_STATUS, false);*/
+	 mcu_reg.error_reg.no_error = !(mcu_reg.GetAlarmState() > 1);
 
    /* 2. lcd  통신 체크  */
 	 if (op_lcd.IsConnected() == false)
@@ -658,14 +665,17 @@ void updateApReg()
 
 
 	 /* 3. motor communication */
-	 if (motors.IsConnected())
+	 //mcu_reg.error_reg.no_resp_mot
+
+	 if (motors.GetCommStatus() == 0)
 	 {
+		 motors.m_errCnt = 0;
 		 mcu_reg.SetErrRegister(error_reg::no_response_mot, false);
 	 }
 	 else
 	 {
 		 // recovery는 motors객체에서 전체 모터 연결이 안되면 실시
-		 mcu_reg.SetErrRegister(error_reg::no_response_mot, true);
+			mcu_reg.SetErrRegister(error_reg::no_response_mot, (++motors.m_errCnt >= COMM_RECOVERY_LIMIT_COUNT));
 	 }
 
 	 // Check the error status of the constructed unit

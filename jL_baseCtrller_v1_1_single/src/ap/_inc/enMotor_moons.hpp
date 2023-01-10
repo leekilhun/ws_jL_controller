@@ -185,19 +185,17 @@ namespace MOTOR
 
 
 			inline motion_param_t& operator = (const motion_param_t& cfg) {
-				if ( this != &cfg){
-					this->jog_speedC = cfg.jog_speedC;
-					this->jog_accelC = cfg.jog_accelC;
-					this->jog_decelC = cfg.jog_decelC;
-					this->move_speedC = cfg.move_speedC;
-					this->move_accelC = cfg.move_accelC;
-					this->move_decelC = cfg.move_decelC;
-					//this->limit_velocity = cfg.limit_velocity;
+				this->jog_speedC = cfg.jog_speedC;
+				this->jog_accelC = cfg.jog_accelC;
+				this->jog_decelC = cfg.jog_decelC;
+				this->move_speedC = cfg.move_speedC;
+				this->move_accelC = cfg.move_accelC;
+				this->move_decelC = cfg.move_decelC;
+				//this->limit_velocity = cfg.limit_velocity;
 
-					this->electronic_gear_ratio = cfg.electronic_gear_ratio;
-					this->max_rps = cfg.max_rps;
-					this->one_turn_move_mm = cfg.one_turn_move_mm;
-				}
+				this->electronic_gear_ratio = cfg.electronic_gear_ratio;
+				this->max_rps = cfg.max_rps;
+				this->one_turn_move_mm = cfg.one_turn_move_mm;
 				return *this;
 			}
 		};
@@ -218,7 +216,7 @@ namespace MOTOR
 			void Init() {
 				accel = 100;
 				decel = 100;
-				speed = 10;
+				speed = 3;
 				offset = 0;
 				home_x_no = '5'; // home sens
 				home_x_level = 'L';
@@ -226,19 +224,17 @@ namespace MOTOR
 			}
 
 			inline origin_param_t& operator = (const origin_param_t& cfg) {
-				if (this != &cfg) {
-					this->accel = cfg.accel;
-					this->decel = cfg.decel;
-					this->speed = cfg.speed;
-					this->offset = cfg.offset;
+				this->accel = cfg.accel;
+				this->decel = cfg.decel;
+				this->speed = cfg.speed;
+				this->offset = cfg.offset;
 
-					this->home_x_no = cfg.home_x_no;
-					this->find_home_dir = cfg.find_home_dir;
-					this->home_x_level = cfg.home_x_level;
-
-				}
+				this->home_x_no = cfg.home_x_no;
+				this->find_home_dir = cfg.find_home_dir;
+				this->home_x_level = cfg.home_x_level;
 				return *this;
 			}
+
 			inline void operator = (const origin_param_t* p_cfg) {
 				this->accel = p_cfg->accel;
 				this->decel = p_cfg->decel;
@@ -265,14 +261,12 @@ namespace MOTOR
 			cfg_t() = default;
 
 			cfg_t& operator = (const cfg_t& cfg){
-				if ( this != &cfg){
-					instance_no = cfg.instance_no;
-					p_comm = cfg.p_comm;
-					p_apReg = cfg.p_apReg;
-					p_apCfgDat = cfg.p_apCfgDat;
-					p_apAxisDat = cfg.p_apAxisDat;
-					motor_param = cfg.motor_param;
-				}
+				instance_no = cfg.instance_no;
+				p_comm = cfg.p_comm;
+				p_apReg = cfg.p_apReg;
+				p_apCfgDat = cfg.p_apCfgDat;
+				p_apAxisDat = cfg.p_apAxisDat;
+				motor_param = cfg.motor_param;
 				return *this;
 			}
 
@@ -518,7 +512,15 @@ namespace MOTOR
 
 
 		inline errno_t OriginMotor(){
-			return  m_cfg.p_comm->OriginAxis(m_nodeId, m_cfg.origin_param.home_x_no, m_cfg.origin_param.home_x_level);
+			errno_t ret = ERROR_SUCCESS;
+			uart_moons::speed_t params {
+							    (uint16_t)(m_cfg.origin_param.accel * MODBUS_MULTIPLE_PARAM_ACC),
+									(uint16_t)(m_cfg.origin_param.decel * MODBUS_MULTIPLE_PARAM_ACC),
+									(uint16_t)(m_cfg.origin_param.speed * MODBUS_MULTIPLE_PARAM_VEL)};
+			ret = m_cfg.p_comm->SetOriginParam(m_nodeId, params, m_cfg.origin_param.find_home_dir);
+			if (ret == ERROR_SUCCESS)
+				return  m_cfg.p_comm->OriginAxis(m_nodeId, m_cfg.origin_param.home_x_no, m_cfg.origin_param.home_x_level);
+			return ret;
 		}
 
 

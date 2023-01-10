@@ -60,4 +60,7 @@ public:
 	afx_msg void OnPaint();
 private:
 	CComboBox m_cmbDirection;
+public:
+	afx_msg void OnBnClickedMoonsBtnMoveParamSet();
+	afx_msg void OnBnClickedMoonsBtnInitParamSet();
 };

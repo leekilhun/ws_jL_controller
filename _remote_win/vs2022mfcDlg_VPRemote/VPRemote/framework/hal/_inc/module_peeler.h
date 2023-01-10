@@ -84,6 +84,25 @@ namespace HAL
 		 ****************************************************/
 	public:
 
+		enum sw_e
+		{
+			sw_start,
+			sw_stop,
+			sw_reset,
+			sw_max,
+		};
+
+		enum eeprom_data_e:uint8_t
+		{
+			rom_pose_l,
+			rom_pose_h,
+			rom_config,
+			rom_cylinder,
+			rom_vacuum,
+			rom_sequence,
+			rom_max
+		};
+
 		//RX  (mcu -> pc) provide information
 		enum RX_TYPE :uint8_t
 		{
@@ -219,7 +238,7 @@ namespace HAL
 			STATE_13,
 			STATE_14,
 			STATE_15,
-			REQUEST_INITAL,
+			REQUEST_INITIAL,
 			ALL_CHECK_OK,
 		};
 
@@ -784,7 +803,7 @@ namespace HAL
 		std::array<mcu_vac_dat_st, MODULE_PEELER_EEPROM_MCU_VACUUM_DATA_MAX> m_mcuVacuumDat;
 		std::array<mcu_log_dat_st, MODULE_PEELER_EEPROM_MCU_LOG_DATA_MAX> m_mcuLogDat;
 
-
+		std::array<bool, rom_max> m_WaitData;
 		/****************************************************
 		 *	Constructor
 		 ****************************************************/
@@ -793,7 +812,7 @@ namespace HAL
 			:Icommon(common_data), m_cfg(cfg), m_packetData{}, m_cbObj{}, m_func{}, m_TrdLife{}, m_hThread{}, m_TrdId{}
 			, m_errorReg{}, m_optionReg{}, m_stateReg{}, m_inReg{}, m_outReg{}, m_waitResp{}
 			, m_motorData{}, m_motionParam{}, m_originParam{}, m_mcuConfigDat{}, m_mcuSequnceDat{}, m_mcuAxisDat{}, m_mcuLinkPoseDat{}
-			, m_mcuCylinderDat{}, m_mcuVacuumDat{}, m_mcuLogDat{}
+			, m_mcuCylinderDat{}, m_mcuVacuumDat{}, m_mcuLogDat{}, m_WaitData{}
 		{
 			m_cfg.p_Comm->AttCallbackFunc(this, receiveDataCB);
 
@@ -925,6 +944,8 @@ namespace HAL
 					m_motorData[m_packetData.obj_id].immediate_act_velocity = ret_ushort(20);
 					m_motorData[m_packetData.obj_id].immediate_target_velocity = ret_ushort(22);
 				}
+
+
 				/*
 
 			idx = make_packet(idx, motor_data.drv_status.sc_status);//2
@@ -961,6 +982,7 @@ namespace HAL
 
 			case RX_EEPROM_MOTION_DATA_L:
 			{
+				m_WaitData[rom_pose_l] = false;
 				if (m_packetData.obj_id < MCU_OBJ::MOTOR_MAX)
 				{
 					m_mcuAxisDat[0 + (8 * m_packetData.obj_id)] = { ret_int(0), ret_uint(4) };
@@ -972,6 +994,7 @@ namespace HAL
 			break;
 			case RX_EEPROM_MOTION_DATA_H:
 			{
+				m_WaitData[rom_pose_h] = false;
 				if (m_packetData.obj_id < MCU_OBJ::MOTOR_MAX)
 				{
 					m_mcuAxisDat[4 + (8 * m_packetData.obj_id)] = { ret_int(0), ret_uint(4) };
@@ -984,9 +1007,12 @@ namespace HAL
 			break;
 			case RX_EEPROM_CONFIG_DATA:
 			{
+				m_WaitData[rom_config] = false;
 				for (int i = 0; i < MODULE_PEELER_EEPROM_MCU_CONFIG_DATA_MAX; i++)
 				{
-					m_mcuConfigDat[i] = { ret_ushort(0 + (i + 0)), ret_ushort(2 + (i + 2)) };
+					m_mcuConfigDat[i] = { 
+						ret_ushort(0 + (i * sizeof(mcu_config_dat_st)))
+					, ret_ushort(2 + (i * sizeof(mcu_config_dat_st))) };
 				}
 
 			}
@@ -994,9 +1020,13 @@ namespace HAL
 
 			case RX_EEPROM_CYLINDER_DATA:
 			{
+				m_WaitData[rom_cylinder] = false;
 				for (int i = 0; i < MODULE_PEELER_EEPROM_MCU_CYLINDER_DATA_MAX; i++)
 				{
-					m_mcuCylinderDat[i] = { ret_ushort(0 + (i + 0)), ret_ushort(2 + (i + 2)) };
+					m_mcuCylinderDat[i] = { 
+						ret_ushort(0 + (i * sizeof(mcu_cyl_dat_st)))
+					, ret_ushort(2 + (i * sizeof(mcu_cyl_dat_st))) 
+					};
 				}
 
 			}
@@ -1004,18 +1034,26 @@ namespace HAL
 
 			case RX_EEPROM_VACUUM_DATA:
 			{
+				m_WaitData[rom_vacuum] = false;
 				for (int i = 0; i < MODULE_PEELER_EEPROM_MCU_VACUUM_DATA_MAX; i++)
 				{
-					m_mcuVacuumDat[i] = { ret_ushort(0 + (i + 0)), ret_ushort(2 + (i + 2)) };
+					m_mcuVacuumDat[i] = { 
+						ret_ushort(0 + (i * sizeof(mcu_vac_dat_st)))
+					, ret_ushort(2 + (i * sizeof(mcu_vac_dat_st)))
+					};
 				}
 
 			}
 			break;
 			case RX_EEPROM_SEQUNCE_DATA:
 			{
+				m_WaitData[rom_sequence] = false;
 				for (int i = 0; i < MODULE_PEELER_EEPROM_MCU_SEQUNCE_DATA_MAX; i++)
 				{
-					m_mcuSequnceDat[i] = { ret_ushort(0 + (i + 0)), ret_ushort(2 + (i + 2)) };
+					m_mcuSequnceDat[i] = { 
+						ret_ushort(0 + (i * sizeof(mcu_sequence_dat_st)))
+					, ret_ushort(2 + (i * sizeof(mcu_sequence_dat_st)))
+					};
 				}
 
 			}
@@ -1247,6 +1285,8 @@ namespace HAL
 
 		inline int SendCmd(uint8_t* p_data, uint32_t length) {
 			//std::lock_guard<std::mutex> lock(m_mutex);
+			if (m_waitResp)
+				return -1;
 			std::vector<uint8_t> datas{};
 			/*
 
@@ -1290,9 +1330,9 @@ namespace HAL
 		inline bool SendCmdRxResp(uint8_t* p_data, uint32_t length, uint32_t timeout = 200) {
 			if (SendCmd(p_data, length) > 0)
 			{
-				m_waitResp = true;
 				uint32_t pre_ms = UTL::millis();
-				bool result = true;
+
+				m_waitResp = true;
 				while (m_waitResp)
 				{
 					if ((UTL::millis() - pre_ms) > timeout)
@@ -1300,9 +1340,32 @@ namespace HAL
 						m_waitResp = false;
 						return false;
 					}
+
+					Sleep(50);
+				}
+				return true;
+			}
+			return false;
+		}
+
+		inline bool SendCmdRxResp(uint8_t* p_data, uint32_t length, eeprom_data_e type, uint32_t timeout = 200) {
+			bool ret = false;
+			if (SendCmd(p_data, length) > 0)
+			{
+				uint32_t pre_ms = UTL::millis();
+				ret = true;
+				m_WaitData[type] = true;
+				while (m_WaitData[type])
+				{
+					if ((UTL::millis() - pre_ms) > timeout)
+					{
+						ret = false;
+						break;
+					}
+					Sleep(50);
 				}
 			}
-			return true;
+			return ret;
 		}
 
 
@@ -1395,7 +1458,7 @@ namespace HAL
 			//length
 			datas.emplace_back(0x00);
 			datas.emplace_back(0x00);
-
+			m_WaitData[rom_pose_h] = true;
 			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size(), 500))
 				return ERROR_SUCCESS;
 			else
@@ -1412,7 +1475,7 @@ namespace HAL
 			datas.emplace_back(0x00);
 			datas.emplace_back(0x00);
 
-			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size()))
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size(), 500))
 				return ERROR_SUCCESS;
 			else
 				return -1;
@@ -1427,7 +1490,7 @@ namespace HAL
 			datas.emplace_back(0x00);
 			datas.emplace_back(0x00);
 
-			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size()))
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size(), 500))
 				return ERROR_SUCCESS;
 			else
 				return -1;
@@ -1442,7 +1505,7 @@ namespace HAL
 			datas.emplace_back(0x00);
 			datas.emplace_back(0x00);
 
-			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size()))
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size(), 500))
 				return ERROR_SUCCESS;
 			else
 				return -1;
@@ -1457,7 +1520,7 @@ namespace HAL
 			datas.emplace_back(0x00);
 			datas.emplace_back(0x00);
 
-			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size()))
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size(),500))
 				return ERROR_SUCCESS;
 			else
 				return -1;
@@ -1617,6 +1680,9 @@ namespace HAL
 		}
 
 
+		inline bool IsDetectVinyl() {
+			return m_inReg & 1 << in_grip_vinyle_detect;
+		}
 
 		inline bool IsOpenCyl(MCU_OBJ::CYL obj_id) {
 			switch (obj_id)
@@ -1880,6 +1946,40 @@ namespace HAL
 			else
 				return -1;
 		}
+
+		inline errno_t VitualSW(sw_e sw) 	{
+			std::vector<uint8_t> datas{};
+			datas.emplace_back(CMD_CTRL_VIRTUAL_SW);
+			datas.emplace_back((uint8_t)sw);
+			//length
+			datas.emplace_back(0x00);
+			datas.emplace_back(0x00);
+			//data
+
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size()))
+				return ERROR_SUCCESS;
+			else
+				return -1;
+
+		}
+
+		inline errno_t RequestInitial() {
+			std::vector<uint8_t> datas{};
+			datas.emplace_back(CMD_CTRL_JOB_INITIAL);
+			datas.emplace_back(0x00);
+			//length
+			datas.emplace_back(0x00);
+			datas.emplace_back(0x00);
+			//data
+
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size()))
+				return ERROR_SUCCESS;
+			else
+				return -1;
+
+		}
+		
+
 #if 0
 
 

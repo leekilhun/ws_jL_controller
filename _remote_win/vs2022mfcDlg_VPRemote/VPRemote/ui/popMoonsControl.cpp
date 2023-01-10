@@ -18,9 +18,13 @@ constexpr int select_ccw = 1;
  constexpr wchar_t* DEF_MOONS_EDIT_JOG_VELOCITY(L"10");
  constexpr wchar_t* DEF_MOONS_EDIT_JOG_ACCDEC(L"100");
 
- constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_VELOCITY(L"10");
- constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_DECEL(L"100");
- constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_ACCEL(L"100");
+ constexpr wchar_t* DEF_MOONS_EDIT_INIT_VELOCITY(L"3");
+ constexpr wchar_t* DEF_MOONS_EDIT_INIT_DECEL(L"100");
+ constexpr wchar_t* DEF_MOONS_EDIT_INIT_ACCEL(L"100");
+
+ constexpr wchar_t* DEF_MOONS_EDIT_MOVE_VELOCITY(L"15");
+ constexpr wchar_t* DEF_MOONS_EDIT_MOVE_DECEL(L"100");
+ constexpr wchar_t* DEF_MOONS_EDIT_MOVE_ACCEL(L"100");
 
  constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_ABSMOVE_POS(L"20000");
  constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_RELMOVE_POS(L"20000");
@@ -79,6 +83,8 @@ BEGIN_MESSAGE_MAP(Cui_PopMoonsControl, CDialogEx)
 	ON_WM_SHOWWINDOW()
 	ON_WM_TIMER()
 	ON_WM_PAINT()
+	ON_BN_CLICKED(IDC_MOONS_BTN_MOVE_PARAM_SET, &Cui_PopMoonsControl::OnBnClickedMoonsBtnMoveParamSet)
+	ON_BN_CLICKED(IDC_MOONS_BTN_INIT_PARAM_SET, &Cui_PopMoonsControl::OnBnClickedMoonsBtnInitParamSet)
 END_MESSAGE_MAP()
 
 
@@ -233,12 +239,15 @@ BOOL Cui_PopMoonsControl::OnInitDialog()
 		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_JOG_VELOCITY))->SetWindowText(DEF_MOONS_EDIT_JOG_VELOCITY);
 		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_JOG_ACCDEC))->SetWindowText(DEF_MOONS_EDIT_JOG_ACCDEC);
 
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_VELOCITY))->SetWindowText(DEF_MOONS_EDIT_POSMODE_VELOCITY);
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_DECEL))->SetWindowText(DEF_MOONS_EDIT_POSMODE_DECEL);
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_ACCEL))->SetWindowText(DEF_MOONS_EDIT_POSMODE_ACCEL);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_MOVE_VELOCITY))->SetWindowText(DEF_MOONS_EDIT_MOVE_VELOCITY);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_MOVE_DECEL))->SetWindowText(DEF_MOONS_EDIT_MOVE_DECEL);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_MOVE_ACCEL))->SetWindowText(DEF_MOONS_EDIT_MOVE_ACCEL);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_INIT_VELOCITY))->SetWindowText(DEF_MOONS_EDIT_INIT_VELOCITY);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_INIT_DECEL))->SetWindowText(DEF_MOONS_EDIT_INIT_DECEL);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_INIT_ACCEL))->SetWindowText(DEF_MOONS_EDIT_INIT_ACCEL);
 
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_ABSMOVE_POS))->SetWindowTextW(DEF_MOONS_EDIT_POSMODE_ABSMOVE_POS);
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_RELMOVE_POS))->SetWindowTextW(DEF_MOONS_EDIT_POSMODE_RELMOVE_POS);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_ABSMOVE_POS))->SetWindowText(DEF_MOONS_EDIT_POSMODE_ABSMOVE_POS);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_RELMOVE_POS))->SetWindowText(DEF_MOONS_EDIT_POSMODE_RELMOVE_POS);
 	}
 
 	{
@@ -404,4 +413,64 @@ void Cui_PopMoonsControl::OnPaint()
 	// Copy the off-screen bitmap to the window
 	dc.BitBlt(0, 0, 100, 100, &memDC, 0, 0, SRCCOPY);
 	*/
+}
+
+
+void Cui_PopMoonsControl::OnBnClickedMoonsBtnMoveParamSet()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	uint8_t idx = 0;
+	std::vector<uint8_t> datas{};
+
+	auto make_packet = [&datas](auto offset, auto source)->uint8_t
+	{
+		for (int i = 0; i < sizeof(source); i++)
+		{
+			datas.emplace_back((uint8_t)(source >> (i * 8)));
+		}
+		return (uint8_t)(offset + sizeof(source));
+	};
+
+	idx = 0;
+	datas.clear();
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_MOVE_VELOCITY));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_MOVE_DECEL));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_MOVE_ACCEL));
+
+	//if (m_pPeeler->WriteROM_VacuumData(datas) != ERROR_SUCCESS)
+	{
+		AfxMessageBox(L"comm error! - set move data");
+		return;
+	}
+
+
+}
+
+
+void Cui_PopMoonsControl::OnBnClickedMoonsBtnInitParamSet()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	uint8_t idx = 0;
+	std::vector<uint8_t> datas{};
+
+	auto make_packet = [&datas](auto offset, auto source)->uint8_t
+	{
+		for (int i = 0; i < sizeof(source); i++)
+		{
+			datas.emplace_back((uint8_t)(source >> (i * 8)));
+		}
+		return (uint8_t)(offset + sizeof(source));
+	};
+
+	idx = 0;
+	datas.clear();
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_INIT_VELOCITY));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_INIT_DECEL));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_INIT_ACCEL));
+
+	//if (m_pPeeler->WriteROM_VacuumData(datas) != ERROR_SUCCESS)
+	{
+		AfxMessageBox(L"comm error! - set move data");
+		return;
+	}
 }

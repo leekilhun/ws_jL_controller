@@ -36,8 +36,8 @@ private:
 public:
 	afx_msg void OnBnClickedMcuDataBtnPosVelRead();
 	afx_msg void OnBnClickedMcuDataBtnPosVelWrite();
-	afx_msg void OnBnClickedMcuDataBtnActRead();
-	afx_msg void OnBnClickedMcuDataBtnActWrite();
+	afx_msg void OnBnClickedMcuDataBtnCylinderRead();
+	afx_msg void OnBnClickedMcuDataBtnCylinderWrite();
 	afx_msg void OnBnClickedMcuDataBtnCfgRead();
 	afx_msg void OnBnClickedMcuDataBtnCfgWrite();
 	afx_msg void OnBnClickedMcuDataBtnSeqRead();
@@ -49,4 +49,8 @@ public:
 	afx_msg void OnBnClickedMcuDataBtnRomUpdate();
 	afx_msg void OnBnClickedMcuDataBtnVacRead();
 	afx_msg void OnBnClickedMcuDataBtnVacWrite();
+private:
+	void readAllData();
+public:
+	afx_msg void OnBnClickedMcuDataBtnRomReadAll();
 };

@@ -92,7 +92,7 @@ namespace MCU_REG
 			STATE_13,
 			STATE_14,
 			STATE_15,
-			REQUEST_INITAL,
+			REQUEST_INITIAL,
 			ALL_CHECK_OK,
 		};
 
@@ -369,9 +369,8 @@ namespace MCU_REG
 
 				}
 				break;
-				case REQUEST_INITAL:
+				case REQUEST_INITIAL:
 				{
-					state_reg.request_initial = on_off;
 				}
 				break;
 				case ALL_CHECK_OK:

@@ -44,20 +44,18 @@ public:
 		axis_move_timeout,
 		axis_stop_timeout,
 
-		cyl_PHONE_JIG_open_timeout,
-		cyl_PHONE_JIG_lock_timeout,
-		cyl_PHONE_JIG_forward_timeout,
-		cyl_VINYL_grip_timeout,
+		cyl_timeout,
+		cyl_PHONE_open_timeout,
+		cyl_PHONE_close_timeout,
+		cyl_PHONE_for_timeout,
+		cyl_PHONE_back_timeout,
+		cyl_VINYLHOLD_hold_timeout,
+		cyl_VINYLHOLD_release_timeout,
 		cyl_VINYL_push_timeout,
-
-		cyl_PHONE_JIG_close_timeout,
-		cyl_PHONE_JIG_unlock_timeout,
-		cyl_PHONE_JIG_backward_timeout,
-		cyl_VINYL_ungrip_timeout,
 		cyl_VINYL_back_timeout,
 
-		vac_PHONE_JIG_on_timeout,
-		vac_PHONE_JIG_off_timeout,
+		vac_timeout,
+		vac_deletc_on_timeout,
 
 		cyl_interlock_State,
 	};
@@ -221,6 +219,7 @@ public:
 	inline enOp::mode_e GetOPMode(){
 		return m_OpMode;
 	}
+
 	inline enOp::status_e GetOPStatus(){
 		return m_OpStatus;
 	}
@@ -264,6 +263,7 @@ public:
 		{
 			if(millis() - pre_ms >= (1000*3))
 			{
+			  // do system initialize
 				m_cfg.p_apReg->state_reg.request_initial = true;
 				break;
 			}

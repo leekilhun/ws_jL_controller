@@ -33,7 +33,7 @@ constexpr wchar_t* DEF_CHECK_STATE_2(L"auto ready");
 constexpr wchar_t* DEF_CHECK_STATE_3(L"auto stop");
 constexpr wchar_t* DEF_CHECK_STATE_4(L"detect safety");
 constexpr wchar_t* DEF_CHECK_STATE_5(L"motor on");
-constexpr wchar_t* DEF_CHECK_STATE_6(L"org cplt");
+constexpr wchar_t* DEF_CHECK_STATE_6(L"init cplt");
 constexpr wchar_t* DEF_CHECK_STATE_7(L"alarm status");
 
 constexpr wchar_t* DEF_CHECK_STATE_8(L"state");
@@ -42,8 +42,8 @@ constexpr wchar_t* DEF_CHECK_STATE_10(L"state");
 constexpr wchar_t* DEF_CHECK_STATE_11(L"state");
 constexpr wchar_t* DEF_CHECK_STATE_12(L"state");
 constexpr wchar_t* DEF_CHECK_STATE_13(L"state");
-constexpr wchar_t* DEF_CHECK_STATE_14(L"state");
-constexpr wchar_t* DEF_CHECK_STATE_15(L"state");
+constexpr wchar_t* DEF_CHECK_STATE_14(L"request init");
+constexpr wchar_t* DEF_CHECK_STATE_15(L"all_check_ok");
 
 
 
@@ -78,14 +78,14 @@ constexpr wchar_t* DEF_CHECK_STATE_37(L"err");
 constexpr wchar_t* DEF_CHECK_STATE_38(L"motor err");
 constexpr wchar_t* DEF_CHECK_STATE_39(L"motor init");
 
-constexpr wchar_t* DEF_CHECK_STATE_40(L"cyl interlock");
-constexpr wchar_t* DEF_CHECK_STATE_41(L"err");
+constexpr wchar_t* DEF_CHECK_STATE_40(L"limit_err_motor");
+constexpr wchar_t* DEF_CHECK_STATE_41(L"cyl interlock");
 constexpr wchar_t* DEF_CHECK_STATE_42(L"err");
-constexpr wchar_t* DEF_CHECK_STATE_43(L"cyl timeout");
-constexpr wchar_t* DEF_CHECK_STATE_44(L"vac timeout");
-constexpr wchar_t* DEF_CHECK_STATE_45(L"mot timeout");
-constexpr wchar_t* DEF_CHECK_STATE_46(L"seq timeout");
-constexpr wchar_t* DEF_CHECK_STATE_47(L"err");
+constexpr wchar_t* DEF_CHECK_STATE_43(L"err");
+constexpr wchar_t* DEF_CHECK_STATE_44(L"cyl timeout");
+constexpr wchar_t* DEF_CHECK_STATE_45(L"vac timeout");
+constexpr wchar_t* DEF_CHECK_STATE_46(L"mot timeout");
+constexpr wchar_t* DEF_CHECK_STATE_47(L"seq timeout");
 
 constexpr wchar_t* DEF_CHECK_STATE_48(L"err");
 constexpr wchar_t* DEF_CHECK_STATE_49(L"err");
@@ -680,6 +680,30 @@ void CVPRemoteDlg::update()
 		}
 	}
 
+	{		
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CYL_1))->SetCheck(peeler->IsOpenCyl(MCU_OBJ::CYL_PHONE_FORBACK));
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CYL_2))->SetCheck(peeler->IsCloseCyl(MCU_OBJ::CYL_PHONE_FORBACK));
+
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CYL_3))->SetCheck(peeler->IsOpenCyl(MCU_OBJ::CYL_PHONE_OPENCLOSE));
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CYL_4))->SetCheck(peeler->IsGripCyl(MCU_OBJ::CYL_PHONE_OPENCLOSE));
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CYL_5))->SetCheck(peeler->IsCloseCyl(MCU_OBJ::CYL_PHONE_OPENCLOSE));
+
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CYL_6))->SetCheck(peeler->IsOpenCyl(MCU_OBJ::CYL_VINYLHOLD_UPDOWN));
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CYL_7))->SetCheck(peeler->IsCloseCyl(MCU_OBJ::CYL_VINYLHOLD_UPDOWN));
+
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CYL_8))->SetCheck(peeler->IsOpenCyl(MCU_OBJ::CYL_VINYL_PUSHBACK));
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CYL_9))->SetCheck(peeler->IsCloseCyl(MCU_OBJ::CYL_VINYL_PUSHBACK));
+
+
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CHECK_VAC))->SetCheck(peeler->IsOnVac(MCU_OBJ::VAC_VINYL));
+
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CHECK_VINYL))->SetCheck(peeler->IsDetectVinyl());
+
+		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CHECK_MOTOR_ORG))->SetCheck(peeler->m_stateReg.system_origin_cplt);
+
+	}
+
+
 
 	{
 		IComm* ptr_comm = m_pSystem->GetSerialCommComponent();
@@ -689,9 +713,15 @@ void CVPRemoteDlg::update()
 			m_statusBar.SetPaneText(STATUSBAR_IDX_COMM, L"Serial Comm Disconnected");
 
 		if (peeler->m_stateReg.motor_on)
+		{
+			((CButton*)GetDlgItem(IDC_PEELER_MAIN_CHECK_MOTOR_ONOFF))->SetCheck(TRUE);
 			m_statusBar.SetPaneText(STATUSBAR_IDX_RESULT, L"Motors Enable");
+		}
 		else
+		{
+			((CButton*)GetDlgItem(IDC_PEELER_MAIN_CHECK_MOTOR_ONOFF))->SetCheck(FALSE);
 			m_statusBar.SetPaneText(STATUSBAR_IDX_RESULT, L"Motors Disable");
+		}
 	}
 
 }
@@ -733,24 +763,32 @@ void CVPRemoteDlg::OnDestroy()
 void CVPRemoteDlg::OnBnClickedPeelerMainOpStart()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	HAL::ModulePeeler* peeler = m_pSystem->GetModulePeelerComponent();
+	peeler->VitualSW(HAL::ModulePeeler::sw_e::sw_start);
 }
 
 
 void CVPRemoteDlg::OnBnClickedPeelerMainOpStop()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	HAL::ModulePeeler* peeler = m_pSystem->GetModulePeelerComponent();
+	peeler->VitualSW(HAL::ModulePeeler::sw_e::sw_stop);
 }
 
 
 void CVPRemoteDlg::OnBnClickedPeelerMainOpReset()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	HAL::ModulePeeler* peeler = m_pSystem->GetModulePeelerComponent();
+	peeler->VitualSW(HAL::ModulePeeler::sw_e::sw_reset);
 }
 
 
 void CVPRemoteDlg::OnBnClickedPeelerMainInit()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	HAL::ModulePeeler* peeler = m_pSystem->GetModulePeelerComponent();
+	peeler->RequestInitial();
 
 }
 
@@ -766,9 +804,9 @@ void CVPRemoteDlg::OnBnClickedPeelerMainCheckMotorOnoff()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	HAL::ModulePeeler* peeler = m_pSystem->GetModulePeelerComponent();
 	if (peeler->m_stateReg.motor_on)
-		peeler->MotorOnOff(MCU_OBJ::MOTOR_MAX, true);
-	else
 		peeler->MotorOnOff(MCU_OBJ::MOTOR_MAX, false);
+	else
+		peeler->MotorOnOff(MCU_OBJ::MOTOR_MAX, true);
 }
 
 

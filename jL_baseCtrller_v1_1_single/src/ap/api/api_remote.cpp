@@ -223,15 +223,24 @@ void api_remote::doRunStep()
 
 		case STEP_MOTOR_DATA_WAIT:
 		{
-			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
-			{
-				m_step.SetStep(STEP_TIMEOUT);
+			if (m_step.LessThan(STEP_DELAY_WAIT))
 				break;
-			}
 
 			// check return flag
 			if (m_waitReplyOK)
-				break;
+			{
+				if (m_step.retry_cnt++ < RETRY_CNT_MAX)
+				{
+					m_step.SetStep(STEP_MOTOR_DATA_START);
+					break;
+				}
+				else
+				{
+					m_step.SetStep(STEP_TIMEOUT);
+					break;
+				}
+			}
+
 			m_step.SetStep(STEP_MOTOR_DATA_END);
 		}
 		break;
@@ -288,15 +297,23 @@ void api_remote::doRunStep()
 
 		case STEP_MOTOR_CFG_MOTION_ORIGIN_WAIT:
 		{
-			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
-			{
-				m_step.SetStep(STEP_TIMEOUT);
+			if (m_step.LessThan(STEP_DELAY_WAIT))
 				break;
-			}
 
 			// check return flag
 			if (m_waitReplyOK)
-				break;
+			{
+				if (m_step.retry_cnt++ < RETRY_CNT_MAX)
+				{
+					m_step.SetStep(STEP_MOTOR_CFG_MOTION_ORIGIN_START);
+					break;
+				}
+				else
+				{
+					m_step.SetStep(STEP_TIMEOUT);
+					break;
+				}
+			}
 
 			m_step.SetStep(STEP_MOTOR_CFG_MOTION_ORIGIN_END);
 		}
@@ -566,6 +583,38 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 		{
 			uint32_t option_reg = (m_receiveData.data[0]<<0) | (m_receiveData.data[1]<<8) ;
 			m_cfg.ptr_mcu_reg->SetOptionRegister(option_reg);
+		}
+		break;
+		case TYPE::CMD_CTRL_JOB_INITIAL:
+		{
+			m_cfg.ptr_task->Initialize();
+		}
+		break;
+
+		case TYPE::CMD_CTRL_VIRTUAL_SW:
+		{
+			if ((cnAuto::sw_e)m_receiveData.obj_id == cnAuto::sw_e::sw_reset)
+				m_cfg.ptr_auto->ResetSw();
+			else if ((cnAuto::sw_e)m_receiveData.obj_id == cnAuto::sw_e::sw_start)
+				m_cfg.ptr_auto->StartSw();
+			else if ((cnAuto::sw_e)m_receiveData.obj_id == cnAuto::sw_e::sw_stop)
+				m_cfg.ptr_auto->StopSw();
+		}
+		break;
+
+		case TYPE::CMD_CTRL_VAC:
+		{
+			AP_OBJ::VAC vac_id{};
+			if (m_receiveData.obj_id < AP_OBJ::VAC::VAC_MAX)
+				vac_id = (AP_OBJ::VAC)m_receiveData.obj_id;
+			else
+				break;
+
+			bool senser_skip = (bool)(m_receiveData.data[1]&1);
+			if (m_receiveData.data[0])
+				m_cfg.ptr_task->VacOn(vac_id, senser_skip);
+			else
+				m_cfg.ptr_task->VacOff(vac_id, senser_skip);
 		}
 		break;
 		case TYPE::CMD_CTRL_CYL:

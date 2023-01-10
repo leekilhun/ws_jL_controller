@@ -67,13 +67,14 @@ namespace MOTOR
 
 	public:
 		prc_step_t m_step;
+		uint8_t m_errCnt;
 		/****************************************************
 		 *  Constructor
 		 ****************************************************/
 	public:
 		cnMotors () : m_cfg{},m_requestMotor_idx{}, m_request_ms{}
 		,m_commStatus{}, m_motorCommErrCnt{}
-		,m_step{}
+		,m_step{}, m_errCnt{}
 		{
 
 		}
@@ -265,7 +266,9 @@ namespace MOTOR
 		}
 
 		inline bool IsMotorOn(AP_OBJ::MOTOR motor_id = AP_OBJ::MOTOR_MAX){
-			return false;
+			return (m_cfg.p_motor[AP_OBJ::MOTOR_JIG].IsMotorOn()
+						 &m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].IsMotorOn()
+						 &m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].IsMotorOn());
 		}
 
 #if 0

@@ -64,12 +64,12 @@ private:
 	cfg_t m_cfg;
 
 public:
-
+  bool m_IsInit;
 	/****************************************************
 	 *  Constructor
 	 ****************************************************/
 public:
-	cnTasks():m_cfg{}{
+	cnTasks():m_cfg{}, m_IsInit{}{
 
 	};
 	virtual ~cnTasks(){};
@@ -88,6 +88,7 @@ public:
 	}
 
 	inline errno_t Initialize(){
+		m_IsInit = true;
 		return ERROR_SUCCESS;
 	}
 
@@ -326,7 +327,7 @@ public:
 		{
 			if ( millis()-pre_ms >timeout)
 			{
-				uint8_t err = (uint8_t)(cnAuto::state_e::cyl_PHONE_JIG_close_timeout + cyl_id);
+				uint8_t err = (uint8_t)(cnAuto::state_e::cyl_timeout);
 				m_cfg.p_AutoManger->AlarmAuto(static_cast<cnAuto::state_e>(err));
 				ret = -1;
 				break;
@@ -340,7 +341,7 @@ public:
 		ret = m_cfg.p_Cyl[cyl_id].Open(skip_sensor);
 		if (ret != 0)
 		{
-			uint8_t err = (uint8_t)(cnAuto::state_e::cyl_PHONE_JIG_open_timeout + cyl_id);
+			uint8_t err = (uint8_t)(cnAuto::state_e::cyl_timeout + (1 + (cyl_id * 2)) );
 			m_cfg.p_AutoManger->AlarmAuto(static_cast<cnAuto::state_e>(err));
 			ret = -1;
 		}
@@ -352,7 +353,7 @@ public:
 		ret = m_cfg.p_Cyl[cyl_id].Close(skip_sensor);
 		if (ret != 0)
 		{
-			uint8_t err = (uint8_t)(cnAuto::state_e::cyl_PHONE_JIG_close_timeout + cyl_id);
+			uint8_t err = (uint8_t)(cnAuto::state_e::cyl_timeout + (2 + (cyl_id * 2)) );
 			m_cfg.p_AutoManger->AlarmAuto(static_cast<cnAuto::state_e>(err));
 			ret = -1;
 		}
@@ -364,7 +365,7 @@ public:
 		ret = m_cfg.p_Vac[vac_id].On(skip_sensor);
 		if (ret != 0)
 		{
-			uint8_t err = (uint8_t)(cnAuto::state_e::vac_PHONE_JIG_on_timeout + vac_id);
+			uint8_t err = (uint8_t)(cnAuto::state_e::vac_timeout + (1 + vac_id));
 			m_cfg.p_AutoManger->AlarmAuto(static_cast<cnAuto::state_e>(err));
 			ret = -1;
 		}
@@ -376,7 +377,7 @@ public:
 		ret = m_cfg.p_Vac[vac_id].Off(skip_sensor);
 		if (ret != 0)
 		{
-			uint8_t err = (uint8_t)(cnAuto::state_e::vac_PHONE_JIG_off_timeout + vac_id);
+			uint8_t err = (uint8_t)(cnAuto::state_e::vac_timeout);
 			m_cfg.p_AutoManger->AlarmAuto(static_cast<cnAuto::state_e>(err));
 			ret = -1;
 		}

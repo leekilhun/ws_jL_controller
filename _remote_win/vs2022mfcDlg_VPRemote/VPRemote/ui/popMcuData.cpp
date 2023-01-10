@@ -97,6 +97,16 @@ constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_5(L"cfg 5");
 constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_6(L"cfg 6");
 constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_7(L"cfg 7");
 constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_8(L"cfg 8");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_9(L"cfg 9");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_10(L"cfg 10");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_11(L"cfg 11");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_12(L"cfg 12");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_13(L"cfg 13");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_14(L"cfg 14");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_15(L"cfg 15");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_16(L"cfg 16");
+
+
 constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_1(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_2(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_3(L"200");
@@ -105,6 +115,14 @@ constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_5(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_6(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_7(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_8(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_9(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_10(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_11(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_12(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_13(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_14(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_15(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_16(L"200");
 
 constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_1(L"sequence 1");
 constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_2(L"sequence 1");
@@ -114,6 +132,14 @@ constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_5(L"sequence 1");
 constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_6(L"sequence 1");
 constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_7(L"sequence 1");
 constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_8(L"sequence 1");
+constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_9(L"sequence 1");
+constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_10(L"sequence 1");
+constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_11(L"sequence 1");
+constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_12(L"sequence 1");
+constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_13(L"sequence 1");
+constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_14(L"sequence 1");
+constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_15(L"sequence 1");
+constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_16(L"sequence 1");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_1(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_2(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_3(L"200");
@@ -122,6 +148,14 @@ constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_5(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_6(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_7(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_8(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_9(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_10(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_11(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_12(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_13(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_14(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_15(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_16(L"200");
 
 
 IMPLEMENT_DYNAMIC(Cui_PopMcuData, CDialogEx)
@@ -149,8 +183,8 @@ BEGIN_MESSAGE_MAP(Cui_PopMcuData, CDialogEx)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_MCU_DATA_BTN_POS_VEL_READ, &Cui_PopMcuData::OnBnClickedMcuDataBtnPosVelRead)
 	ON_BN_CLICKED(IDC_MCU_DATA_BTN_POS_VEL_WRITE, &Cui_PopMcuData::OnBnClickedMcuDataBtnPosVelWrite)
-	ON_BN_CLICKED(IDC_MCU_DATA_BTN_ACT_READ, &Cui_PopMcuData::OnBnClickedMcuDataBtnActRead)
-	ON_BN_CLICKED(IDC_MCU_DATA_BTN_ACT_WRITE, &Cui_PopMcuData::OnBnClickedMcuDataBtnActWrite)
+	ON_BN_CLICKED(IDC_MCU_DATA_BTN_ACT_READ, &Cui_PopMcuData::OnBnClickedMcuDataBtnCylinderRead)
+	ON_BN_CLICKED(IDC_MCU_DATA_BTN_ACT_WRITE, &Cui_PopMcuData::OnBnClickedMcuDataBtnCylinderWrite)
 	ON_BN_CLICKED(IDC_MCU_DATA_BTN_CFG_READ, &Cui_PopMcuData::OnBnClickedMcuDataBtnCfgRead)
 	ON_BN_CLICKED(IDC_MCU_DATA_BTN_CFG_WRITE, &Cui_PopMcuData::OnBnClickedMcuDataBtnCfgWrite)
 	ON_BN_CLICKED(IDC_MCU_DATA_BTN_SEQ_READ, &Cui_PopMcuData::OnBnClickedMcuDataBtnSeqRead)
@@ -159,6 +193,7 @@ BEGIN_MESSAGE_MAP(Cui_PopMcuData, CDialogEx)
 	ON_BN_CLICKED(IDC_MCU_DATA_BTN_ROM_UPDATE, &Cui_PopMcuData::OnBnClickedMcuDataBtnRomUpdate)
 	ON_BN_CLICKED(IDC_MCU_DATA_BTN_VAC_READ, &Cui_PopMcuData::OnBnClickedMcuDataBtnVacRead)
 	ON_BN_CLICKED(IDC_MCU_DATA_BTN_VAC_WRITE, &Cui_PopMcuData::OnBnClickedMcuDataBtnVacWrite)
+	ON_BN_CLICKED(IDC_MCU_DATA_BTN_ROM_READ_ALL, &Cui_PopMcuData::OnBnClickedMcuDataBtnRomReadAll)
 END_MESSAGE_MAP()
 
 
@@ -260,6 +295,14 @@ BOOL Cui_PopMcuData::OnInitDialog()
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_CONFIG_NAME_6))->SetWindowText(DEF_MCU_DATA_CONFIG_NAME_6);
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_CONFIG_NAME_7))->SetWindowText(DEF_MCU_DATA_CONFIG_NAME_7);
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_CONFIG_NAME_8))->SetWindowText(DEF_MCU_DATA_CONFIG_NAME_8);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_CONFIG_NAME_9))->SetWindowText(DEF_MCU_DATA_CONFIG_NAME_9);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_CONFIG_NAME_10))->SetWindowText(DEF_MCU_DATA_CONFIG_NAME_10);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_CONFIG_NAME_11))->SetWindowText(DEF_MCU_DATA_CONFIG_NAME_11);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_CONFIG_NAME_12))->SetWindowText(DEF_MCU_DATA_CONFIG_NAME_12);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_CONFIG_NAME_13))->SetWindowText(DEF_MCU_DATA_CONFIG_NAME_13);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_CONFIG_NAME_14))->SetWindowText(DEF_MCU_DATA_CONFIG_NAME_14);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_CONFIG_NAME_15))->SetWindowText(DEF_MCU_DATA_CONFIG_NAME_15);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_CONFIG_NAME_16))->SetWindowText(DEF_MCU_DATA_CONFIG_NAME_16);
 
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_1))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_1);
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_2))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_2);
@@ -269,6 +312,14 @@ BOOL Cui_PopMcuData::OnInitDialog()
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_6))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_6);
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_7))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_7);
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_8))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_8);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_9))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_9);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_10))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_10);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_11))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_11);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_12))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_12);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_13))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_13);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_14))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_14);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_15))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_15);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_16))->SetWindowText(DEF_MCU_DATA_EDIT_CONFIG_16);
 	
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_1))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_1);
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_2))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_2);
@@ -278,6 +329,14 @@ BOOL Cui_PopMcuData::OnInitDialog()
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_6))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_6);
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_7))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_7);
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_8))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_8);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_9))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_9);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_10))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_10);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_11))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_11);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_12))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_12);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_13))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_13);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_14))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_14);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_15))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_15);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_SEQ_NAME_16))->SetWindowText(DEF_MCU_DATA_SEQ_NAME_16);
 
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_1))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_1);
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_2))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_2);
@@ -287,6 +346,14 @@ BOOL Cui_PopMcuData::OnInitDialog()
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_6))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_6);
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_7))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_7);
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_8))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_8);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_9))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_9);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_10))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_10);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_11))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_11);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_12))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_12);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_13))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_13);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_14))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_14);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_15))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_15);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_16))->SetWindowText(DEF_MCU_DATA_EDIT_SEQ_16);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
@@ -350,6 +417,7 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnPosVelRead()
 	if (m_pPeeler->ReadROMData_MotorPos(m_pParent->m_motorIdx) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - pose data read");
+		return;
 	}
 
 	refreshData();
@@ -392,12 +460,13 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnPosVelWrite()
 	if (m_pPeeler->WriteROM_PosData(datas, m_pParent->m_motorIdx) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - pose data write");
+		return;
 	}
 	refreshData();
 }
 
 
-void Cui_PopMcuData::OnBnClickedMcuDataBtnActRead()
+void Cui_PopMcuData::OnBnClickedMcuDataBtnCylinderRead()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	if (m_pPeeler->ReadROMData_CylinderData() != ERROR_SUCCESS)
@@ -410,7 +479,7 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnActRead()
 }
 
 
-void Cui_PopMcuData::OnBnClickedMcuDataBtnActWrite()
+void Cui_PopMcuData::OnBnClickedMcuDataBtnCylinderWrite()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.	
 	uint8_t idx = 0;
@@ -457,6 +526,7 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnCfgRead()
 	if (m_pPeeler->ReadROMData_ConfigData() != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - config data read");
+		return;
 	}
 
 	refreshData();
@@ -486,9 +556,18 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnCfgWrite()
 	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_CONFIG_6));
 	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_CONFIG_7));
 	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_CONFIG_8));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_CONFIG_9));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_CONFIG_10));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_CONFIG_11));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_CONFIG_12));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_CONFIG_13));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_CONFIG_14));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_CONFIG_15));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_CONFIG_16));
 	if (m_pPeeler->WriteROM_ConfigData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - config data write");
+		return;
 	}
 
 	refreshData();
@@ -501,6 +580,7 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnSeqRead()
 	if(m_pPeeler->ReadROMData_SequenceData() != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! -  sequence data read");
+		return;
 	}
 	refreshData();
 }
@@ -529,9 +609,18 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnSeqWrite()
 	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_SEQ_6));
 	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_SEQ_7));
 	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_SEQ_8));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_SEQ_9));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_SEQ_10));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_SEQ_11));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_SEQ_12));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_SEQ_13));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_SEQ_14));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_SEQ_15));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MCU_DATA_EDIT_SEQ_16));
 	if (m_pPeeler->WriteROM_SequenceData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! -  sequence data write");
+		return;
 	}
 	refreshData();
 
@@ -585,6 +674,7 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomWriteInit()
 	if (m_pPeeler->WriteROM_PosData(datas, m_pParent->m_motorIdx) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - pose data write ");
+		return;
 	}
 
 
@@ -645,9 +735,18 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomWriteInit()
 	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_CONFIG_6);
 	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_CONFIG_7);
 	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_CONFIG_8);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_CONFIG_9);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_CONFIG_10);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_CONFIG_11);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_CONFIG_12);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_CONFIG_13);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_CONFIG_14);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_CONFIG_15);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_CONFIG_16);
 	if (m_pPeeler->WriteROM_ConfigData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - config data write ");
+		return;
 	}
 
 	idx = 0; datas.clear();
@@ -659,9 +758,18 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomWriteInit()
 	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_SEQ_6);
 	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_SEQ_7);
 	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_SEQ_8);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_SEQ_9);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_SEQ_10);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_SEQ_11);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_SEQ_12);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_SEQ_13);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_SEQ_14);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_SEQ_15);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_SEQ_16);
 	if (m_pPeeler->WriteROM_SequenceData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - sequence data write ");
+		return;
 	}
 
 	refreshData();
@@ -758,21 +866,21 @@ void Cui_PopMcuData::refreshData()
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VACCFG_7))->SetWindowText(str);
 		str.Format(L"%d", m_pPeeler->m_mcuVacuumDat[3].on_settling);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VACCFG_8))->SetWindowText(str);
-		str.Format(L"%d", m_pPeeler->m_mcuCylinderDat[4].timeout);
+		str.Format(L"%d", m_pPeeler->m_mcuVacuumDat[4].timeout);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VACCFG_9))->SetWindowText(str);
-		str.Format(L"%d", m_pPeeler->m_mcuCylinderDat[4].on_settling);
+		str.Format(L"%d", m_pPeeler->m_mcuVacuumDat[4].on_settling);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VACCFG_10))->SetWindowText(str);
-		str.Format(L"%d", m_pPeeler->m_mcuCylinderDat[5].timeout);
+		str.Format(L"%d", m_pPeeler->m_mcuVacuumDat[5].timeout);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VACCFG_11))->SetWindowText(str);
-		str.Format(L"%d", m_pPeeler->m_mcuCylinderDat[5].on_settling);
+		str.Format(L"%d", m_pPeeler->m_mcuVacuumDat[5].on_settling);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VACCFG_12))->SetWindowText(str);
-		str.Format(L"%d", m_pPeeler->m_mcuCylinderDat[6].timeout);
+		str.Format(L"%d", m_pPeeler->m_mcuVacuumDat[6].timeout);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VACCFG_13))->SetWindowText(str);
-		str.Format(L"%d", m_pPeeler->m_mcuCylinderDat[6].on_settling);
+		str.Format(L"%d", m_pPeeler->m_mcuVacuumDat[6].on_settling);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VACCFG_14))->SetWindowText(str);
-		str.Format(L"%d", m_pPeeler->m_mcuCylinderDat[7].timeout);
+		str.Format(L"%d", m_pPeeler->m_mcuVacuumDat[7].timeout);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VACCFG_15))->SetWindowText(str);
-		str.Format(L"%d", m_pPeeler->m_mcuCylinderDat[7].on_settling);
+		str.Format(L"%d", m_pPeeler->m_mcuVacuumDat[7].on_settling);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VACCFG_16))->SetWindowText(str);
 
 		str.Format(L"%d", m_pPeeler->m_mcuConfigDat[0].parm1);
@@ -791,6 +899,23 @@ void Cui_PopMcuData::refreshData()
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_7))->SetWindowText(str);
 		str.Format(L"%d", m_pPeeler->m_mcuConfigDat[3].parm2);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_8))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuConfigDat[4].parm1);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_9))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuConfigDat[4].parm2);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_10))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuConfigDat[5].parm1);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_11))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuConfigDat[5].parm2);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_12))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuConfigDat[6].parm1);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_13))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuConfigDat[6].parm2);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_14))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuConfigDat[7].parm1);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_15))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuConfigDat[7].parm2);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_CONFIG_16))->SetWindowText(str);
+
 
 		str.Format(L"%d", m_pPeeler->m_mcuSequnceDat[0].parm1);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_1))->SetWindowText(str);
@@ -808,6 +933,22 @@ void Cui_PopMcuData::refreshData()
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_7))->SetWindowText(str);
 		str.Format(L"%d", m_pPeeler->m_mcuSequnceDat[3].parm2);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_8))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuSequnceDat[4].parm1);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_9))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuSequnceDat[4].parm2);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_10))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuSequnceDat[5].parm1);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_11))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuSequnceDat[5].parm2);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_12))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuSequnceDat[6].parm1);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_13))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuSequnceDat[6].parm2);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_14))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuSequnceDat[7].parm1);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_15))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuSequnceDat[7].parm2);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_16))->SetWindowText(str);
 
 	}
 }
@@ -875,4 +1016,109 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnVacWrite()
 
 
 	refreshData();
+}
+
+
+void Cui_PopMcuData::readAllData()
+{
+
+  if (m_pPeeler->ReadROMData_MotorPos(m_pParent->m_motorIdx) != ERROR_SUCCESS)
+  {
+    //AfxMessageBox(L"comm error! - pose data read");
+	}
+	uint32_t pre_ms = UTL::millis();
+	while (1)
+	{
+		if (UTL::millis() - pre_ms > 200)
+		{
+			break;
+		}
+		Sleep(10);
+	}
+
+  if (m_pPeeler->ReadROMData_ConfigData() != ERROR_SUCCESS)
+  {
+    //AfxMessageBox(L"comm error! - config data read");
+	}
+	pre_ms = UTL::millis();
+	while (1)
+	{
+		if (UTL::millis() - pre_ms > 200)
+		{
+			break;
+		}
+		Sleep(10);
+	}
+	if (m_pPeeler->ReadROMData_CylinderData() != ERROR_SUCCESS)
+  {
+    //AfxMessageBox(L"comm error! - cylinder data read");
+
+  }
+	pre_ms = UTL::millis();
+	while (1)
+	{
+		if (UTL::millis() - pre_ms > 200)
+		{
+			break;
+		}
+		Sleep(10);
+	}
+	if (m_pPeeler->ReadROMData_SequenceData() != ERROR_SUCCESS)
+	{
+		//AfxMessageBox(L"comm error! -  sequence data read");
+
+	}
+
+	pre_ms = UTL::millis();
+	while (1)
+	{
+		if (UTL::millis() - pre_ms > 200)
+		{
+			break;
+		}
+		Sleep(10);
+	}
+
+  if (m_pPeeler->ReadROMData_VacuumData() != ERROR_SUCCESS)
+  {
+    //AfxMessageBox(L"comm error! - vacuum data read");
+
+  }
+	pre_ms = UTL::millis();
+	while (1)
+	{
+		if (UTL::millis() - pre_ms > 200)
+		{
+			break;
+		}
+		Sleep(10);
+	}
+  if (m_pPeeler->ReadROMData_SequenceData() != ERROR_SUCCESS)
+  {
+    //AfxMessageBox(L"comm error! -  sequence data read");
+
+  }
+	pre_ms = UTL::millis();
+	while (1)
+	{
+		if (UTL::millis() - pre_ms > 200)
+		{
+			break;
+		}
+		Sleep(10);
+	}
+
+	if (m_pPeeler->ReadROMData_CylinderData() != ERROR_SUCCESS)
+	{
+		//AfxMessageBox(L"comm error! - cylinder data read");
+
+	}
+
+}
+
+
+void Cui_PopMcuData::OnBnClickedMcuDataBtnRomReadAll()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	readAllData();
 }

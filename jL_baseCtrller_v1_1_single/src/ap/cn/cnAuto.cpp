@@ -52,23 +52,22 @@ void cnAuto::AlarmAuto(cnAuto::state_e err)
 			m_cfg.p_apReg->error_reg.motor_timeout = true;
 			break;
 
-		case cyl_PHONE_JIG_open_timeout:
+		case cyl_PHONE_open_timeout:
 			__attribute__((fallthrough));
-		case cyl_PHONE_JIG_lock_timeout:
-		case cyl_PHONE_JIG_forward_timeout:
-		case cyl_VINYL_grip_timeout:
+		case cyl_PHONE_close_timeout:
+		case cyl_PHONE_for_timeout:
+		case cyl_PHONE_back_timeout:
+		case cyl_VINYLHOLD_hold_timeout:
+		case cyl_VINYLHOLD_release_timeout:
 		case cyl_VINYL_push_timeout:
-		case cyl_PHONE_JIG_close_timeout:
-		case cyl_PHONE_JIG_unlock_timeout:
-		case cyl_PHONE_JIG_backward_timeout:
-		case cyl_VINYL_ungrip_timeout:
 		case cyl_VINYL_back_timeout:
+		case cyl_timeout:
 			m_cfg.p_apReg->error_reg.cylinder_timeout = true;
 			break;
 
-		case vac_PHONE_JIG_on_timeout:
+		case vac_deletc_on_timeout:
 			__attribute__((fallthrough));
-		case vac_PHONE_JIG_off_timeout:
+		case vac_timeout:
 			m_cfg.p_apReg->error_reg.vacuum_timeout = true;
 			break;
 

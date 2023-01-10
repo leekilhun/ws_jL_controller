@@ -334,7 +334,7 @@ namespace MOTOR
 				return -1;
 
 			constexpr uint16_t seek_home = 110;
-			uint8_t  func = write_SingleReg;
+			uint8_t  func = write_MultiReg;
 			uint16_t regist_no = Command_Opcode;
 			uint16_t value = seek_home;
 
