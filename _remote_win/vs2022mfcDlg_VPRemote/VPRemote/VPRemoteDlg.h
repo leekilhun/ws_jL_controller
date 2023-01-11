@@ -54,7 +54,7 @@ public:
 private:
 	void update();
 public:
-
+	void LockUpdate(bool is_release = false);
 	afx_msg void OnBnClickedPeelerMainPopMotorCtrl();
 	afx_msg void OnDestroy();
 	afx_msg void OnBnClickedPeelerMainMotorStop();
@@ -111,4 +111,19 @@ public:
 	afx_msg void OnBnClickedPeelerMainPopMcuData();
 
 	void SetMcuOptionBit(HAL::ModulePeeler::mcu_option_e bit_reg, bool enable = true);
+	afx_msg void OnBnClickedMainCheckStep1();
+	afx_msg void OnBnClickedMainCheckStep2();
+	afx_msg void OnBnClickedMainCheckStep3();
+	afx_msg void OnBnClickedMainCheckStep4();
+	afx_msg void OnBnClickedMainCheckStep5();
+	afx_msg void OnBnClickedMainCheckStep6();
+	afx_msg void OnBnClickedPeelerMainMoveFunc1();
+	afx_msg void OnBnClickedPeelerMainMoveFunc2();
+	afx_msg void OnBnClickedPeelerMainMoveFunc3();
+	afx_msg void OnBnClickedPeelerMainMoveFunc4();
+	afx_msg void OnBnClickedPeelerMainMoveFunc5();
+	afx_msg void OnBnClickedPeelerMainMoveFunc6();
+	afx_msg void OnBnClickedPeelerMainMoveFunc7();
+	afx_msg void OnBnClickedPeelerMainMoveFunc8();
+	afx_msg void OnBnClickedPeelerMainMoveFunc9();
 };

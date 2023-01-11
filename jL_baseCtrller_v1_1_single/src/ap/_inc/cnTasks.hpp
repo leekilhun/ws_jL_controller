@@ -11,9 +11,11 @@
 /*
    cnTasks  [manual 동작 완성]
       |
+      |
       |----------------
-      |      |        |
-   enCyl  enMotor   enVac
+      |       |       |
+      |   cnMotors    |
+   enCyl   enMotor  enVac
 
  */
 
@@ -280,34 +282,34 @@ public:
 
 	inline errno_t MotorOnOff(bool on_off, AP_OBJ::MOTOR motor_id = AP_OBJ::MOTOR_MAX){
 
-		return ERROR_SUCCESS;
+		return m_cfg.p_motors->MotorOnOff(on_off, motor_id);
 	}
 
 	inline bool IsMotorOn(AP_OBJ::MOTOR motor_id = AP_OBJ::MOTOR_MAX){
-		return false;
+		return m_cfg.p_motors->IsMotorOn(motor_id);
 	}
 
 	inline bool IsMotorRun(AP_OBJ::MOTOR motor_id = AP_OBJ::MOTOR_MAX){
-		return false;
+		return m_cfg.p_motors->IsMotorRun(motor_id);
 	}
 
 	inline bool IsMotorMoveCplt(AP_OBJ::MOTOR motor_id = AP_OBJ::MOTOR_MAX){
-		return false;
+		return !IsMotorRun(motor_id);
 	}
 
 	inline errno_t MotorStop (AP_OBJ::MOTOR motor_id = AP_OBJ::MOTOR_MAX){
-		return ERROR_SUCCESS;
+		return m_cfg.p_motors->MotorMoveStop(motor_id);
 	}
 
 	/* only check inpose or busy state */
 	inline errno_t MotorRun(AP_OBJ::MOTOR motor_id, int cmd_pos){
 
-		return ERROR_SUCCESS;
+		return m_cfg.p_motors->Move(motor_id, cmd_pos);
 	}
 
 	inline errno_t RelMove(AP_OBJ::MOTOR motor_id, int cmd_dist){
 
-		return ERROR_SUCCESS;
+		return  m_cfg.p_motors->RelMove(motor_id, cmd_dist);
 	}
 
 	// is floating state
@@ -338,6 +340,28 @@ public:
 
 	inline errno_t CylOpen(AP_OBJ::CYL cyl_id, bool skip_sensor = false){
 		errno_t ret = ERROR_SUCCESS;
+		/* check interlock */
+		if(cyl_id == AP_OBJ::CYL::CYL_VINYLHOLD_UPDOWN)
+		{
+			if(m_cfg.p_Cyl[AP_OBJ::CYL_VINYL_PUSHBACK].IsForward())
+			{
+				uint8_t err = (uint8_t)(cnAuto::state_e::cyl_interlock_State);
+				m_cfg.p_AutoManger->AlarmAuto(static_cast<cnAuto::state_e>(err));
+				return -1;
+			}
+
+		}
+		/* check interlock */
+		if(cyl_id == AP_OBJ::CYL::CYL_VINYL_PUSHBACK)
+		{
+			if(m_cfg.p_Cyl[AP_OBJ::CYL_VINYLHOLD_UPDOWN].IsUp())
+			{
+				uint8_t err = (uint8_t)(cnAuto::state_e::cyl_interlock_State);
+				m_cfg.p_AutoManger->AlarmAuto(static_cast<cnAuto::state_e>(err));
+				return -1;
+			}
+		}
+
 		ret = m_cfg.p_Cyl[cyl_id].Open(skip_sensor);
 		if (ret != 0)
 		{

@@ -19,22 +19,49 @@ constexpr wchar_t* DEF_MCU_DATA_POS_NAME_6(L"loc 5");
 constexpr wchar_t* DEF_MCU_DATA_POS_NAME_7(L"loc 6");
 constexpr wchar_t* DEF_MCU_DATA_POS_NAME_8(L"loc 7");
 
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_0(L"100");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_0(L"500");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_1(L"100");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_1(L"500");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_2(L"100");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_2(L"500");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_3(L"100");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_3(L"500");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_4(L"100");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_4(L"500");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_5(L"100");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_5(L"500");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_6(L"100");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_6(L"500");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_7(L"100");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_7(L"500");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_0(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_0(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_1(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_1(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_2(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_2(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_3(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_3(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_4(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_4(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_5(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_5(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_6(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_6(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_7(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_7(L"10");
+
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_1(L"link pose 1");
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_2(L"link pose 2");
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_3(L"link pose 3");
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_4(L"link pose 4");
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_5(L"link pose 5");
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_6(L"link pose 6");
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_7(L"link pose 7");
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_8(L"link pose 8");
+
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_POS_0(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_VEL_0(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_POS_1(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_VEL_1(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_POS_2(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_VEL_2(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_POS_3(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_VEL_3(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_POS_4(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_VEL_4(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_POS_5(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_VEL_5(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_POS_6(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_VEL_6(L"10");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_POS_7(L"10000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_LINK_VEL_7(L"10");
+
 
 constexpr wchar_t* DEF_MCU_DATA_CYL_NAME_1(L"jig forback");
 constexpr wchar_t* DEF_MCU_DATA_CYL_NAME_2(L"jig openclose");
@@ -157,7 +184,12 @@ constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_14(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_15(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_16(L"200");
 
-
+#define MOONS_MOTORS_VELOCITY_RPS_MAX  50
+#define MOONS_MOTORS_VELOCITY_RPS_MIN  1
+#define constrain_rps(v,id)   ((GetDlgItemInt(id))<(MOONS_MOTORS_VELOCITY_RPS_MIN)?(MOONS_MOTORS_VELOCITY_RPS_MIN)\
+														 :((GetDlgItemInt(id))>(MOONS_MOTORS_VELOCITY_RPS_MAX)?(MOONS_MOTORS_VELOCITY_RPS_MAX)\
+                              :(GetDlgItemInt(id))))
+//((GetDlgItemInt(id))<(low)?(low):((GetDlgItemInt(id))>(high)?(high):(GetDlgItemInt(id))))
 IMPLEMENT_DYNAMIC(Cui_PopMcuData, CDialogEx)
 
 Cui_PopMcuData::Cui_PopMcuData(CWnd* pParent /*=nullptr*/)
@@ -194,6 +226,25 @@ BEGIN_MESSAGE_MAP(Cui_PopMcuData, CDialogEx)
 	ON_BN_CLICKED(IDC_MCU_DATA_BTN_VAC_READ, &Cui_PopMcuData::OnBnClickedMcuDataBtnVacRead)
 	ON_BN_CLICKED(IDC_MCU_DATA_BTN_VAC_WRITE, &Cui_PopMcuData::OnBnClickedMcuDataBtnVacWrite)
 	ON_BN_CLICKED(IDC_MCU_DATA_BTN_ROM_READ_ALL, &Cui_PopMcuData::OnBnClickedMcuDataBtnRomReadAll)
+	ON_BN_CLICKED(IDC_MCU_DATA_BTN_LINK_VEL_READ, &Cui_PopMcuData::OnBnClickedMcuDataBtnLinkVelRead)
+	ON_BN_CLICKED(IDC_MCU_DATA_BTN_LINK_VEL_WRITE, &Cui_PopMcuData::OnBnClickedMcuDataBtnLinkVelWrite)
+	ON_STN_CLICKED(IDC_MCU_DATA_POS_NAME_1, &Cui_PopMcuData::OnStnClickedMcuDataPosName1)
+	ON_STN_CLICKED(IDC_MCU_DATA_POS_NAME_2, &Cui_PopMcuData::OnStnClickedMcuDataPosName2)
+	ON_STN_CLICKED(IDC_MCU_DATA_POS_NAME_3, &Cui_PopMcuData::OnStnClickedMcuDataPosName3)
+	ON_STN_CLICKED(IDC_MCU_DATA_POS_NAME_4, &Cui_PopMcuData::OnStnClickedMcuDataPosName4)
+	ON_STN_CLICKED(IDC_MCU_DATA_POS_NAME_5, &Cui_PopMcuData::OnStnClickedMcuDataPosName5)
+	ON_STN_CLICKED(IDC_MCU_DATA_POS_NAME_6, &Cui_PopMcuData::OnStnClickedMcuDataPosName6)
+	ON_STN_CLICKED(IDC_MCU_DATA_POS_NAME_7, &Cui_PopMcuData::OnStnClickedMcuDataPosName7)
+	ON_STN_CLICKED(IDC_MCU_DATA_POS_NAME_8, &Cui_PopMcuData::OnStnClickedMcuDataPosName8)
+	ON_STN_CLICKED(IDC_MCU_DATA_LINK_NAME_1, &Cui_PopMcuData::OnStnClickedMcuDataLinkName1)
+	ON_STN_CLICKED(IDC_MCU_DATA_LINK_NAME_2, &Cui_PopMcuData::OnStnClickedMcuDataLinkName2)
+	ON_STN_CLICKED(IDC_MCU_DATA_LINK_NAME_3, &Cui_PopMcuData::OnStnClickedMcuDataLinkName3)
+	ON_STN_CLICKED(IDC_MCU_DATA_LINK_NAME_4, &Cui_PopMcuData::OnStnClickedMcuDataLinkName4)
+	ON_STN_CLICKED(IDC_MCU_DATA_LINK_NAME_5, &Cui_PopMcuData::OnStnClickedMcuDataLinkName5)
+	ON_STN_CLICKED(IDC_MCU_DATA_LINK_NAME_6, &Cui_PopMcuData::OnStnClickedMcuDataLinkName6)
+	ON_STN_CLICKED(IDC_MCU_DATA_LINK_NAME_7, &Cui_PopMcuData::OnStnClickedMcuDataLinkName7)
+	ON_STN_CLICKED(IDC_MCU_DATA_LINK_NAME_8, &Cui_PopMcuData::OnStnClickedMcuDataLinkName8)
+	ON_BN_CLICKED(IDC_IDC_MCU_DATA_BTN_MOVE_STOP, &Cui_PopMcuData::OnBnClickedIdcMcuDataBtnMoveStop)
 END_MESSAGE_MAP()
 
 
@@ -235,6 +286,32 @@ BOOL Cui_PopMcuData::OnInitDialog()
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_7))->SetWindowText(DEF_MCU_DATA_EDIT_POS_7);
 	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_7))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_7);
 
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_LINK_NAME_1))->SetWindowText(DEF_MCU_DATA_LINK_NAME_1);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_LINK_NAME_2))->SetWindowText(DEF_MCU_DATA_LINK_NAME_2);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_LINK_NAME_3))->SetWindowText(DEF_MCU_DATA_LINK_NAME_3);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_LINK_NAME_4))->SetWindowText(DEF_MCU_DATA_LINK_NAME_4);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_LINK_NAME_5))->SetWindowText(DEF_MCU_DATA_LINK_NAME_5);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_LINK_NAME_6))->SetWindowText(DEF_MCU_DATA_LINK_NAME_6);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_LINK_NAME_7))->SetWindowText(DEF_MCU_DATA_LINK_NAME_7);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_LINK_NAME_8))->SetWindowText(DEF_MCU_DATA_LINK_NAME_8);
+
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_1))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_POS_0);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_1))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_VEL_0);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_2))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_POS_1);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_2))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_VEL_1);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_3))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_POS_2);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_3))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_VEL_2);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_4))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_POS_3);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_4))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_VEL_3);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_5))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_POS_4);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_5))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_VEL_4);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_6))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_POS_5);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_6))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_VEL_5);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_7))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_POS_6);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_7))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_VEL_6);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_8))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_POS_7);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_8))->SetWindowText(DEF_MCU_DATA_EDIT_LINK_VEL_7);
+																				
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_CYL_NAME_1))->SetWindowText(DEF_MCU_DATA_CYL_NAME_1);
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_CYL_NAME_2))->SetWindowText(DEF_MCU_DATA_CYL_NAME_2);
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_CYL_NAME_3))->SetWindowText(DEF_MCU_DATA_CYL_NAME_3);
@@ -368,7 +445,7 @@ void Cui_PopMcuData::OnShowWindow(BOOL bShow, UINT nStatus)
 	if (bShow == TRUE)
 	{
 		m_TimerID = SetTimer(UPDATE_TIMER_POP_MCU_DATA_DLG, 10, NULL);
-		if (MessageBox(L" whould you like to reload datas ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+		if (MessageBox(L" Would you like to reload datas ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
 		{
 			refreshData();
 		}
@@ -414,19 +491,19 @@ void Cui_PopMcuData::update()
 void Cui_PopMcuData::OnBnClickedMcuDataBtnPosVelRead()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
 	if (m_pPeeler->ReadROMData_MotorPos(m_pParent->m_motorIdx) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - pose data read");
-		return;
 	}
-
-	refreshData();
+	m_pParent->LockUpdate(true);
 }
 
 
 void Cui_PopMcuData::OnBnClickedMcuDataBtnPosVelWrite()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
 	uint8_t idx = 0;
 	std::vector<uint8_t> datas{};
 
@@ -440,48 +517,48 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnPosVelWrite()
 	};
 
 	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_0));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_0));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_0));
 	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_1));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_1));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_1));
 	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_2));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_2));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_2));
 	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_3));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_3));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_3));
 
 	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_4));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_4));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_4));
 	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_5));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_5));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_5));
 	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_6));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_6));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_6));
 	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_7));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_7));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_7));
 
 	if (m_pPeeler->WriteROM_PosData(datas, m_pParent->m_motorIdx) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - pose data write");
-		return;
 	}
-	refreshData();
+	m_pParent->LockUpdate(true);
 }
 
 
 void Cui_PopMcuData::OnBnClickedMcuDataBtnCylinderRead()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
 	if (m_pPeeler->ReadROMData_CylinderData() != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - cylinder data read");
-		return;
 	}
 
-	refreshData();
+	m_pParent->LockUpdate(true);
 }
 
 
 void Cui_PopMcuData::OnBnClickedMcuDataBtnCylinderWrite()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.	
+	m_pParent->LockUpdate();
 	uint8_t idx = 0;
 	std::vector<uint8_t> datas{};
 
@@ -513,29 +590,28 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnCylinderWrite()
 	if (m_pPeeler->WriteROM_CyliderData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - cylinder data write");
-		return;
 	}	
 
-	refreshData();
+	m_pParent->LockUpdate(true); 
 }
 
 
 void Cui_PopMcuData::OnBnClickedMcuDataBtnCfgRead()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
 	if (m_pPeeler->ReadROMData_ConfigData() != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - config data read");
-		return;
 	}
-
-	refreshData();
+	m_pParent->LockUpdate(true);
 }
 
 
 void Cui_PopMcuData::OnBnClickedMcuDataBtnCfgWrite()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
 	uint8_t idx = 0;
 	std::vector<uint8_t> datas{};
 
@@ -567,28 +643,27 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnCfgWrite()
 	if (m_pPeeler->WriteROM_ConfigData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - config data write");
-		return;
 	}
-
-	refreshData();
+	m_pParent->LockUpdate(true);
 }
 
 
 void Cui_PopMcuData::OnBnClickedMcuDataBtnSeqRead()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
 	if(m_pPeeler->ReadROMData_SequenceData() != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! -  sequence data read");
-		return;
 	}
-	refreshData();
+	m_pParent->LockUpdate(true);
 }
 
 
 void Cui_PopMcuData::OnBnClickedMcuDataBtnSeqWrite()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
 	uint8_t idx = 0;
 	std::vector<uint8_t> datas{};
 
@@ -620,9 +695,8 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnSeqWrite()
 	if (m_pPeeler->WriteROM_SequenceData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! -  sequence data write");
-		return;
 	}
-	refreshData();
+	m_pParent->LockUpdate(true);
 
 }
 
@@ -630,6 +704,7 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnSeqWrite()
 void Cui_PopMcuData::OnBnClickedMcuDataBtnRomWriteInit()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
 	uint8_t idx = 0;
 	std::vector<uint8_t> datas{};
 
@@ -674,6 +749,7 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomWriteInit()
 	if (m_pPeeler->WriteROM_PosData(datas, m_pParent->m_motorIdx) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - pose data write ");
+		m_pParent->LockUpdate(true);
 		return;
 	}
 
@@ -699,6 +775,7 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomWriteInit()
 	if (m_pPeeler->WriteROM_CyliderData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - cylinder data write ");
+		m_pParent->LockUpdate(true);
 		return;
 	}
 
@@ -723,6 +800,7 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomWriteInit()
 	if (m_pPeeler->WriteROM_VacuumData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - vacuum data write ");
+		m_pParent->LockUpdate(true);
 		return;
 	}
 
@@ -746,6 +824,7 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomWriteInit()
 	if (m_pPeeler->WriteROM_ConfigData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - config data write ");
+		m_pParent->LockUpdate(true);
 		return;
 	}
 
@@ -769,10 +848,10 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomWriteInit()
 	if (m_pPeeler->WriteROM_SequenceData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - sequence data write ");
+		m_pParent->LockUpdate(true);
 		return;
 	}
-
-	refreshData();
+	m_pParent->LockUpdate(true);
 
 }
 
@@ -950,6 +1029,39 @@ void Cui_PopMcuData::refreshData()
 		str.Format(L"%d", m_pPeeler->m_mcuSequnceDat[7].parm2);
 		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_SEQ_16))->SetWindowText(str);
 
+
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[0].cmd_pos);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_1))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[0].cmd_vel);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_1))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[1].cmd_pos);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_2))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[1].cmd_vel);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_2))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[2].cmd_pos);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_3))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[2].cmd_vel);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_3))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[3].cmd_pos);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_4))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[3].cmd_vel);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_4))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[4].cmd_pos);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_5))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[4].cmd_vel);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_5))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[5].cmd_pos);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_6))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[5].cmd_vel);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_6))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[6].cmd_pos);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_7))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[6].cmd_vel);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_7))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[7].cmd_pos);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_POS_8))->SetWindowText(str);
+		str.Format(L"%d", m_pPeeler->m_mcuLinkPoseDat[7].cmd_vel);
+		((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_LINK_VEL_8))->SetWindowText(str);
 	}
 }
 
@@ -964,19 +1076,19 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomUpdate()
 void Cui_PopMcuData::OnBnClickedMcuDataBtnVacRead()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
 	if (m_pPeeler->ReadROMData_VacuumData() != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - vacuum data read");
-		return;
 	}
-
-	refreshData();
+	m_pParent->LockUpdate(true);
 }
 
 
 void Cui_PopMcuData::OnBnClickedMcuDataBtnVacWrite()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
 	uint8_t idx = 0;
 	std::vector<uint8_t> datas{};
 
@@ -1011,11 +1123,9 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnVacWrite()
 	if (m_pPeeler->WriteROM_VacuumData(datas) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - vacuum data write ");
-		return;
 	}
 
-
-	refreshData();
+	m_pParent->LockUpdate(true);
 }
 
 
@@ -1121,4 +1231,265 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomReadAll()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	readAllData();
+}
+
+
+void Cui_PopMcuData::OnBnClickedMcuDataBtnLinkVelRead()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
+	if (m_pPeeler->ReadROMData_LinkPos() != ERROR_SUCCESS)
+	{
+		AfxMessageBox(L"comm error! - link pose data read");
+	}
+	m_pParent->LockUpdate(true);
+}
+
+
+void Cui_PopMcuData::OnBnClickedMcuDataBtnLinkVelWrite()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pParent->LockUpdate();
+	uint8_t idx = 0;
+	std::vector<uint8_t> datas{};
+
+	auto make_packet = [&datas](auto offset, auto source)->uint8_t
+	{
+		for (int i = 0; i < sizeof(source); i++)
+		{
+			datas.emplace_back((uint8_t)(source >> (i * 8)));
+		}
+		return (uint8_t)(offset + sizeof(source));
+	};
+
+	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_1));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_1));
+	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_2));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_2));
+	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_3));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_3));
+	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_4));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_4));
+
+	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_5));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_5));
+	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_6));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_6));
+	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_7));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_7));
+	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_8));
+	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_8));
+
+	if (m_pPeeler->WriteROM_LinkPosData(datas) != ERROR_SUCCESS)
+	{
+		AfxMessageBox(L"comm error! - link pose data write");
+	}
+	m_pParent->LockUpdate(true);
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataPosName1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_0), GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_0));
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataPosName2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_1), GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_1));
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataPosName3()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_2), GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_2));
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataPosName4()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_3), GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_3));
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataPosName5()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_4), GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_4));
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataPosName6()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_5), GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_5));
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataPosName7()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_6), GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_6));
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataPosName8()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_7), GetDlgItemInt(IDC_MCU_DATA_EDIT_VEL_7));
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataLinkName1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_1), GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_VEL_1), true);
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataLinkName2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_2), GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_VEL_2), true);
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataLinkName3()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_3), GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_VEL_3), true);
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataLinkName4()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_4), GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_VEL_4), true);
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataLinkName5()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_5), GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_VEL_5), true);
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataLinkName6()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_6), GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_VEL_6), true);
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataLinkName7()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_7), GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_VEL_7), true);
+	}
+}
+
+
+void Cui_PopMcuData::OnStnClickedMcuDataLinkName8()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (MessageBox(L" Would you like to drive the motor ?", L"확인", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+	{
+		movePoseData(GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_7), GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_VEL_8), true);
+	}
+}
+
+
+void Cui_PopMcuData::movePoseData(int pose, int vel, bool is_link )
+{
+	// TODO: 여기에 구현 코드 추가.
+  if (is_link)
+  {
+    if (m_pPeeler->MoveLinkPose(pose, vel) != ERROR_SUCCESS)
+    {
+      AfxMessageBox(L"comm error! - link pose move ");
+    }
+  }
+  else
+  {
+
+    if (m_pPeeler->Move(m_pParent->m_motorIdx, pose, (uint16_t)vel) != ERROR_SUCCESS)
+    {
+      AfxMessageBox(L"comm error! - pose data move ");
+    }
+  }
+}
+
+
+void Cui_PopMcuData::OnBnClickedIdcMcuDataBtnMoveStop()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pPeeler->Stop(m_pParent->m_motorIdx);
+}
+
+
+int Cui_PopMcuData::constrainRps(int id)
+{
+	// TODO: 여기에 구현 코드 추가.
+		if (GetDlgItemInt(id) < MOONS_MOTORS_VELOCITY_RPS_MIN)
+		{
+			SetDlgItemText(id, L"1");
+			return MOONS_MOTORS_VELOCITY_RPS_MIN;
+		}
+		else if (GetDlgItemInt(id) > MOONS_MOTORS_VELOCITY_RPS_MAX)
+		{
+			SetDlgItemText(id, L"50");
+			return MOONS_MOTORS_VELOCITY_RPS_MAX;
+		}
+
+		return GetDlgItemInt(id);
+
 }

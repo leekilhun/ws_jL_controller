@@ -306,7 +306,22 @@ BEGIN_MESSAGE_MAP(CVPRemoteDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_STATE_126, &CVPRemoteDlg::OnBnClickedCheckSetOutput)
 	ON_BN_CLICKED(IDC_CHECK_STATE_127, &CVPRemoteDlg::OnBnClickedCheckSetOutput)
 	ON_BN_CLICKED(IDC_PEELER_MAIN_POP_MCU_DATA, &CVPRemoteDlg::OnBnClickedPeelerMainPopMcuData)
-END_MESSAGE_MAP()
+	ON_BN_CLICKED(IDC_MAIN_CHECK_STEP_1, &CVPRemoteDlg::OnBnClickedMainCheckStep1)
+	ON_BN_CLICKED(IDC_MAIN_CHECK_STEP_2, &CVPRemoteDlg::OnBnClickedMainCheckStep2)
+	ON_BN_CLICKED(IDC_MAIN_CHECK_STEP_3, &CVPRemoteDlg::OnBnClickedMainCheckStep3)
+	ON_BN_CLICKED(IDC_MAIN_CHECK_STEP_4, &CVPRemoteDlg::OnBnClickedMainCheckStep4)
+	ON_BN_CLICKED(IDC_MAIN_CHECK_STEP_5, &CVPRemoteDlg::OnBnClickedMainCheckStep5)
+	ON_BN_CLICKED(IDC_MAIN_CHECK_STEP_6, &CVPRemoteDlg::OnBnClickedMainCheckStep6)
+	ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC1, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc1)
+		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC2, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc2)
+		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC3, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc3)
+		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC4, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc4)
+		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC5, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc5)
+		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC6, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc6)
+		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC7, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc7)
+		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC8, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc8)
+		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC9, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc9)
+		END_MESSAGE_MAP()
 
 
 // CVPRemoteDlg 메시지 처리기
@@ -727,6 +742,11 @@ void CVPRemoteDlg::update()
 }
 
 
+void CVPRemoteDlg::LockUpdate(bool is_release)
+{
+	m_lockUpdate = !(is_release);
+}
+
 void CVPRemoteDlg::OnBnClickedPeelerMainPopMotorCtrl()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
@@ -1092,4 +1112,94 @@ void CVPRemoteDlg::SetMcuOptionBit(HAL::ModulePeeler::mcu_option_e bit_reg, bool
 	}
 	peeler->SetOptionReg(reg.ap_option);
 
+}
+
+
+void CVPRemoteDlg::OnBnClickedMainCheckStep1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedMainCheckStep2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedMainCheckStep3()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedMainCheckStep4()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedMainCheckStep5()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedMainCheckStep6()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc3()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc4()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc5()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc6()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc7()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc8()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc9()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }

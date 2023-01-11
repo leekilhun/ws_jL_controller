@@ -90,12 +90,17 @@ namespace RCTRL
 		CMD_CTRL_MOT_CHANGE_VEL           = 0x29,
 		CMD_CTRL_MOT_MOVE_VEL             = 0x2A,
 		CMD_CTRL_MOT_RELMOVE_VEL          = 0x2B,
+		CMD_CTRL_MOT_VEL_JOG 							= 0x2C,
 
 		CMD_CTRL_MOTS_ONOFF               = 0x30,
 		CMD_CTRL_MOTS_RUN                 = 0x31,
 		CMD_CTRL_MOTS_STOP                = 0x32,
 		CMD_CTRL_MOTS_REL                 = 0x33,
 		CMD_CTRL_MOT_JOG_STOP             = 0x34,
+		CMD_CTRL_MOT_LINK_RUN             = 0x35,
+
+		CMD_CTRL_MOT_DATA_MOVE_PARAM      = 0x3A,
+		CMD_CTRL_MOT_DATA_INIT_PARAM      = 0x3B,
 
 		CMD_EEPROM_WRITE_MOTOR_POS_DATA_L	= 0x40,
 		CMD_EEPROM_WRITE_MOTOR_POS_DATA_H	= 0x41,

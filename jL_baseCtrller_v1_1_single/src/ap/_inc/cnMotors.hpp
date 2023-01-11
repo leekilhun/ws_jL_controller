@@ -11,6 +11,7 @@
 namespace MOTOR
 {
 
+	constexpr uint8_t CN_MOTORS_VELOCITY_RPS_MAX  = 50;
 
 	class cnMotors
 	{
@@ -124,6 +125,38 @@ namespace MOTOR
 
 		void UpdateMotorsState();
 
+		inline int SetParamDataMove(AP_OBJ::MOTOR motor_id, uint32_t vel, uint32_t acc, uint32_t dec){
+			if (motor_id == AP_OBJ::MOTOR_MAX)
+			{
+				int ret = 0;
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].SetParamDataMove(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].SetParamDataMove(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].SetParamDataMove(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+				return ret;
+			}
+			return m_cfg.p_motor[motor_id].SetParamDataMove(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+		}
+
+		inline int SetParamDataInit(AP_OBJ::MOTOR motor_id, MOTOR::enMotor_moons::origin_param_t& param){
+			if (motor_id == AP_OBJ::MOTOR_MAX)
+			{
+				int ret = 0;
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].SetOriginParam(param);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].SetOriginParam(param);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].SetOriginParam(param);
+				return ret;
+			}
+			return m_cfg.p_motor[motor_id].SetOriginParam(param);
+		}
+
+		inline int LinkMove(int cmd_pos, uint32_t vel){
+			int ret = 0;
+			ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveAbsolutive(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), 100, 100, cmd_pos);
+			ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveAbsolutive(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), 100, 100, cmd_pos);
+
+			return ret;
+		}
+
 		inline int Move(AP_OBJ::MOTOR motor_id, int cmd_pos){
 			/*must assign motor id*/
 			if (motor_id == AP_OBJ::MOTOR_MAX)
@@ -136,18 +169,17 @@ namespace MOTOR
 			}
 			return m_cfg.p_motor[motor_id].MoveAbsolutive(cmd_pos);
 		}
-
 		inline int Move(AP_OBJ::MOTOR motor_id, uint32_t vel, uint32_t acc, uint32_t dec, int cmd_pos){
 			/*must assign motor id*/
 			if (motor_id == AP_OBJ::MOTOR_MAX)
 			{
 				int ret = 0;
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveAbsolutive(vel, acc, dec, cmd_pos);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveAbsolutive(vel, acc, dec,cmd_pos);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveAbsolutive(vel, acc, dec,cmd_pos);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveAbsolutive(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec, cmd_pos);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveAbsolutive(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec,cmd_pos);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveAbsolutive(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec,cmd_pos);
 				return ret;
 			}
-			return m_cfg.p_motor[motor_id].MoveAbsolutive(vel, acc, dec,cmd_pos);
+			return m_cfg.p_motor[motor_id].MoveAbsolutive(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec,cmd_pos);
 		}
 
 		inline int RelMove(AP_OBJ::MOTOR motor_id, int cmd_pos){
@@ -168,12 +200,12 @@ namespace MOTOR
 			if (motor_id == AP_OBJ::MOTOR_MAX)
 			{
 				int ret = 0;
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveRelative(vel, acc, dec, cmd_pos);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveRelative(vel, acc, dec,cmd_pos);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveRelative(vel, acc, dec,cmd_pos);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveRelative(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec, cmd_pos);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveRelative(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec,cmd_pos);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveRelative(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec,cmd_pos);
 				return ret;
 			}
-			return m_cfg.p_motor[motor_id].MoveAbsolutive(vel, acc, dec,cmd_pos);
+			return m_cfg.p_motor[motor_id].MoveAbsolutive(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec,cmd_pos);
 		}
 
 		inline int Origin(AP_OBJ::MOTOR motor_id =AP_OBJ::MOTOR_MAX){
@@ -261,14 +293,46 @@ namespace MOTOR
 			return m_cfg.p_motor[motor_id].JogMove(is_cw);
 		}
 
+		inline int MotorJogMove(AP_OBJ::MOTOR motor_id, uart_moons::speed_t& param, bool is_cw){
+			param.speed = constrain(param.speed,1,CN_MOTORS_VELOCITY_RPS_MAX);
+			if (motor_id == AP_OBJ::MOTOR_MAX)
+			{
+				int ret = 0;
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].JogMove(param,is_cw);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].JogMove(param,is_cw);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].JogMove(param,is_cw);
+				return ret;
+			}
+			return m_cfg.p_motor[motor_id].JogMove(param,is_cw);
+		}
+
+
 		inline bool IsConnected() const{
 			return m_cfg.p_comm->IsConnected();
 		}
 
 		inline bool IsMotorOn(AP_OBJ::MOTOR motor_id = AP_OBJ::MOTOR_MAX){
-			return (m_cfg.p_motor[AP_OBJ::MOTOR_JIG].IsMotorOn()
-						 &m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].IsMotorOn()
-						 &m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].IsMotorOn());
+			if (motor_id == AP_OBJ::MOTOR_MAX)
+			{
+				bool ret = true;
+				ret = m_cfg.p_motor[AP_OBJ::MOTOR_JIG].IsMotorOn()
+				     &m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].IsMotorOn()
+						 &m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].IsMotorOn();
+				return ret;
+			}
+			return m_cfg.p_motor[motor_id].IsMotorOn();
+		}
+
+		inline bool IsMotorRun(AP_OBJ::MOTOR motor_id = AP_OBJ::MOTOR_MAX){
+			if (motor_id == AP_OBJ::MOTOR_MAX)
+			{
+				bool ret = true;
+				ret = m_cfg.p_motor[AP_OBJ::MOTOR_JIG].IsMotorRun()
+					   &m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].IsMotorRun()
+						 &m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].IsMotorRun();
+				return ret;
+			}
+			return m_cfg.p_motor[motor_id].IsMotorRun();
 		}
 
 #if 0

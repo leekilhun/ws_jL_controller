@@ -460,6 +460,68 @@ namespace MOTOR
 			return -1;
 		}
 
+		inline errno_t SetMoveParam(uint8_t node_id, uart_moons::speed_t& params){
+			if (m_Isconnected != true)
+				return -1;
+
+			uint8_t  func = write_MultiReg;
+			uint16_t start_reg_no = Point_to_Point_Acceleration_AC_A;
+			enum {accel, decel, speed, v_max};
+			constexpr uint16_t reg_cnt = v_max;
+			constexpr uint8_t byte_cnt = reg_cnt * 2;
+
+			std::array<uint16_t, reg_cnt> value = {
+					(uint16_t)params.accel,
+					(uint16_t)params.decel,
+					(uint16_t)params.speed,
+			};
+
+			uint16_t crc = 0xffff;
+			enum{id, fn, reg_h, reg_l, reg_cnt_h, reg_cnt_l, b_cnt, v5, v4, v3, v2, v1, v0,
+				crc_l, crc_h,  _max};
+
+			std::array<uint8_t, _max> send_data = {
+					node_id,
+					func,
+					(uint8_t)(start_reg_no >> 8),
+					(uint8_t)(start_reg_no),
+					(uint8_t)(reg_cnt >> 8),
+					(uint8_t)(reg_cnt >> 0),
+					byte_cnt,
+					(uint8_t)((value[accel] >> 8) & 0xff),
+					(uint8_t)((value[accel] >> 0) & 0xff),
+					(uint8_t)((value[decel] >> 8) & 0xff),
+					(uint8_t)((value[decel] >> 0) & 0xff),
+					(uint8_t)((value[speed] >> 8) & 0xff),
+					(uint8_t)((value[speed] >> 0) & 0xff),
+					(uint8_t)(0),
+					(uint8_t)(0)
+			};
+
+			for(uint16_t i = 0; i < crc_l; i++)
+			{
+				UTL::crc16_modbus_update(&crc, send_data[i]);
+			}
+			send_data[crc_l] = (uint8_t)(crc >> 0);
+			send_data[crc_h] = (uint8_t)(crc >> 8);
+
+			constexpr uint32_t timeout = 100;
+			uint8_t retray_cnt = 3;
+			while (retray_cnt)
+			{
+				errno_t result = SendCmdRxResp(send_data.data(), (uint32_t)send_data.size(), timeout);
+				if (result == ERROR_SUCCESS)
+				{
+					return ERROR_SUCCESS;
+				}
+				else
+				{
+					retray_cnt--;
+				}
+			}
+			return -1;
+		}
+
 		inline errno_t SetMove(uint8_t node_id, uart_moons::speed_t& params, int dist){
 			if (m_Isconnected != true)
 				return -1;

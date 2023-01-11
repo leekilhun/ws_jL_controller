@@ -53,4 +53,28 @@ private:
 	void readAllData();
 public:
 	afx_msg void OnBnClickedMcuDataBtnRomReadAll();
+	afx_msg void OnBnClickedMcuDataBtnLinkVelRead();
+	afx_msg void OnBnClickedMcuDataBtnLinkVelWrite();
+	afx_msg void OnStnClickedMcuDataPosName1();
+	afx_msg void OnStnClickedMcuDataPosName2();
+	afx_msg void OnStnClickedMcuDataPosName3();
+	afx_msg void OnStnClickedMcuDataPosName4();
+	afx_msg void OnStnClickedMcuDataPosName5();
+	afx_msg void OnStnClickedMcuDataPosName6();
+	afx_msg void OnStnClickedMcuDataPosName7();
+	afx_msg void OnStnClickedMcuDataPosName8();
+	afx_msg void OnStnClickedMcuDataLinkName1();
+	afx_msg void OnStnClickedMcuDataLinkName2();
+	afx_msg void OnStnClickedMcuDataLinkName3();
+	afx_msg void OnStnClickedMcuDataLinkName4();
+	afx_msg void OnStnClickedMcuDataLinkName5();
+	afx_msg void OnStnClickedMcuDataLinkName6();
+	afx_msg void OnStnClickedMcuDataLinkName7();
+	afx_msg void OnStnClickedMcuDataLinkName8();
+private:
+	void movePoseData(int pose, int vel, bool is_link = false);
+public:
+	afx_msg void OnBnClickedIdcMcuDataBtnMoveStop();
+private:
+	int constrainRps(int id);
 };

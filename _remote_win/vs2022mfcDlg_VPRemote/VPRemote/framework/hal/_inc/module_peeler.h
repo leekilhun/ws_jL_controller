@@ -161,12 +161,17 @@ namespace HAL
 			CMD_CTRL_MOT_CHANGE_VEL = 0x29,
 			CMD_CTRL_MOT_MOVE_VEL = 0x2A,
 			CMD_CTRL_MOT_RELMOVE_VEL = 0x2B,
+			CMD_CTRL_MOT_VEL_JOG = 0x2C,
 
 			CMD_CTRL_MOTS_ONOFF = 0x30,
 			CMD_CTRL_MOTS_RUN = 0x31,
 			CMD_CTRL_MOTS_STOP = 0x32,
 			CMD_CTRL_MOTS_REL = 0x33,
 			CMD_CTRL_MOT_JOG_STOP = 0x34,
+			CMD_CTRL_MOT_LINK_RUN = 0x35,
+
+			CMD_CTRL_MOT_DATA_MOVE_PARAM = 0x3A,
+			CMD_CTRL_MOT_DATA_INIT_PARAM = 0x3B,
 
 			CMD_EEPROM_WRITE_MOTOR_POS_DATA_L = 0x40,
 			CMD_EEPROM_WRITE_MOTOR_POS_DATA_H = 0x41,
@@ -1465,6 +1470,19 @@ namespace HAL
 				return -1;
 		}
 
+		inline errno_t ReadROMData_LinkPos() {
+			std::vector<uint8_t> datas{};
+			datas.emplace_back(CMD_EEPROM_READ_LINK_POS);
+			//obj_id
+			datas.emplace_back(0);
+			//length
+			datas.emplace_back(0x00);
+			datas.emplace_back(0x00);
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size(), 500))
+				return ERROR_SUCCESS;
+			else
+				return -1;
+		}
 
 		inline errno_t ReadROMData_ConfigData() {
 			std::vector<uint8_t> datas{};
@@ -1555,6 +1573,8 @@ namespace HAL
 			else
 				return -1;
 		}
+
+	
 
 		inline errno_t WriteROM_CyliderData(std::vector<uint8_t>& vdatas) {
 			std::vector<uint8_t> datas{};
@@ -1674,6 +1694,88 @@ namespace HAL
 
 		}
 
+		inline errno_t WriteROM_LinkPosData(std::vector<uint8_t>& vdatas) {
+			enum { low, high, max };
+			std::vector<uint8_t> datas[max]{};
+			uint16_t length = (uint16_t)(vdatas.size() / 2);
+			datas[low].emplace_back(CMD_EEPROM_WRITE_LINK_POS_L);
+			datas[high].emplace_back(CMD_EEPROM_WRITE_LINK_POS_H);
+			//obj_id
+			datas[low].emplace_back(0);
+			datas[high].emplace_back(0);
+			//length
+			datas[low].emplace_back(length >> 0);
+			datas[low].emplace_back(length >> 8);
+			datas[high].emplace_back(length >> 0);
+			datas[high].emplace_back(length >> 8);
+
+			for (uint16_t i = 0; i < length; i++)
+			{
+				datas[low].emplace_back(vdatas[i]);
+				datas[high].emplace_back(vdatas[length + i]);
+			}
+
+			if (SendCmdRxResp(datas[low].data(), (uint32_t)datas->size(), 500))
+			{
+				if (SendCmdRxResp(datas[high].data(), (uint32_t)datas->size(), 500))
+					return ERROR_SUCCESS;
+				else
+					return -1;
+			}
+			else
+				return -1;
+
+		}
+
+
+		inline errno_t WriteMoonsParam_Move(std::vector<uint8_t>& vdatas, MCU_OBJ::MOTOR obj_id) {
+			std::vector<uint8_t> datas{};
+			uint16_t length = (uint16_t)vdatas.size();
+			datas.emplace_back(CMD_CTRL_MOT_DATA_MOVE_PARAM);
+			//obj_id
+			datas.emplace_back((uint8_t)obj_id);
+			//length
+			datas.emplace_back(length >> 0);
+			datas.emplace_back(length >> 8);
+
+			for (uint16_t i = 0; i < length; i++)
+			{
+				datas.emplace_back(vdatas[i]);
+			}
+
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size(), 500))
+			{
+				return ERROR_SUCCESS;
+			}
+			else
+				return -1;
+		}
+
+
+		inline errno_t WriteMoonsParam_Init(std::vector<uint8_t>& vdatas, MCU_OBJ::MOTOR obj_id) {
+			std::vector<uint8_t> datas{};
+			uint16_t length = (uint16_t)vdatas.size();
+			datas.emplace_back(CMD_CTRL_MOT_DATA_INIT_PARAM);
+			//obj_id
+			datas.emplace_back((uint8_t)obj_id);
+			//length
+			datas.emplace_back(length >> 0);
+			datas.emplace_back(length >> 8);
+
+			for (uint16_t i = 0; i < length; i++)
+			{
+				datas.emplace_back(vdatas[i]);
+			}
+
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size(), 500))
+			{
+				return ERROR_SUCCESS;
+			}
+			else
+				return -1;
+		}
+
+
 		inline errno_t UpdateMcuOpVirtualSw(uint8_t sw) {
 
 			return 0;
@@ -1785,6 +1887,38 @@ namespace HAL
 			else
 				return -1;
 		}
+
+		inline errno_t MoveLinkPose(int pos, int vel) {
+			std::vector<uint8_t> datas{};
+			datas.emplace_back(CMD_CTRL_MOT_LINK_RUN);
+			datas.emplace_back(0);
+			enum {
+				pos1, pos2, pos3, pos4,
+				vel1, vel2, vel3, vel4,
+				_max
+			};
+			//length
+			datas.emplace_back(uint8_t(_max >> 0));
+			datas.emplace_back(uint8_t(_max >> 8));
+			//data
+			datas.emplace_back(uint8_t(pos >> 0));
+			datas.emplace_back(uint8_t(pos >> 8));
+			datas.emplace_back(uint8_t(pos >> 16));
+			datas.emplace_back(uint8_t(pos >> 24));
+
+			datas.emplace_back(uint8_t(vel >> 0));
+			datas.emplace_back(uint8_t(vel >> 8));
+			datas.emplace_back(uint8_t(vel >> 16));
+			datas.emplace_back(uint8_t(vel >> 24));
+
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size()))
+				return ERROR_SUCCESS;
+			else
+				return -1;
+
+
+		}
+
 		inline int RelMove(MCU_OBJ::MOTOR mot_id, int cmd_pos, uint16_t cmd_vel = 100, uint16_t acc = 100) {
 			std::vector<uint8_t> datas{};
 			datas.emplace_back(CMD_CTRL_MOT_RELMOVE);
@@ -1865,6 +1999,31 @@ namespace HAL
 			else
 				return -1;
 		}
+
+
+		inline errno_t JogMove(MCU_OBJ::MOTOR mot_id, std::vector<uint8_t>& vdatas) {
+			std::vector<uint8_t> datas{};
+			uint16_t length = (uint16_t)vdatas.size();
+			datas.emplace_back(CMD_CTRL_MOT_VEL_JOG);
+			//obj_id
+			datas.emplace_back((uint8_t)mot_id);
+			//length
+			datas.emplace_back(length >> 0);
+			datas.emplace_back(length >> 8);
+			//data
+			for (uint16_t i = 0; i < length; i++)
+			{
+				datas.emplace_back(vdatas[i]);
+			}
+	
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size()))
+				return ERROR_SUCCESS;
+			else
+				return -1;
+		}
+
+
+
 
 		inline errno_t JogMove(MCU_OBJ::MOTOR mot_id, bool is_cw = true) {
 			std::vector<uint8_t> datas{};

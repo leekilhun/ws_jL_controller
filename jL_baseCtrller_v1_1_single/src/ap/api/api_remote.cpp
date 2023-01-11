@@ -191,6 +191,7 @@ void api_remote::doRunStep()
 		{
 			//memset(&m_txBuffer[0], 0, UI_RCTRL_MAX_BUFFER_LENGTH);
 			m_txBuffer.fill(0);
+			m_step.retry_cnt = 0;
 			m_step.SetStep(STEP_MOTOR_DATA_START);
 		}
 		break;
@@ -258,6 +259,7 @@ void api_remote::doRunStep()
 		case STEP_MOTOR_CFG_MOTION_ORIGIN:
 		{
 			m_txBuffer.fill(0);
+			m_step.retry_cnt = 0;
 			m_waitReplyOK = true;
 			m_step.SetStep(STEP_MOTOR_CFG_MOTION_ORIGIN_START);
 		}
@@ -455,6 +457,7 @@ void api_remote::doRunStep()
 			######################################################*/
 		case STEP_ROMDATA_LINK_POS_L:
 		{
+			m_step.retry_cnt = 0;
 			m_txBuffer.fill(0);
 			m_waitReplyOK = true;
 			m_step.SetStep(STEP_ROMDATA_LINK_POS_L_START);
@@ -480,15 +483,23 @@ void api_remote::doRunStep()
 
 		case STEP_ROMDATA_LINK_POS_L_WAIT:
 		{
-			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
-			{
-				m_step.SetStep(STEP_TIMEOUT);
+			if (m_step.LessThan(STEP_DELAY_WAIT))
 				break;
-			}
 
 			// check return flag
 			if (m_waitReplyOK)
-				break;
+			{
+				if (m_step.retry_cnt++ < RETRY_CNT_MAX)
+				{
+					m_step.SetStep(STEP_ROMDATA_LINK_POS_L_START);
+					break;
+				}
+				else
+				{
+					m_step.SetStep(STEP_TIMEOUT);
+					break;
+				}
+			}
 			m_step.SetStep(STEP_ROMDATA_LINK_POS_L_END);
 		}
 		break;
@@ -506,7 +517,7 @@ void api_remote::doRunStep()
 		{
 			if(m_step.LessThan(50))
 				return;
-
+			m_step.retry_cnt = 0;
 			m_txBuffer.fill(0);
 			m_waitReplyOK = true;
 			m_step.SetStep(STEP_ROMDATA_LINK_POS_H_START);
@@ -532,15 +543,23 @@ void api_remote::doRunStep()
 
 		case STEP_ROMDATA_LINK_POS_H_WAIT:
 		{
-			if (m_step.MoreThan(COMM_TIMEOUT_MAX))
-			{
-				m_step.SetStep(STEP_TIMEOUT);
+			if (m_step.LessThan(STEP_DELAY_WAIT))
 				break;
-			}
 
 			// check return flag
 			if (m_waitReplyOK)
-				break;
+			{
+				if (m_step.retry_cnt++ < RETRY_CNT_MAX)
+				{
+					m_step.SetStep(STEP_ROMDATA_LINK_POS_H_START);
+					break;
+				}
+				else
+				{
+					m_step.SetStep(STEP_TIMEOUT);
+					break;
+				}
+			}
 			m_step.SetStep(STEP_ROMDATA_LINK_POS_H_END);
 		}
 		break;
@@ -575,6 +594,11 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 		return (uint8_t)(offset+sizeof(source));
 			};
 
+	auto ret_data = [&](auto offset, auto &dest)->uint8_t
+			{
+		memcpy(&dest, &m_receiveData.data[offset],sizeof(dest));
+		return (uint8_t)(offset+sizeof(dest));
+			};
 	using TYPE = RCTRL::CMD_TYPE;
 
 	switch (m_receiveData.type)
@@ -642,7 +666,6 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 
 		case TYPE::CMD_CTRL_MOT_ONOFF:
 		{
-
 			m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
 			bool on_off = bool(m_receiveData.data[0]&1);
 			m_cfg.ptr_motors->MotorOnOff(on_off, m_idxMotor);
@@ -694,14 +717,19 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
 			{
 				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
-
-				int pos = utilDwToInt(&m_receiveData.data[0]);
+				int pos = 0;
+				uint16_t acc = 0;uint16_t vel = 0;
+				uint8_t idx = 0;
+				idx = ret_data(idx, pos);
+				idx = ret_data(idx, vel);
+				idx = ret_data(idx, acc);
+				/*int pos = utilDwToInt(&m_receiveData.data[0]);
 
 				uint16_t vel = (uint16_t)(m_receiveData.data[4] << 0)
 												 | (uint16_t)(m_receiveData.data[5] << 8);
 
 				uint16_t acc = (uint16_t)(m_receiveData.data[6] << 0)
-												 | (uint16_t)(m_receiveData.data[7] << 8);
+												 | (uint16_t)(m_receiveData.data[7] << 8);*/
 
 				m_cfg.ptr_motors->Move(m_idxMotor,(uint32_t)vel, (uint32_t)acc, (uint32_t)acc ,pos);
 			}
@@ -713,14 +741,20 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
 			{
 				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
-
+				int pos = 0;
+				uint16_t acc = 0;uint16_t vel = 0;
+				uint8_t idx = 0;
+				idx = ret_data(idx, pos);
+				idx = ret_data(idx, vel);
+				idx = ret_data(idx, acc);
+				/*
 				int pos = utilDwToInt(&m_receiveData.data[0]);
 				uint16_t vel = (uint16_t)(m_receiveData.data[4] << 0)
 												 | (uint16_t)(m_receiveData.data[5] << 8);
 
 				uint16_t acc = (uint16_t)(m_receiveData.data[6] << 0)
 												 | (uint16_t)(m_receiveData.data[7] << 8);
-
+				*/
 				m_cfg.ptr_motors->RelMove(m_idxMotor, (uint32_t)vel, (uint32_t)acc, (uint32_t)acc, pos);
 			}
 		}
@@ -761,6 +795,36 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 		}
 		break;
 
+		case TYPE::CMD_CTRL_MOT_VEL_JOG:
+		{
+			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
+			{
+				ok_Response();
+				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+				int dir = 0;
+				MOTOR:: uart_moons::speed_t param{};
+				uint8_t idx = 0;
+				idx = ret_data(idx, param.speed);
+				idx = ret_data(idx, param.accel);
+				idx = ret_data(idx, dir);
+				param.decel = param.accel;
+
+				m_cfg.ptr_motors->MotorJogMove(m_idxMotor, param, (dir<0?false:true));
+			}
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_LINK_RUN:
+		{
+			uint32_t pos =0; uint32_t vel = 0;
+			uint8_t idx = 0;
+			idx = ret_data(idx, pos);
+			idx = ret_data(idx, vel);
+
+			m_cfg.ptr_motors->LinkMove(pos, vel);//
+		}
+		break;
+
 		case TYPE::CMD_CTRL_MOT_CLEAR_ALARM:
 		{
 			if (m_receiveData.obj_id < (uint8_t)AP_OBJ::MOTOR_MAX)
@@ -768,6 +832,38 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 				m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
 				m_cfg.ptr_motors->MotorClearAlarm(m_idxMotor);
 			}
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_DATA_MOVE_PARAM:
+		{
+			ok_Response();
+			m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+			uint32_t vel =0; uint32_t acc = 0; uint32_t dec = 0;
+			uint8_t idx = 0;
+			idx = ret_data(idx, vel);
+			idx = ret_data(idx, acc);
+			idx = ret_data(idx, dec);
+
+			m_cfg.ptr_motors->SetParamDataMove(m_idxMotor, vel, acc, dec);//
+		}
+		break;
+
+		case TYPE::CMD_CTRL_MOT_DATA_INIT_PARAM:
+		{
+			ok_Response();
+			m_idxMotor = (AP_OBJ::MOTOR)m_receiveData.obj_id;
+			uint8_t idx = 0;
+			MOTOR::enMotor_moons::origin_param_t param{};
+
+			idx = ret_data(idx, param.speed);
+			idx = ret_data(idx, param.accel);
+			idx = ret_data(idx, param.offset);
+			idx = ret_data(idx, param.find_home_dir);
+			idx = ret_data(idx, param.home_x_no);
+			idx = ret_data(idx, param.home_x_level);
+			param.decel = param.accel;
+			m_cfg.ptr_motors->SetParamDataInit(m_idxMotor, param);
 		}
 		break;
 
@@ -826,6 +922,7 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 
 		case TYPE::CMD_EEPROM_WRITE_LINK_POS_H:
 		{
+			ok_Response();
 			m_cfg.ptr_task->WriteROMData_LinkPose(m_receiveData, false);
 		}
 		break;
@@ -901,6 +998,7 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 
 		case TYPE::CMD_EEPROM_READ_LINK_POS:
 		{
+			ok_Response();
 			m_step.SetStep(STEP_ROMDATA_LINK_POS_L);
 		}
 		break;

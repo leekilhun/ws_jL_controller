@@ -272,12 +272,12 @@ namespace MOTOR
 
 		};
 
-
+	public:
+		cfg_t m_cfg;
 
 
 	private:
 		uint8_t m_nodeId;
-		cfg_t m_cfg;
 		uart_moons::rx_packet_t m_receiveData;
 		moons_data_t m_motorData;
 		uint8_t m_commErrCnt;
@@ -289,7 +289,7 @@ namespace MOTOR
 		 *  Constructor
 		 ****************************************************/
 	public:
-		enMotor_moons(uint8_t id): m_nodeId(id), m_cfg{}, m_receiveData()
+		enMotor_moons(uint8_t id):  m_cfg{}, m_nodeId(id),m_receiveData()
 		,m_motorData{}, m_commErrCnt{}
 		{
 #ifdef _USE_HW_RTOS
@@ -404,10 +404,29 @@ namespace MOTOR
 			return m_motorData.drv_status.Motor_Enabled;
 		}
 
+		inline bool IsMotorRun() {
+			return m_motorData.drv_status.Moving;
+		}
+
+		inline bool IsMotorStop() {
+			return m_motorData.drv_status.Stopping;
+		}
+
 		inline errno_t MotorOnOff(bool on_off = true) {
 			return m_cfg.p_comm->MotorOnOff(m_nodeId, on_off);
 		}
 
+		inline errno_t SetParamDataMove(uint32_t vel, uint32_t acc, uint32_t dec){
+			m_cfg.motor_param.move_accelC = acc * MODBUS_MULTIPLE_PARAM_ACC;
+			m_cfg.motor_param.move_decelC = dec * MODBUS_MULTIPLE_PARAM_ACC;
+			m_cfg.motor_param.move_speedC = vel * MODBUS_MULTIPLE_PARAM_VEL;
+			uart_moons::speed_t params {
+						(uint16_t)m_cfg.motor_param.move_accelC,
+						(uint16_t)m_cfg.motor_param.move_decelC,
+						(uint16_t)m_cfg.motor_param.move_speedC };
+
+			return m_cfg.p_comm->SetMoveParam(m_nodeId, params);
+		}
 
 		inline errno_t SetMoveDistSpeed(uint32_t vel, uint32_t acc, uint32_t dec, int dist){
 			m_cfg.motor_param.move_accelC = acc * MODBUS_MULTIPLE_PARAM_ACC;
@@ -464,6 +483,7 @@ namespace MOTOR
 			else
 				return ret;
 		}
+
 
 
 		inline errno_t MoveAbsolutive(uint32_t vel, uint32_t acc, uint32_t dec, int dist) {

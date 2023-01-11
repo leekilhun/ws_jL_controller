@@ -63,4 +63,8 @@ private:
 public:
 	afx_msg void OnBnClickedMoonsBtnMoveParamSet();
 	afx_msg void OnBnClickedMoonsBtnInitParamSet();
+private:
+	CComboBox m_cmbInitDir;
+	CComboBox m_cmbInitXPin;
+	CComboBox m_cmbInitLvl;
 };

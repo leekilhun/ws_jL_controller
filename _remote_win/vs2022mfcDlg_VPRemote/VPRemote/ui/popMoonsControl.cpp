@@ -10,24 +10,26 @@
 #include "VPRemoteDlg.h"
 // CpopMoonsControl 대화 상자
 
-
 constexpr int select_cw = 0;
 constexpr int select_ccw = 1;
 
+constexpr int select_low_level = 0;
+constexpr int select_high_level = 1;
 
- constexpr wchar_t* DEF_MOONS_EDIT_JOG_VELOCITY(L"10");
- constexpr wchar_t* DEF_MOONS_EDIT_JOG_ACCDEC(L"100");
 
- constexpr wchar_t* DEF_MOONS_EDIT_INIT_VELOCITY(L"3");
- constexpr wchar_t* DEF_MOONS_EDIT_INIT_DECEL(L"100");
- constexpr wchar_t* DEF_MOONS_EDIT_INIT_ACCEL(L"100");
+constexpr wchar_t* DEF_MOONS_EDIT_JOG_VELOCITY(L"10");
+constexpr wchar_t* DEF_MOONS_EDIT_JOG_ACCDEC(L"100");
 
- constexpr wchar_t* DEF_MOONS_EDIT_MOVE_VELOCITY(L"15");
- constexpr wchar_t* DEF_MOONS_EDIT_MOVE_DECEL(L"100");
- constexpr wchar_t* DEF_MOONS_EDIT_MOVE_ACCEL(L"100");
+constexpr wchar_t* DEF_MOONS_EDIT_INIT_VELOCITY(L"3");
+constexpr wchar_t* DEF_MOONS_EDIT_INIT_OFFSET(L"0");
+constexpr wchar_t* DEF_MOONS_EDIT_INIT_ACC_DEC(L"100");
 
- constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_ABSMOVE_POS(L"20000");
- constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_RELMOVE_POS(L"20000");
+constexpr wchar_t* DEF_MOONS_EDIT_MOVE_VELOCITY(L"15");
+constexpr wchar_t* DEF_MOONS_EDIT_MOVE_DECEL(L"100");
+constexpr wchar_t* DEF_MOONS_EDIT_MOVE_ACCEL(L"100");
+
+constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_ABSMOVE_POS(L"20000");
+constexpr wchar_t* DEF_MOONS_EDIT_POSMODE_RELMOVE_POS(L"20000");
 
 
 
@@ -58,6 +60,9 @@ void Cui_PopMoonsControl::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_MOONS_TXT_ENCODERPOSITION, m_txtEncodePos);
 	DDX_Control(pDX, IDC_MOONS_TXT_CMD_POSITION, m_txtCmdPos);
 	DDX_Control(pDX, IDC_MOONS_CMB_POSMOVE_DIR, m_cmbDirection);
+	DDX_Control(pDX, IDC_MOONS_COMB_INIT_DIR, m_cmbInitDir);
+	DDX_Control(pDX, IDC_MOONS_COMB_INIT_X_PIN, m_cmbInitXPin);
+	DDX_Control(pDX, IDC_MOONS_COMB_INIT_X_LEVEL, m_cmbInitLvl);
 }
 
 
@@ -127,7 +132,7 @@ void Cui_PopMoonsControl::OnBnClickedMoonsBtnOrg()
 void Cui_PopMoonsControl::OnBnClickedMoonsBtnPosmodeAbsmoveStart()
 {
 	int value = GetDlgItemInt(IDC_MOONS_EDIT_POSMODE_ABSMOVE_POS);
-	m_pPeeler->Move(m_pParent->m_motorIdx , value);
+	m_pPeeler->Move(m_pParent->m_motorIdx, value);
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
 
@@ -170,14 +175,57 @@ void Cui_PopMoonsControl::OnBnClickedMoonsBtnJogPosmodeMoveStop()
 void Cui_PopMoonsControl::OnBnClickedMoonsBtnJogMoveCcw()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	m_pPeeler->JogMove(m_pParent->m_motorIdx,false);
+	uint8_t idx = 0;
+	std::vector<uint8_t> datas{};
+	m_pParent->LockUpdate();
+	auto make_packet = [&datas](auto offset, auto source)->uint8_t
+	{
+		for (int i = 0; i < sizeof(source); i++)
+		{
+			datas.emplace_back((uint8_t)(source >> (i * 8)));
+		}
+		return (uint8_t)(offset + sizeof(source));
+	};
+
+	idx = 0;
+	datas.clear();
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_JOG_VELOCITY));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_JOG_ACCDEC));
+	idx = make_packet(idx, -1000);
+
+
+
+	m_pPeeler->JogMove(m_pParent->m_motorIdx, datas);
+	m_pParent->LockUpdate(true);
 }
 
 
 void Cui_PopMoonsControl::OnBnClickedMoonsBtnJogMoveCw()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	m_pPeeler->JogMove(m_pParent->m_motorIdx);
+	uint8_t idx = 0;
+	std::vector<uint8_t> datas{};
+	m_pParent->LockUpdate();
+	auto make_packet = [&datas](auto offset, auto source)->uint8_t
+	{
+		for (int i = 0; i < sizeof(source); i++)
+		{
+			datas.emplace_back((uint8_t)(source >> (i * 8)));
+		}
+		return (uint8_t)(offset + sizeof(source));
+	};
+
+	idx = 0;
+	datas.clear();
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_JOG_VELOCITY));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_JOG_ACCDEC));
+	idx = make_packet(idx, 1000);
+
+
+
+	m_pPeeler->JogMove(m_pParent->m_motorIdx, datas);
+	m_pParent->LockUpdate(true);
+	//m_pPeeler->JogMove(m_pParent->m_motorIdx);
 }
 
 
@@ -211,7 +259,7 @@ void Cui_PopMoonsControl::OnBnClickedMoonsBtnMotorSeekhome()
 void Cui_PopMoonsControl::OnBnClickedMoonsBtnMotorOff()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	
+
 	m_pPeeler->MotorOnOff(m_pParent->m_motorIdx, false);
 	//~(((CButton*)GetDlgItem(IDC_MOONS_CHECK_MOTOR_ON))->GetCheck())
 }
@@ -220,8 +268,8 @@ void Cui_PopMoonsControl::OnBnClickedMoonsBtnMotorOff()
 void Cui_PopMoonsControl::OnBnClickedMoonsBtnMotorOn()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	m_pPeeler->MotorOnOff(m_pParent->m_motorIdx,true);
-		//~(((CButton*)GetDlgItem(IDC_MOONS_CHECK_MOTOR_ON))->GetCheck())
+	m_pPeeler->MotorOnOff(m_pParent->m_motorIdx, true);
+	//~(((CButton*)GetDlgItem(IDC_MOONS_CHECK_MOTOR_ON))->GetCheck())
 }
 
 
@@ -243,8 +291,8 @@ BOOL Cui_PopMoonsControl::OnInitDialog()
 		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_MOVE_DECEL))->SetWindowText(DEF_MOONS_EDIT_MOVE_DECEL);
 		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_MOVE_ACCEL))->SetWindowText(DEF_MOONS_EDIT_MOVE_ACCEL);
 		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_INIT_VELOCITY))->SetWindowText(DEF_MOONS_EDIT_INIT_VELOCITY);
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_INIT_DECEL))->SetWindowText(DEF_MOONS_EDIT_INIT_DECEL);
-		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_INIT_ACCEL))->SetWindowText(DEF_MOONS_EDIT_INIT_ACCEL);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_INIT_ACC_DEC))->SetWindowText(DEF_MOONS_EDIT_INIT_ACC_DEC);
+		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_INIT_OFFSET))->SetWindowText(DEF_MOONS_EDIT_INIT_OFFSET);
 
 		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_ABSMOVE_POS))->SetWindowText(DEF_MOONS_EDIT_POSMODE_ABSMOVE_POS);
 		((CEdit*)GetDlgItem(IDC_MOONS_EDIT_POSMODE_RELMOVE_POS))->SetWindowText(DEF_MOONS_EDIT_POSMODE_RELMOVE_POS);
@@ -254,6 +302,21 @@ BOOL Cui_PopMoonsControl::OnInitDialog()
 		m_cmbDirection.InsertString(select_cw, L"CW");
 		m_cmbDirection.InsertString(select_ccw, L"CCW");
 		m_cmbDirection.SetCurSel(0);
+
+		m_cmbInitDir.InsertString(select_cw, L"CW");
+		m_cmbInitDir.InsertString(select_ccw, L"CCW");
+		m_cmbInitDir.SetCurSel(0);
+
+		m_cmbInitXPin.InsertString(0, L"3");
+		m_cmbInitXPin.InsertString(1, L"4");
+		m_cmbInitXPin.InsertString(2, L"5");
+		m_cmbInitXPin.SetCurSel(2);
+
+		m_cmbInitLvl.InsertString(0, L"L");
+		m_cmbInitLvl.InsertString(1, L"H");
+		m_cmbInitLvl.SetCurSel(0);
+
+
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -303,10 +366,10 @@ void Cui_PopMoonsControl::update()
 	{
 		m_pParent->m_motorIdx = MCU_OBJ::MOTOR_JIG;
 	}
-	
-	
-	
-	
+
+
+
+
 	HAL::ModulePeeler::moons_data_st motor_data{};
 	m_pPeeler->GetMotorData(motor_data, m_pParent->m_motorIdx);
 
@@ -349,7 +412,7 @@ void Cui_PopMoonsControl::update()
 		((CButton*)GetDlgItem(IDC_MT_STATE_1 + i))->SetCheck(((motor_data.drv_status.sc_status >> i) & 1));
 	}
 
-	
+
 	{
 		((CButton*)GetDlgItem(IDC_MT_FT_ALARM_1))->SetCheck(motor_data.al_code.Position_Error);
 		((CButton*)GetDlgItem(IDC_MT_FT_ALARM_2))->SetCheck(motor_data.al_code.Over_Temp);
@@ -379,14 +442,14 @@ void Cui_PopMoonsControl::update()
 		/*
 		for (int i = 0; i < 4; i++)
 		{
-			
+
 			IDC_MT_IO_OUT_1;
 			IDC_MT_IO_OUT_2;
 			IDC_MT_IO_OUT_3;
 			IDC_MT_IO_OUT_4;
 		}
 		*/
-		
+
 	}
 
 }
@@ -421,7 +484,7 @@ void Cui_PopMoonsControl::OnBnClickedMoonsBtnMoveParamSet()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	uint8_t idx = 0;
 	std::vector<uint8_t> datas{};
-
+	m_pParent->LockUpdate();
 	auto make_packet = [&datas](auto offset, auto source)->uint8_t
 	{
 		for (int i = 0; i < sizeof(source); i++)
@@ -433,16 +496,15 @@ void Cui_PopMoonsControl::OnBnClickedMoonsBtnMoveParamSet()
 
 	idx = 0;
 	datas.clear();
-	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_MOVE_VELOCITY));
-	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_MOVE_DECEL));
-	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_MOVE_ACCEL));
+	idx = make_packet(idx, GetDlgItemInt(IDC_MOONS_EDIT_MOVE_VELOCITY));
+	idx = make_packet(idx, GetDlgItemInt(IDC_MOONS_EDIT_MOVE_DECEL));
+	idx = make_packet(idx, GetDlgItemInt(IDC_MOONS_EDIT_MOVE_ACCEL));
 
-	//if (m_pPeeler->WriteROM_VacuumData(datas) != ERROR_SUCCESS)
+	if (m_pPeeler->WriteMoonsParam_Move(datas, m_pParent->m_motorIdx) != ERROR_SUCCESS)
 	{
 		AfxMessageBox(L"comm error! - set move data");
-		return;
 	}
-
+	m_pParent->LockUpdate(true);
 
 }
 
@@ -453,6 +515,7 @@ void Cui_PopMoonsControl::OnBnClickedMoonsBtnInitParamSet()
 	uint8_t idx = 0;
 	std::vector<uint8_t> datas{};
 
+	m_pParent->LockUpdate();
 	auto make_packet = [&datas](auto offset, auto source)->uint8_t
 	{
 		for (int i = 0; i < sizeof(source); i++)
@@ -462,15 +525,26 @@ void Cui_PopMoonsControl::OnBnClickedMoonsBtnInitParamSet()
 		return (uint8_t)(offset + sizeof(source));
 	};
 
+	using param_t = HAL::ModulePeeler::origin_param_st;
+	param_t params{};
+	CString str;
+	int dir = (m_cmbInitDir.GetCurSel() == select_cw ? 1000 : -1000);
+	uint8_t x_pin = (uint8_t)(m_cmbInitXPin.GetCurSel() + 3);
+	uint8_t x_level = (m_cmbInitLvl.GetCurSel() == select_low_level ? 'L' : 'H');
+
 	idx = 0;
 	datas.clear();
 	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_INIT_VELOCITY));
-	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_INIT_DECEL));
-	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_INIT_ACCEL));
+	idx = make_packet(idx, (uint16_t)GetDlgItemInt(IDC_MOONS_EDIT_INIT_ACC_DEC));
+	idx = make_packet(idx, GetDlgItemInt(IDC_MOONS_EDIT_INIT_OFFSET));
+	idx = make_packet(idx, dir);
+	idx = make_packet(idx, x_pin);
+	idx = make_packet(idx, x_level);
 
-	//if (m_pPeeler->WriteROM_VacuumData(datas) != ERROR_SUCCESS)
+	if (m_pPeeler->WriteMoonsParam_Init(datas, m_pParent->m_motorIdx) != ERROR_SUCCESS)
 	{
-		AfxMessageBox(L"comm error! - set move data");
-		return;
+		AfxMessageBox(L"comm error! - set init data");
 	}
+	m_pParent->LockUpdate(true);
+
 }
