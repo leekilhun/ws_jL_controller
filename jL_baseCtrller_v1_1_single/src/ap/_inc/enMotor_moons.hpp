@@ -281,7 +281,7 @@ namespace MOTOR
 		uart_moons::rx_packet_t m_receiveData;
 		moons_data_t m_motorData;
 		uint8_t m_commErrCnt;
-		int m_cmdPose;
+		int m_cmdDistPulse;
 #ifdef _USE_HW_RTOS
 		osMutexId m_mutex_id;
 #endif
@@ -291,7 +291,7 @@ namespace MOTOR
 		 ****************************************************/
 	public:
 		enMotor_moons(uint8_t id):  m_cfg{}, m_nodeId(id),m_receiveData()
-		,m_motorData{}, m_commErrCnt{},m_cmdPose{}
+		,m_motorData{}, m_commErrCnt{},m_cmdDistPulse{}
 		{
 #ifdef _USE_HW_RTOS
 			osMutexDef(m_mutex_id);
@@ -429,7 +429,7 @@ namespace MOTOR
 			return m_cfg.p_comm->SetMoveParam(m_nodeId, params);
 		}
 
-		inline errno_t SetMoveDistSpeed(uint32_t vel, uint32_t acc, uint32_t dec, int dist){
+		inline errno_t SetMoveDistSpeed(uint32_t vel, uint32_t acc, uint32_t dec, int dist_pulse){
 			m_cfg.motor_param.move_accelC = acc * MODBUS_MULTIPLE_PARAM_ACC;
 			m_cfg.motor_param.move_decelC = dec * MODBUS_MULTIPLE_PARAM_ACC;
 			m_cfg.motor_param.move_speedC = vel * MODBUS_MULTIPLE_PARAM_VEL;
@@ -438,7 +438,19 @@ namespace MOTOR
 			  (uint16_t)m_cfg.motor_param.move_decelC,
 				(uint16_t)m_cfg.motor_param.move_speedC };
 
-			return m_cfg.p_comm->SetMove(m_nodeId, params, dist);
+			return m_cfg.p_comm->SetMove(m_nodeId, params, dist_pulse);
+		}
+
+		inline errno_t SetMoveDistSpeed(float vel_f, uint32_t acc, uint32_t dec, int dist_pulse){
+			m_cfg.motor_param.move_accelC = acc * MODBUS_MULTIPLE_PARAM_ACC;
+			m_cfg.motor_param.move_decelC = dec * MODBUS_MULTIPLE_PARAM_ACC;
+			m_cfg.motor_param.move_speedC = (uint32_t)(vel_f * (float)MODBUS_MULTIPLE_PARAM_VEL);
+			uart_moons::speed_t params {
+				(uint16_t)m_cfg.motor_param.move_accelC,
+						(uint16_t)m_cfg.motor_param.move_decelC,
+						(uint16_t)m_cfg.motor_param.move_speedC };
+
+			return m_cfg.p_comm->SetMove(m_nodeId, params, dist_pulse);
 		}
 
 
@@ -467,40 +479,50 @@ namespace MOTOR
 			return m_cfg.p_comm->MoveStop(m_nodeId);
 		}
 
-		inline errno_t MoveRelative(int dist, uint32_t vel, uint32_t acc, uint32_t dec) {
+		inline errno_t MoveRelative(int dist_pulse, uint32_t vel, uint32_t acc, uint32_t dec) {
 			errno_t ret = ERROR_SUCCESS;
-			m_cmdPose = m_motorData.abs_position_command + dist;
-			ret = SetMoveDistSpeed(vel, acc, dec, dist);
+			m_cmdDistPulse = m_motorData.abs_position_command + dist_pulse;
+			ret = SetMoveDistSpeed(vel, acc, dec, dist_pulse);
 			if (ret == ERROR_SUCCESS)
 				return m_cfg.p_comm->MoveRelactive(m_nodeId);
 			else
 				return ret;
 		}
 
-		inline errno_t MoveRelative(int dist) {
+		inline errno_t MoveRelative(int dist_pulse, float vel_f, uint32_t acc, uint32_t dec) {
+					errno_t ret = ERROR_SUCCESS;
+					m_cmdDistPulse = m_motorData.abs_position_command + dist_pulse;
+					ret = SetMoveDistSpeed(vel_f, acc, dec, dist_pulse);
+					if (ret == ERROR_SUCCESS)
+						return m_cfg.p_comm->MoveRelactive(m_nodeId);
+					else
+						return ret;
+		}
+
+		inline errno_t MoveRelative(int dist_pulse) {
 			errno_t ret = ERROR_SUCCESS;
-			m_cmdPose = m_motorData.abs_position_command + dist;
-			ret = m_cfg.p_comm->DistancePoint(m_nodeId, dist);
+			m_cmdDistPulse = m_motorData.abs_position_command + dist_pulse;
+			ret = m_cfg.p_comm->DistancePoint(m_nodeId, dist_pulse);
 			if (ret == ERROR_SUCCESS)
 				return m_cfg.p_comm->MoveRelactive(m_nodeId);
 			else
 				return ret;
 		}
 
-		inline errno_t MoveAbsolutive(int dist, uint32_t vel, uint32_t acc, uint32_t dec) {
+		inline errno_t MoveAbsolutive(int dist_pulse, uint32_t vel, uint32_t acc, uint32_t dec) {
 			errno_t ret = ERROR_SUCCESS;
-			m_cmdPose = dist;
-			ret = SetMoveDistSpeed(vel, acc, dec, dist);
+			m_cmdDistPulse = dist_pulse;
+			ret = SetMoveDistSpeed(vel, acc, dec, dist_pulse);
 			if (ret == ERROR_SUCCESS)
 				return m_cfg.p_comm->moveAbsolutive(m_nodeId);
 			else
 				return ret;
 		}
 
-		inline errno_t MoveAbsolutive(int dist) {
+		inline errno_t MoveAbsolutive(int dist_pulse) {
 			errno_t ret = ERROR_SUCCESS;
-			m_cmdPose = dist;
-			ret = m_cfg.p_comm->DistancePoint(m_nodeId, dist);
+			m_cmdDistPulse = dist_pulse;
+			ret = m_cfg.p_comm->DistancePoint(m_nodeId, dist_pulse);
 			if (ret == ERROR_SUCCESS)
 				return m_cfg.p_comm->moveAbsolutive(m_nodeId);
 			else
@@ -557,7 +579,7 @@ namespace MOTOR
 
 		inline bool IsInPose(){
 			constexpr int error_tolerance = 10;
-			return (((int)(m_motorData.abs_position_command) - m_cmdPose) < error_tolerance);
+			return (((int)(m_motorData.abs_position_command) - m_cmdDistPulse) < error_tolerance);
 
 		}
 

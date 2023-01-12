@@ -76,7 +76,7 @@ private:
 	NXLCD::uart_nextion::rx_packet_t m_receiveData;
 	NXLCD::uart_nextion::page_e m_currPage;
 
-	uint8_t m_txBuf[UI_LCD_MAX_BUFFER_LENGTH];
+	std::array<uint8_t, UI_LCD_MAX_BUFFER_LENGTH> m_txBuffer;
 	bool m_waitReplyOK;
 	bool m_OkReply;
 
@@ -88,7 +88,7 @@ public:
 	 ****************************************************/
 public:
 	api_lcd(): m_IsInit{}, m_cfg{},m_receiveData{}
-	,m_currPage{}, m_txBuf{}, m_waitReplyOK{}, m_OkReply{},
+	,m_currPage{}, m_txBuffer{}, m_waitReplyOK{}, m_OkReply{},
 	m_step{}
 	{
 
@@ -182,93 +182,93 @@ public:
 
 		if (set_reparse)
 			SetReparseMode();
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[0] = data_e::TYPE_MOTOR_POS_1_H;
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[0] = data_e::TYPE_MOTOR_POS_1_H;
 		data = m_cfg.ptr_axis_data->ReadData(0);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(1);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(2);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(3);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 
-		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
+		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
 			goto err_out;
 
 		idx = 0;
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[0] = data_e::TYPE_MOTOR_POS_1_L;
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[0] = data_e::TYPE_MOTOR_POS_1_L;
 		data = m_cfg.ptr_axis_data->ReadData(4);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(5);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(6);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(7);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 
-		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
+		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
 			goto err_out;
 
 		idx = 0;
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[0] = data_e::TYPE_MOTOR_POS_2_H;
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[0] = data_e::TYPE_MOTOR_POS_2_H;
 		data = m_cfg.ptr_axis_data->ReadData(8);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(9);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(10);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(11);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 
-		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
+		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
 			goto err_out;
 
 		idx = 0;
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[0] = data_e::TYPE_MOTOR_POS_2_L;
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[0] = data_e::TYPE_MOTOR_POS_2_L;
 		data = m_cfg.ptr_axis_data->ReadData(12);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(13);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(14);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(15);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 
-		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
+		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
 			goto err_out;
 
 		idx = 0;
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[0] = data_e::TYPE_MOTOR_POS_3_H;
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[0] = data_e::TYPE_MOTOR_POS_3_H;
 		data = m_cfg.ptr_axis_data->ReadData(16);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(17);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(18);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(19);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 
-		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
+		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
 			goto err_out;
 
 		idx = 0;
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[0] = data_e::TYPE_MOTOR_POS_3_L;
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[0] = data_e::TYPE_MOTOR_POS_3_L;
 		data = m_cfg.ptr_axis_data->ReadData(20);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(21);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(22);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 		data = m_cfg.ptr_axis_data->ReadData(23);
-		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
+		memcpy(&m_txBuffer[1 + (idx++ * length)], (uint8_t *)&data, length);
 
-		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
+		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
 			goto err_out;
 
 		if (set_reparse)
@@ -290,27 +290,27 @@ public:
 
 
 		uint8_t idx = 0;
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[idx++] = data_e::TYPE_IO;
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[idx++] = data_e::TYPE_IO;
 
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_io->m_in.data >> (8 * 0));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_io->m_in.data >> (8 * 1));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_io->m_in.data >> (8 * 2));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_io->m_in.data >> (8 * 3));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_io->m_out.data >> (8 * 0));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_io->m_out.data >> (8 * 1));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_io->m_out.data >> (8 * 2));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_io->m_out.data >> (8 * 3));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_io->m_in.data >> (8 * 0));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_io->m_in.data >> (8 * 1));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_io->m_in.data >> (8 * 2));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_io->m_in.data >> (8 * 3));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_io->m_out.data >> (8 * 0));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_io->m_out.data >> (8 * 1));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_io->m_out.data >> (8 * 2));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_io->m_out.data >> (8 * 3));
 
 
 		if (wait_ret)
 		{
-			if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0], UI_LCD_MAX_BUFFER_LENGTH) == false)
+			if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0], UI_LCD_MAX_BUFFER_LENGTH) == false)
 				ret = ERR_API_LCD_COMM_TIMEOUT;
 		}
 		else
 		{
-			m_cfg.ptr_comm->SendData(&m_txBuf[0], UI_LCD_MAX_BUFFER_LENGTH);
+			m_cfg.ptr_comm->SendData(&m_txBuffer[0], UI_LCD_MAX_BUFFER_LENGTH);
 		}
 
 
@@ -328,29 +328,29 @@ public:
 
 
 		uint8_t idx = 0;
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[idx++] = data_e::TYPE_AP_REG;
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->option_reg.ap_option >> (8 * 0));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->option_reg.ap_option >> (8 * 1));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->state_reg.ap_state >> (8 * 0));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->state_reg.ap_state >> (8 * 1));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->error_reg.ap_error >> (8 * 0));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->error_reg.ap_error >> (8 * 1));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->error_reg.ap_error >> (8 * 2));
-		m_txBuf[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->error_reg.ap_error >> (8 * 3));
-		m_txBuf[idx++] = (uint8_t)100; // GetAutoSpeed();
-		m_txBuf[idx++] = (uint8_t)1;// GetStep();
-		m_txBuf[idx++] = (uint8_t)100;// loop count();
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[idx++] = data_e::TYPE_AP_REG;
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->option_reg.ap_option >> (8 * 0));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->option_reg.ap_option >> (8 * 1));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->state_reg.ap_state >> (8 * 0));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->state_reg.ap_state >> (8 * 1));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->error_reg.ap_error >> (8 * 0));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->error_reg.ap_error >> (8 * 1));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->error_reg.ap_error >> (8 * 2));
+		m_txBuffer[idx++] = (uint8_t)(m_cfg.ptr_mcu_reg->error_reg.ap_error >> (8 * 3));
+		m_txBuffer[idx++] = (uint8_t)100; // GetAutoSpeed();
+		m_txBuffer[idx++] = (uint8_t)1;// GetStep();
+		m_txBuffer[idx++] = (uint8_t)100;// loop count();
 
 
 		if (wait_ret)
 		{
-			if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0], UI_LCD_MAX_BUFFER_LENGTH) == false)
+			if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0], UI_LCD_MAX_BUFFER_LENGTH) == false)
 				ret = ERR_API_LCD_COMM_TIMEOUT;
 		}
 		else
 		{
-			m_cfg.ptr_comm->SendData(&m_txBuf[0], UI_LCD_MAX_BUFFER_LENGTH);
+			m_cfg.ptr_comm->SendData(&m_txBuffer[0], UI_LCD_MAX_BUFFER_LENGTH);
 		}
 
 
@@ -367,15 +367,15 @@ public:
 		if (set_reparse)
 			SetReparseMode();
 
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[0] = data_e::TYPE_AP_CFG_DAT;
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[0] = data_e::TYPE_AP_CFG_DAT;
 		for (uint8_t i = 0; i < static_cast<uint8_t>(ap_dat::addr_e::_max); i++)
 		{
 			data = m_cfg.ptr_cfg_data->ReadData(static_cast<ap_dat::addr_e>(i));
-			memcpy(&m_txBuf[(1 + (i * length)) % UI_LCD_MAX_BUFFER_LENGTH], (uint8_t *)&data, length);
+			memcpy(&m_txBuffer[(1 + (i * length)) % UI_LCD_MAX_BUFFER_LENGTH], (uint8_t *)&data, length);
 		}
 
-		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
+		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
 			ret = ERR_API_LCD_COMM_TIMEOUT;
 
 		if (set_reparse)
@@ -390,15 +390,15 @@ public:
 		if (set_reparse)
 			SetReparseMode();
 
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[0] = data_e::TYPE_CYL_DAT;
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[0] = data_e::TYPE_CYL_DAT;
 		for (uint8_t i = 0; i < static_cast<uint8_t>(cyl_dat::addr_e::_max); i++)
 		{
 			data = m_cfg.ptr_cyl_data->ReadData(static_cast<cyl_dat::addr_e>(i));
-			memcpy(&m_txBuf[(1 + (i * length)) % UI_LCD_MAX_BUFFER_LENGTH], (uint8_t *)&data, length);
+			memcpy(&m_txBuffer[(1 + (i * length)) % UI_LCD_MAX_BUFFER_LENGTH], (uint8_t *)&data, length);
 		}
 
-		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
+		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
 			ret = ERR_API_LCD_COMM_TIMEOUT;
 
 		if (set_reparse)
@@ -415,15 +415,15 @@ public:
 		if (set_reparse)
 			SetReparseMode();
 
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[0] = data_e::TYPE_VAC_DAT;
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[0] = data_e::TYPE_VAC_DAT;
 		for (uint8_t i = 0; i < static_cast<uint8_t>(vac_dat::addr_e::_max); i++)
 		{
 			data = m_cfg.ptr_vac_data->ReadData(static_cast<vac_dat::addr_e>(i));
-			memcpy(&m_txBuf[(1 + (i * length)) % UI_LCD_MAX_BUFFER_LENGTH], (uint8_t *)&data, length);
+			memcpy(&m_txBuffer[(1 + (i * length)) % UI_LCD_MAX_BUFFER_LENGTH], (uint8_t *)&data, length);
 		}
 
-		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
+		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
 			ret = ERR_API_LCD_COMM_TIMEOUT;
 
 		if (set_reparse)
@@ -438,15 +438,15 @@ public:
 		if (set_reparse)
 			SetReparseMode();
 
-		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
-		m_txBuf[0] = data_e::TYPE_SEQ_DAT;
+		memset(&m_txBuffer[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
+		m_txBuffer[0] = data_e::TYPE_SEQ_DAT;
 		for (uint8_t i = 0; i < static_cast<uint8_t>(seq_dat::addr_e::_max); i++)
 		{
 			data = m_cfg.ptr_sequence_data->ReadData(static_cast<seq_dat::addr_e>(i));
-			memcpy(&m_txBuf[(1 + (i * length)) % UI_LCD_MAX_BUFFER_LENGTH], (uint8_t *)&data, length);
+			memcpy(&m_txBuffer[(1 + (i * length)) % UI_LCD_MAX_BUFFER_LENGTH], (uint8_t *)&data, length);
 		}
 
-		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
+		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuffer[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
 			ret = ERR_API_LCD_COMM_TIMEOUT;
 
 		if (set_reparse)

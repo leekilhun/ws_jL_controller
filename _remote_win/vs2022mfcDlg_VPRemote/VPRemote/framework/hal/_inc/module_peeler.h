@@ -775,7 +775,7 @@ namespace HAL
 
 			struct dat_t {
 				head_st head{};
-				std::vector<char> log_v{};
+				std::array<char, MODULE_PEELER_MAX_DATA_LENGTH> log_v{};
 
 				dat_t() = default;
 
@@ -786,9 +786,6 @@ namespace HAL
 				}
 
 			};
-
-
-			head_st head{};
 			dat_t data{};
 		};
 
@@ -1223,7 +1220,7 @@ namespace HAL
 				UTL::crc16_update(&m_packetData.checksum, rx_data);
 				if (m_packetData.data_length != 0)
 				{
-					if (m_packetData.data_length < MODULE_PEELER_MAX_DATA_LENGTH)
+					if (m_packetData.data_length <= MODULE_PEELER_MAX_DATA_LENGTH)
 					{
 						m_packetData.data_cnt = 0;
 						m_packetData.state.SetStep(STATE_WAIT_DATA);

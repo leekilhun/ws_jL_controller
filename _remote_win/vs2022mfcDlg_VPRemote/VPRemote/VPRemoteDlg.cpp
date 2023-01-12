@@ -1451,10 +1451,10 @@ void CVPRemoteDlg::updateMcuLog()
 		HAL::ModulePeeler::mcu_log_dat_st* plog{};
 		peeler->m_queMcuLog.Get(&plog);
 		std::vector<uint8_t> vdata{};
-		vdata.emplace_back(plog->head.header);
-		vdata.emplace_back(plog->head.error_no);
-		vdata.emplace_back(plog->head.obj_id);
-		vdata.emplace_back(plog->head.step_no);
+		vdata.emplace_back(plog->data.head.header);
+		vdata.emplace_back(plog->data.head.error_no);
+		vdata.emplace_back(plog->data.head.obj_id);
+		vdata.emplace_back(plog->data.head.step_no);
 		for (const auto & elm : plog->data.log_v)
 			vdata.emplace_back(elm);
 

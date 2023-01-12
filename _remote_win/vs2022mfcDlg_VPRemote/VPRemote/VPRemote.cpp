@@ -8,13 +8,15 @@
 #include "VPRemoteDlg.h"
 
 #include <iostream>
+
+#ifdef _DEBUG
 // MFC 프로젝에서 윈도우 콘솔 출력 
 #ifdef _UNICODE
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 #else
 #pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
 #endif
-
+#endif
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

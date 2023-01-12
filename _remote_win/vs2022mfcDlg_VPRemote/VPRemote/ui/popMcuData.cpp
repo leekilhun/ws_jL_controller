@@ -119,40 +119,39 @@ constexpr wchar_t* DEF_MCU_DATA_EDIT_VACCFG_15(L"1000");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_VACCFG_16(L"500");
 
 
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_1(L"cfg 1");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_2(L"cfg 2");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_3(L"cfg 3");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_4(L"cfg 4");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_5(L"cfg 5");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_6(L"cfg 6");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_7(L"cfg 7");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_8(L"cfg 8");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_9(L"cfg 9");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_10(L"cfg 10");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_11(L"cfg 11");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_12(L"cfg 12");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_13(L"cfg 13");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_14(L"cfg 14");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_15(L"cfg 15");
-constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_16(L"cfg 16");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_1(L"mt-jig turn dist(mm)");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_2(L"mt_jig turn pulse");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_3(L"mt-roll turn dist(mm)");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_4(L"mt_roll turn pulse");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_5(L"mt-high turn dist(mm)");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_6(L"mt_high turn pulse");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_7(L"cfg - 4");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_8(L"cfg - 4.1");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_9(L"sync dec_rate_00");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_10(L"cfg - 5.1");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_11(L"cfg - 6");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_12(L"cfg - 6.1");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_13(L"cfg - 7");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_14(L"cfg - 7.1");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_15(L"cfg - 8");
+constexpr wchar_t* DEF_MCU_DATA_CONFIG_NAME_16(L"cfg - 8.1");
 
-
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_1(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_2(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_3(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_4(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_5(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_6(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_7(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_8(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_9(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_10(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_11(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_12(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_13(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_14(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_15(L"200");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_16(L"200");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_1(L"20");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_2(L"2000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_3(L"290");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_4(L"2000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_5(L"20");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_6(L"2000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_7(L"20");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_8(L"2000");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_9(L"1415"); //14.15
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_10(L"100");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_11(L"100");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_12(L"100");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_13(L"100");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_14(L"100");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_15(L"100");
+constexpr wchar_t* DEF_MCU_DATA_EDIT_CONFIG_16(L"100");
 
 constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_1(L"sequence 1");
 constexpr wchar_t* DEF_MCU_DATA_SEQ_NAME_2(L"sequence 1");
@@ -191,6 +190,10 @@ constexpr wchar_t* DEF_MCU_DATA_MOTOR_RPS_MIN(L"1");
 constexpr wchar_t* DEF_MCU_DATA_MOTOR_RPS_MAX(L"50");
 #define MOONS_MOTORS_VELOCITY_RPS_MAX  50
 #define MOONS_MOTORS_VELOCITY_RPS_MIN  1
+constexpr wchar_t* DEF_MCU_DATA_DIST_10UM_MIN(L"1");
+constexpr wchar_t* DEF_MCU_DATA_DIST_10UM_MAX(L"65000");
+#define MOONS_MOTORS_DIST_10UM_MAX  65000
+#define MOONS_MOTORS_DIST_10UM_MIN  1
 
 #define mcr_constrain_rps(v,id)   ((GetDlgItemInt(id))<(MOONS_MOTORS_VELOCITY_RPS_MIN)?(MOONS_MOTORS_VELOCITY_RPS_MIN)\
 														 :((GetDlgItemInt(id))>(MOONS_MOTORS_VELOCITY_RPS_MAX)?(MOONS_MOTORS_VELOCITY_RPS_MAX)\
@@ -526,22 +529,22 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnPosVelWrite()
 		return (uint8_t)(offset + sizeof(source));
 	};
 
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_0));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_POS_0));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_0));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_1));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_POS_1));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_1));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_2));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_POS_2));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_2));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_3));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_POS_3));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_3));
 
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_4));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_POS_4));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_4));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_5));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_POS_5));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_5));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_6));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_POS_6));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_6));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_POS_7));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_POS_7));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_VEL_7));
 
 	if (m_pPeeler->WriteROM_PosData(datas, m_pParent->m_motorIdx) != ERROR_SUCCESS)
@@ -1297,22 +1300,22 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnLinkVelWrite()
 		return (uint8_t)(offset + sizeof(source));
 	};
 
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_1));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_LINK_POS_1));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_1));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_2));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_LINK_POS_2));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_2));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_3));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_LINK_POS_3));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_3));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_4));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_LINK_POS_4));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_4));
 
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_5));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_LINK_POS_5));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_5));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_6));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_LINK_POS_6));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_6));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_7));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_LINK_POS_7));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_7));
-	idx = make_packet(idx, GetDlgItemInt(IDC_MCU_DATA_EDIT_LINK_POS_8));
+	idx = make_packet(idx, constrainDist(IDC_MCU_DATA_EDIT_LINK_POS_8));
 	idx = make_packet(idx, constrainRps(IDC_MCU_DATA_EDIT_LINK_VEL_8));
 
 	if (m_pPeeler->WriteROM_LinkPosData(datas) != ERROR_SUCCESS)
@@ -1513,18 +1516,18 @@ void Cui_PopMcuData::OnBnClickedIdcMcuDataBtnMoveStop()
 int Cui_PopMcuData::constrainRps(int id)
 {
 	// TODO: 여기에 구현 코드 추가.
-		if (GetDlgItemInt(id) < MOONS_MOTORS_VELOCITY_RPS_MIN)
-		{
-			SetDlgItemText(id, DEF_MCU_DATA_MOTOR_RPS_MIN);
-			return MOONS_MOTORS_VELOCITY_RPS_MIN;
-		}
-		else if (GetDlgItemInt(id) > MOONS_MOTORS_VELOCITY_RPS_MAX)
-		{
-			SetDlgItemText(id, DEF_MCU_DATA_MOTOR_RPS_MAX);
-			return MOONS_MOTORS_VELOCITY_RPS_MAX;
-		}
+	if (GetDlgItemInt(id) < MOONS_MOTORS_VELOCITY_RPS_MIN)
+	{
+		SetDlgItemText(id, DEF_MCU_DATA_MOTOR_RPS_MIN);
+		return MOONS_MOTORS_VELOCITY_RPS_MIN;
+	}
+	else if (GetDlgItemInt(id) > MOONS_MOTORS_VELOCITY_RPS_MAX)
+	{
+		SetDlgItemText(id, DEF_MCU_DATA_MOTOR_RPS_MAX);
+		return MOONS_MOTORS_VELOCITY_RPS_MAX;
+	}
 
-		return GetDlgItemInt(id);
+	return GetDlgItemInt(id);
 
 }
 
@@ -1608,3 +1611,22 @@ void Cui_PopMcuData::updatePoseData()
 
 
 
+
+
+int Cui_PopMcuData::constrainDist(int id)
+{
+	// TODO: 여기에 구현 코드 추가.
+	if (GetDlgItemInt(id) < MOONS_MOTORS_DIST_10UM_MIN)
+	{
+		SetDlgItemText(id, DEF_MCU_DATA_DIST_10UM_MIN);
+		return MOONS_MOTORS_DIST_10UM_MIN;
+	}
+	else if (GetDlgItemInt(id) > MOONS_MOTORS_DIST_10UM_MAX)
+	{
+		SetDlgItemText(id, DEF_MCU_DATA_DIST_10UM_MAX);
+		return MOONS_MOTORS_DIST_10UM_MAX;
+	}
+
+	return GetDlgItemInt(id);
+
+}

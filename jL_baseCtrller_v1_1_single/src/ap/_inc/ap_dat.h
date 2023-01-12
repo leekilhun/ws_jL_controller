@@ -94,7 +94,7 @@ struct ap_dat
 
   enum addr_e:uint8_t //
   {
-    ap_mot_move, ap_mot_1_cfg, ap_mot_2_cfg, ap_3 ,ap_4, ap_5, ap_6, ap_7,
+    mt_jig_turn_dist, mt_roll_turn_dist, mt_high_turn_dist, cfg_4 ,sycn_rate, cfg_6, cfg_7, cfg_8,
     _max
   };
 
@@ -420,8 +420,8 @@ struct seq_dat{
 
   enum addr_e:uint8_t //
   {
-    seq_max_val, seq_peel_try, seq_reattach, seq_loop,
-    seq_4, seq_5, seq_6, seq_7,
+  	seq_1, seq_2, seq_3, seq_4,
+    seq_5, seq_6, seq_7, seq_8,
     _max
   };
 
@@ -467,32 +467,6 @@ struct seq_dat{
       ret = at24c64Write(APDAT_SEQ_DATA_ADDR(i), (uint8_t*)&data, APDAT_SEQ_DATA_LENGTH);
     }
     return ret;
-  }
-
-  inline void SetMaxSpeed(uint8_t speed)
-  {
-    dat_t data = {0,0};
-    data = ReadData(addr_e::seq_max_val);
-    data.parm1 = speed % SEQ_DAT_DEF_MAX_SPEED;
-    WriteData(addr_e::seq_max_val, data);
-  }
-
-  inline uint32_t GetMaxSpeed() const
-  {
-    return (uint32_t)sequencing_dat[addr_e::seq_max_val].parm1;
-  }
-
-  inline uint32_t GetMaxLoopCnt() const
-  {
-    return (uint32_t)sequencing_dat[addr_e::seq_max_val].parm2;
-  }
-
-  inline void SetMaxLoopCnt(uint8_t cnt)
-  {
-    dat_t data = {0,0};
-    data = ReadData(addr_e::seq_max_val);
-    data.parm2 = cnt % SEQ_DAT_DEF_MAX_LOOP_CNT;
-    WriteData(addr_e::seq_max_val, data);
   }
 
 };

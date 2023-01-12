@@ -77,6 +77,7 @@ void api_lcd::doRunStep()
 		case STEP_TIMEOUT:
 		{
 			m_cfg.ptr_comm->AddErrCnt();
+			m_step.wait_resp = true;
 			m_waitReplyOK = false;
 			m_step.SetStep(STEP_TODO);
 		}
@@ -102,6 +103,7 @@ void api_lcd::doRunStep()
 		{
 			//SendApReg(false);
 			m_waitReplyOK = true;
+			m_step.wait_resp = true;
 			uint8_t ser_reparse = 1;
 			m_cfg.ptr_comm->SendCmd(NXLCD::TXCMD::LCD_START_REPARSEMODE
 															, &ser_reparse, 1);
@@ -193,6 +195,7 @@ void api_lcd::ProcessCmd(NXLCD::uart_nextion::rx_packet_t* ptr_data){
 	m_receiveData = ptr_data;
 	using TYPE = NXLCD::RXCMD;
 
+	m_step.wait_resp = false;
 
 	if (m_waitReplyOK)
 	{

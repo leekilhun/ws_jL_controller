@@ -155,63 +155,75 @@ namespace MOTOR
 					 &m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].IsInPose();
 			return ret;
 		}
-		inline int LinkMove(int cmd_pos, uint32_t vel){
+
+		inline int LinkMove(int cmd_dist_10um, uint32_t vel){
 			int ret = 0;
-			ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveRelative( cmd_pos, constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), 100, 100);
-			ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveRelative( cmd_pos, constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), 100, 100);
+
+			ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveRelative(
+					cal_dist_10um_to_pulse(AP_OBJ::MOTOR_JIG, cmd_dist_10um)
+					, constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), 100, 100);
+			ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveRelative(
+					cal_dist_10um_to_pulse(AP_OBJ::MOTOR_ROLL, cmd_dist_10um)
+					, cal_sync_vel_dec(constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX)), 100, 100);
 
 			return ret;
 		}
 
-		inline int Move(AP_OBJ::MOTOR motor_id, int cmd_pos){
+		inline int Move(AP_OBJ::MOTOR motor_id, int cmd_dist_10um){
 			/*must assign motor id*/
 			if (motor_id == AP_OBJ::MOTOR_MAX)
 			{
 				int ret = 0;
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveAbsolutive(cmd_pos);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveAbsolutive(cmd_pos);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveAbsolutive(cmd_pos);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveAbsolutive(cal_dist_10um_to_pulse(AP_OBJ::MOTOR_JIG, cmd_dist_10um));
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveAbsolutive(cal_dist_10um_to_pulse(AP_OBJ::MOTOR_ROLL, cmd_dist_10um));
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveAbsolutive(cal_dist_10um_to_pulse(AP_OBJ::MOTOR_HIGH, cmd_dist_10um));
 				return ret;
 			}
-			return m_cfg.p_motor[motor_id].MoveAbsolutive(cmd_pos);
+			return m_cfg.p_motor[motor_id].MoveAbsolutive(cal_dist_10um_to_pulse(motor_id, cmd_dist_10um));
 		}
-		inline int Move(AP_OBJ::MOTOR motor_id, int cmd_pos, uint32_t vel, uint32_t acc = 100, uint32_t dec = 100){
+		inline int Move(AP_OBJ::MOTOR motor_id, int cmd_dist_10um, uint32_t vel, uint32_t acc = 100, uint32_t dec = 100){
 			/*must assign motor id*/
 			if (motor_id == AP_OBJ::MOTOR_MAX)
 			{
 				int ret = 0;
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveAbsolutive( cmd_pos, constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveAbsolutive( cmd_pos, constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveAbsolutive( cmd_pos, constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveAbsolutive(
+						cal_dist_10um_to_pulse(AP_OBJ::MOTOR_JIG, cmd_dist_10um)
+						, constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveAbsolutive(
+						cal_dist_10um_to_pulse(AP_OBJ::MOTOR_ROLL, cmd_dist_10um)
+						, constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveAbsolutive(
+						cal_dist_10um_to_pulse(AP_OBJ::MOTOR_HIGH, cmd_dist_10um)
+						, constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
 				return ret;
 			}
-			return m_cfg.p_motor[motor_id].MoveAbsolutive( cmd_pos, constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
-		}
-
-		inline int RelMove(AP_OBJ::MOTOR motor_id, int cmd_pos){
-			/*must assign motor id*/
-			if (motor_id == AP_OBJ::MOTOR_MAX)
-			{
-				int ret = 0;
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveRelative(cmd_pos);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveRelative(cmd_pos);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveRelative(cmd_pos);
-				return ret;
-			}
-			return m_cfg.p_motor[motor_id].MoveRelative(cmd_pos);
+			return m_cfg.p_motor[motor_id].MoveAbsolutive( cal_dist_10um_to_pulse(motor_id, cmd_dist_10um), constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
 		}
 
-		inline int RelMove(AP_OBJ::MOTOR motor_id, int cmd_pos, uint32_t vel, uint32_t acc = 100, uint32_t dec = 100){
+		inline int RelMove(AP_OBJ::MOTOR motor_id, int cmd_dist_10um){
 			/*must assign motor id*/
 			if (motor_id == AP_OBJ::MOTOR_MAX)
 			{
 				int ret = 0;
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveRelative( cmd_pos,constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveRelative( cmd_pos,constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
-				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveRelative( cmd_pos,constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveRelative(cal_dist_10um_to_pulse(AP_OBJ::MOTOR_JIG, cmd_dist_10um));
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveRelative(cal_dist_10um_to_pulse(AP_OBJ::MOTOR_ROLL, cmd_dist_10um));
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveRelative(cal_dist_10um_to_pulse(AP_OBJ::MOTOR_HIGH, cmd_dist_10um));
 				return ret;
 			}
-			return m_cfg.p_motor[motor_id].MoveAbsolutive( cmd_pos, constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+			return m_cfg.p_motor[motor_id].MoveRelative(cal_dist_10um_to_pulse(motor_id, cmd_dist_10um));
+		}
+
+		inline int RelMove(AP_OBJ::MOTOR motor_id, int cmd_dist_10um, uint32_t vel, uint32_t acc = 100, uint32_t dec = 100){
+			/*must assign motor id*/
+			if (motor_id == AP_OBJ::MOTOR_MAX)
+			{
+				int ret = 0;
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_JIG].MoveRelative( cal_dist_10um_to_pulse(AP_OBJ::MOTOR_JIG, cmd_dist_10um),constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_ROLL].MoveRelative( cal_dist_10um_to_pulse(AP_OBJ::MOTOR_ROLL, cmd_dist_10um),constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+				ret += m_cfg.p_motor[AP_OBJ::MOTOR_HIGH].MoveRelative( cal_dist_10um_to_pulse(AP_OBJ::MOTOR_HIGH, cmd_dist_10um),constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
+				return ret;
+			}
+			return m_cfg.p_motor[motor_id].MoveAbsolutive( cal_dist_10um_to_pulse(motor_id, cmd_dist_10um), constrain(vel,1,CN_MOTORS_VELOCITY_RPS_MAX), acc, dec);
 		}
 
 		inline int Origin(AP_OBJ::MOTOR motor_id =AP_OBJ::MOTOR_MAX){
@@ -353,71 +365,43 @@ namespace MOTOR
 						return m_cfg.p_motor[motor_id].IsInPose();
 		}
 
+		inline float cal_sync_vel_dec(uint32_t source_vel){
+			float rate = 0;			ap_dat::dat_t*  p_data{};
+			p_data = m_cfg.p_apCfgDat->GetData(ap_dat::sycn_rate);
+			rate = ((float)(source_vel*100)/(float)p_data->parm1);
+			return rate;
+		}
+
+		inline int cal_dist_10um_to_pulse(AP_OBJ::MOTOR motor_id, int um10){
+			ap_dat::dat_t*  p_data{};
+			int ret = 0;
+			int turn_dist_um = 0;
+			int turn_by_pulse = 0;
+			int dist_by_turn_um = 0;
+			switch (motor_id) {
+				case AP_OBJ::MOTOR::MOTOR_JIG:
+					p_data = m_cfg.p_apCfgDat->GetData(ap_dat::mt_jig_turn_dist);
+					break;
+				case AP_OBJ::MOTOR::MOTOR_ROLL:
+					p_data = m_cfg.p_apCfgDat->GetData(ap_dat::mt_roll_turn_dist);
+					break;
+				case AP_OBJ::MOTOR::MOTOR_HIGH:
+					p_data = m_cfg.p_apCfgDat->GetData(ap_dat::mt_high_turn_dist);
+					break;
+				default:
+					break;
+			}
+			turn_dist_um =um10*10;
+			dist_by_turn_um = int(p_data->parm1)*1000;
+			turn_by_pulse = (int)p_data->parm2;
+			ret = int(((float)turn_dist_um/(float)dist_by_turn_um) * (float)turn_by_pulse);
+
+			return ret;
+		}
+
 
 #if 0
-		inline bool IsMotorOn(uint8_t id = static_cast<uint8_t>(cnMotors::mot_Id::_max)){
-			bool ret = false;
 
-			if (id < static_cast<uint8_t>(cnMotors::mot_Id::_max))
-			{
-				ret = m_Cfg.p_motor[id].IsMotorOn();
-			}
-			else if (id == static_cast<uint8_t>(cnMotors::mot_Id::_max))
-			{
-				ret = m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_JIG].IsMotorOn();
-				ret &= m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_ROLL].IsMotorOn();
-				ret &= m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_HIGH].IsMotorOn();
-			}
-			return ret;
-		}
-
-		inline bool IsOriginOK(uint8_t id = static_cast<uint8_t>(cnMotors::mot_Id::_max)){
-			bool ret = false;
-
-			if (id < static_cast<uint8_t>(cnMotors::mot_Id::_max))
-			{
-				ret = m_Cfg.p_motor[id].IsOriginOK();
-			}
-			else if (id == static_cast<uint8_t>(cnMotors::mot_Id::_max))
-			{
-				ret = m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_JIG].IsOriginOK();
-				ret &= m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_ROLL].IsOriginOK();
-				ret &= m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_HIGH].IsOriginOK();
-			}
-			return ret;
-		}
-
-		inline bool IsBusy(uint8_t id = static_cast<uint8_t>(cnMotors::mot_Id::_max)){
-			bool ret = false;
-
-			if (id < static_cast<uint8_t>(cnMotors::mot_Id::_max))
-			{
-				ret = m_Cfg.p_motor[id].IsBusy();
-			}
-			else if (id == static_cast<uint8_t>(cnMotors::mot_Id::_max))
-			{
-				ret = m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_JIG].IsBusy();
-				ret &= m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_ROLL].IsBusy();
-				ret &= m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_HIGH].IsBusy();
-			}
-			return ret;
-		}
-
-		inline bool IsInpose(uint8_t id = static_cast<uint8_t>(cnMotors::mot_Id::_max)){
-			/*must assign motor id*/
-			bool ret = false;
-			if (id < static_cast<uint8_t>(cnMotors::mot_Id::_max))
-			{
-				ret = m_Cfg.p_motor[id].IsInpose();
-			}
-			else
-			{
-				ret = m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_JIG].IsInpose();
-				ret &= m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_ROLL].IsInpose();
-				ret &= m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_HIGH].IsInpose();
-			}
-			return ret;
-		}
 
 		inline int EStop (uint8_t id = static_cast<uint8_t>(cnMotors::mot_Id::_max)){
 			int ret = 0;
@@ -434,23 +418,6 @@ namespace MOTOR
 			}
 			return ret;
 		}
-
-
-		inline int Stop (uint8_t id = static_cast<uint8_t>(cnMotors::mot_Id::_max)){
-			int ret = 0;
-			if (id < static_cast<uint8_t>(cnMotors::mot_Id::_max))
-			{
-				ret = m_Cfg.p_motor[id].Stop();
-			}
-			else if (id == static_cast<uint8_t>(cnMotors::mot_Id::_max))
-			{
-				ret += m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_JIG].Stop();
-				ret += m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_ROLL].Stop();
-				ret += m_Cfg.p_motor[AP_DEF_OBJ_MOTOR_ID_HIGH].Stop();
-			}
-			return ret;
-		}
-
 
 #endif
 

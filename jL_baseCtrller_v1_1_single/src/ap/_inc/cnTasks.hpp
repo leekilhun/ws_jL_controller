@@ -306,14 +306,14 @@ public:
 	}
 
 	/* only check inpose or busy state */
-	inline errno_t MotorRun(AP_OBJ::MOTOR motor_id, int cmd_pos){
+	inline errno_t MotorRun(AP_OBJ::MOTOR motor_id, int cmd_dist){
 
-		return m_cfg.p_motors->Move(motor_id, cmd_pos);
+		return m_cfg.p_motors->Move(motor_id, cmd_dist);
 	}
 
-	inline errno_t MotorRun(AP_OBJ::MOTOR motor_id, int cmd_pos, uint32_t vel){
+	inline errno_t MotorRun(AP_OBJ::MOTOR motor_id, int cmd_dist, uint32_t vel){
 
-		return m_cfg.p_motors->Move(motor_id, cmd_pos, vel);
+		return m_cfg.p_motors->Move(motor_id, cmd_dist, vel);
 	}
 
 
@@ -322,8 +322,8 @@ public:
 		return  m_cfg.p_motors->RelMove(motor_id, cmd_dist);
 	}
 
-	inline errno_t LinkMove(int cmd_pos, uint32_t vel){
-		return m_cfg.p_motors->LinkMove(cmd_pos, vel);
+	inline errno_t LinkMove(int cmd_dist, uint32_t vel){
+		return m_cfg.p_motors->LinkMove(cmd_dist, vel);
 	}
 
 	// is floating state
