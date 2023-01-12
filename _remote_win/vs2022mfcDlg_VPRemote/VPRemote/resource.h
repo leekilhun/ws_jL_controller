@@ -495,6 +495,13 @@
 #define IDC_MCU_DATA_BTN_LINK_VEL_READ  1426
 #define IDC_MCU_DATA_BTN_LINK_VEL_WRITE 1427
 #define IDC_IDC_MCU_DATA_BTN_MOVE_STOP  1428
+#define IDC_LIST1                       1429
+#define IDC_MAIN_LIST_STEP_LOG          1429
+#define IDC_MAIN_LIST_ALARM_LOG         1430
+#define IDC_MAIN_STATIC_MCU_LOG_TAIL    1431
+#define IDC_MAIN_STATIC_MCU_LOG_HEAD    1432
+#define IDC_BUTTON1                     1433
+#define IDC_MAIN_BTN_GET_LOG            1433
 
 // Next default values for new objects
 // 
@@ -502,7 +509,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1429
+#define _APS_NEXT_CONTROL_VALUE         1434
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

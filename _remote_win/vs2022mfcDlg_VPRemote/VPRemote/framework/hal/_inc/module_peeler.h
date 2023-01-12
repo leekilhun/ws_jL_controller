@@ -41,7 +41,7 @@ namespace MCU_OBJ
 
 namespace HAL
 {
-	constexpr int MODULE_PEELER_MAX_DATA_LENGTH = 48;
+	constexpr int MODULE_PEELER_MAX_DATA_LENGTH = 64;
 	constexpr int MODULE_PEELER_MAX_PACKET_LENGTH = (MODULE_PEELER_MAX_DATA_LENGTH + 8);
 
 	const uint8_t MODULE_PEELER_CMD_STX = 0x4A;
@@ -197,6 +197,16 @@ namespace HAL
 			CMD_READ_MCU_DATA = 0x60,
 			CMD_READ_MOTOR_DATA = 0x61,
 			CMD_READ_MOTION_ORG_CFG_DATA = 0x62,
+
+			CMD_DO_JOB_TASK_1 = 0x80,
+			CMD_DO_JOB_TASK_2 = 0x81,
+			CMD_DO_JOB_TASK_3 = 0x82,
+			CMD_DO_JOB_TASK_4 = 0x83,
+			CMD_DO_JOB_TASK_5 = 0x84,
+			CMD_DO_JOB_TASK_6 = 0x85,
+			CMD_DO_JOB_TASK_7 = 0x86,
+			CMD_DO_JOB_TASK_8 = 0x87,
+
 
 
 
@@ -776,6 +786,10 @@ namespace HAL
 				}
 
 			};
+
+
+			head_st head{};
+			dat_t data{};
 		};
 
 	private:
@@ -795,6 +809,9 @@ namespace HAL
 		AP_STATE_REG m_stateReg;
 		uint32_t m_inReg;
 		uint32_t m_outReg;
+		uint8_t m_currStep;
+		uint8_t m_logHead;
+		uint8_t m_logTail;
 		bool m_waitResp;
 
 		std::array<moons_data_st, MCU_OBJ::MOTOR_MAX> m_motorData;
@@ -807,6 +824,8 @@ namespace HAL
 		std::array<mcu_cyl_dat_st, MODULE_PEELER_EEPROM_MCU_CYLINDER_DATA_MAX> m_mcuCylinderDat;
 		std::array<mcu_vac_dat_st, MODULE_PEELER_EEPROM_MCU_VACUUM_DATA_MAX> m_mcuVacuumDat;
 		std::array<mcu_log_dat_st, MODULE_PEELER_EEPROM_MCU_LOG_DATA_MAX> m_mcuLogDat;
+		//mcu_log_dat_st m_mcuLogDat;
+		UTL::_que <mcu_log_dat_st*> m_queMcuLog;
 
 		std::array<bool, rom_max> m_WaitData;
 		/****************************************************
@@ -815,9 +834,10 @@ namespace HAL
 	public:
 		ModulePeeler(common::Attribute_t common_data, ModulePeeler::cfg_t& cfg)
 			:Icommon(common_data), m_cfg(cfg), m_packetData{}, m_cbObj{}, m_func{}, m_TrdLife{}, m_hThread{}, m_TrdId{}
-			, m_errorReg{}, m_optionReg{}, m_stateReg{}, m_inReg{}, m_outReg{}, m_waitResp{}
-			, m_motorData{}, m_motionParam{}, m_originParam{}, m_mcuConfigDat{}, m_mcuSequnceDat{}, m_mcuAxisDat{}, m_mcuLinkPoseDat{}
-			, m_mcuCylinderDat{}, m_mcuVacuumDat{}, m_mcuLogDat{}, m_WaitData{}
+			, m_errorReg{}, m_optionReg{}, m_stateReg{}, m_inReg{}, m_outReg{}
+			, m_currStep{}, m_logHead{}, m_logTail{}, m_waitResp {}
+			, m_motorData{}, m_motionParam {}, m_originParam{}, m_mcuConfigDat{}, m_mcuSequnceDat{}, m_mcuAxisDat{}, m_mcuLinkPoseDat{}
+			, m_mcuCylinderDat{}, m_mcuVacuumDat{}, m_mcuLogDat{}, m_queMcuLog{}, m_WaitData {}
 		{
 			m_cfg.p_Comm->AttCallbackFunc(this, receiveDataCB);
 
@@ -891,6 +911,13 @@ namespace HAL
 			else
 				return;
 
+			auto ret_data = [&](auto offset, auto& dest)->uint8_t
+			{
+				memcpy(&dest, &m_packetData.data[offset], sizeof(dest));
+				return (uint8_t)(offset + sizeof(dest));
+			};
+
+
 			auto ret_ushort = [&](auto a) ->uint16_t {
 				return (m_packetData.data[a] | (m_packetData.data[a + 1] << 8));
 			};
@@ -928,43 +955,33 @@ namespace HAL
 			{
 			case RX_MCU_STATE_DATA:
 			{
-				m_stateReg.ap_state = ret_ushort(0);
-				m_optionReg.ap_option = ret_ushort(2);
-				m_errorReg.ap_error = ret_uint(4);
-				m_inReg = ret_uint(8);
-				m_outReg = ret_uint(12);
+				uint8_t idx = 0;
+				idx = ret_data(idx, m_stateReg.ap_state);
+				idx = ret_data(idx, m_optionReg.ap_option);
+				idx = ret_data(idx, m_errorReg.ap_error);
+				idx = ret_data(idx, m_inReg);
+				idx = ret_data(idx, m_outReg);
+				idx = ret_data(idx, m_currStep);
+				idx = ret_data(idx, m_logHead);
+				idx = ret_data(idx, m_logTail);
 			}
 			break;
 			case RX_MOTOR_DATA:
 			{
 				if (m_packetData.obj_id < MCU_OBJ::MOTOR_MAX)
 				{
-					m_motorData[m_packetData.obj_id].drv_status.sc_status = ret_ushort(0);
-					m_motorData[m_packetData.obj_id].al_code.al_status = ret_ushort(2);
-					m_motorData[m_packetData.obj_id].immediate_expanded_input = ret_ushort(4);
-					m_motorData[m_packetData.obj_id].driver_board_inputs = ret_ushort(6);
-					m_motorData[m_packetData.obj_id].encoder_position = ret_uint(8);
-					m_motorData[m_packetData.obj_id].immediate_abs_position = ret_uint(12);
-					m_motorData[m_packetData.obj_id].abs_position_command = ret_uint(16);
-					m_motorData[m_packetData.obj_id].immediate_act_velocity = ret_ushort(20);
-					m_motorData[m_packetData.obj_id].immediate_target_velocity = ret_ushort(22);
+					uint8_t idx = 0;
+					idx = ret_data(idx, m_motorData[m_packetData.obj_id].drv_status.sc_status);
+					idx = ret_data(idx, m_motorData[m_packetData.obj_id].al_code.al_status);
+					idx = ret_data(idx, m_motorData[m_packetData.obj_id].immediate_expanded_input);
+					idx = ret_data(idx, m_motorData[m_packetData.obj_id].driver_board_inputs);
+					idx = ret_data(idx, m_motorData[m_packetData.obj_id].encoder_position);
+					idx = ret_data(idx, m_motorData[m_packetData.obj_id].immediate_abs_position);
+					idx = ret_data(idx, m_motorData[m_packetData.obj_id].abs_position_command);
+					idx = ret_data(idx, m_motorData[m_packetData.obj_id].immediate_act_velocity);
+					idx = ret_data(idx, m_motorData[m_packetData.obj_id].immediate_target_velocity);
 				}
 
-
-				/*
-
-			idx = make_packet(idx, motor_data.drv_status.sc_status);//2
-			idx = make_packet(idx, motor_data.al_code.al_status);//2
-			idx = make_packet(idx, motor_data.immediate_expanded_input);//2
-			idx = make_packet(idx, motor_data.driver_board_inputs);//2
-			idx = make_packet(idx, motor_data.encoder_position);//4
-			idx = make_packet(idx, motor_data.immediate_abs_position);//4
-			idx = make_packet(idx, motor_data.abs_position_command);//4
-			idx = make_packet(idx, motor_data.immediate_act_velocity);//2
-			idx = make_packet(idx, motor_data.immediate_target_velocity);//2
-
-
-					*/
 			}
 			break;
 			case RX_MOTOR_CFG_MOTION_ORIGIN:
@@ -972,15 +989,18 @@ namespace HAL
 
 				if (m_packetData.obj_id < MCU_OBJ::MOTOR_MAX)
 				{
-					m_motionParam[m_packetData.obj_id].jog_accelC = ret_uint(0);
-					m_motionParam[m_packetData.obj_id].jog_speedC = ret_uint(4);
-					m_motionParam[m_packetData.obj_id].move_accelC = ret_uint(8);
-					m_motionParam[m_packetData.obj_id].move_speedC = ret_uint(12);
-					m_originParam[m_packetData.obj_id].accel = ret_ushort(16);
-					m_originParam[m_packetData.obj_id].home_x_no = m_packetData.data[18];
-					m_originParam[m_packetData.obj_id].home_x_level = m_packetData.data[19];
-					m_originParam[m_packetData.obj_id].find_home_dir = ret_uint(20);
-					m_originParam[m_packetData.obj_id].speed = ret_ushort(24);
+
+					uint8_t idx = 0;
+					idx = ret_data(idx, m_motionParam[m_packetData.obj_id].jog_accelC);
+					idx = ret_data(idx, m_motionParam[m_packetData.obj_id].jog_speedC);
+					idx = ret_data(idx, m_motionParam[m_packetData.obj_id].move_accelC);
+					idx = ret_data(idx, m_motionParam[m_packetData.obj_id].move_speedC);
+					idx = ret_data(idx, m_originParam[m_packetData.obj_id].accel);
+					idx = ret_data(idx, m_originParam[m_packetData.obj_id].home_x_no);
+					idx = ret_data(idx, m_originParam[m_packetData.obj_id].home_x_level);
+					idx = ret_data(idx, m_originParam[m_packetData.obj_id].find_home_dir);
+					idx = ret_data(idx, m_originParam[m_packetData.obj_id].speed);
+
 				}
 			}
 			break;
@@ -1084,7 +1104,16 @@ namespace HAL
 
 			case RX_EEPROM_LOG_DATA:
 			{
-				//m_mcuLogDat[0]
+				uint8_t idx = 0;
+				idx = ret_data(idx, m_mcuLogDat[m_packetData.obj_id]);
+				m_queMcuLog.Put(&m_mcuLogDat[m_packetData.obj_id]);
+				//std::vector<char> vdata{};
+				//for (uint8_t i = 0; i < m_packetData.data_length; i++)
+				//{
+				//	vdata.emplace_back(m_packetData.data[i]);
+				//}
+
+				//m_queMcuLog.Put(vdata);
 			}
 			break;
 
@@ -1388,6 +1417,23 @@ namespace HAL
 			datas.emplace_back(0x00);
 
 			return SendCmd(datas.data(), (uint32_t)datas.size());
+		}
+
+		inline errno_t GetLogMsg(uint8_t log_idx) {
+			std::vector<uint8_t> datas{};
+			datas.emplace_back(CMD_EEPROM_READ_LOG);
+			//obj_id
+			datas.emplace_back(log_idx);
+			//length
+			datas.emplace_back((uint8_t)sizeof(log_idx));
+			datas.emplace_back(0x00);
+			//data - log addr
+			datas.emplace_back(log_idx);
+
+			if (SendCmdRxResp(datas.data(), (uint32_t)datas.size(), 500))
+				return ERROR_SUCCESS;
+			else
+				return -1;
 		}
 
 		inline errno_t GetMcuState() {

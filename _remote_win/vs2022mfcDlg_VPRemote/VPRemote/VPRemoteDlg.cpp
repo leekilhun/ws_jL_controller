@@ -182,10 +182,6 @@ constexpr wchar_t* DEF_CHECK_STATE_126(L"out 36");
 constexpr wchar_t* DEF_CHECK_STATE_127(L"out 37");
 
 
-
-
-
-
 static UINT BASED_CODE indicators[] =
 {
 	IDS_INDICATOR_COMM_STATUS,
@@ -197,8 +193,8 @@ static void receiveMainDlgCB(void* obj, void* w_parm, void* l_parm);
 
 CVPRemoteDlg::CVPRemoteDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_VPREMOTE_DIALOG, pParent), m_popMotor{}, m_popMcuData{}, m_pSystem{}, m_TimerID{}
-	, m_lockUpdate{}, m_statusBar{}
-	, m_motorIdx{}
+	, m_lockUpdate{}, m_statusBar{}, m_StepNo{}
+	, m_motorIdx{}, m_queStepLog{}
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
@@ -210,6 +206,8 @@ void CVPRemoteDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_MAIN_LIST_RX, m_rxListBox);
+	DDX_Control(pDX, IDC_MAIN_LIST_STEP_LOG, m_listStepLog);
+	DDX_Control(pDX, IDC_MAIN_LIST_ALARM_LOG, m_listAlarmLog);
 }
 
 BEGIN_MESSAGE_MAP(CVPRemoteDlg, CDialogEx)
@@ -313,14 +311,15 @@ BEGIN_MESSAGE_MAP(CVPRemoteDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_MAIN_CHECK_STEP_5, &CVPRemoteDlg::OnBnClickedMainCheckStep5)
 	ON_BN_CLICKED(IDC_MAIN_CHECK_STEP_6, &CVPRemoteDlg::OnBnClickedMainCheckStep6)
 	ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC1, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc1)
-		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC2, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc2)
-		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC3, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc3)
-		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC4, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc4)
-		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC5, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc5)
-		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC6, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc6)
-		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC7, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc7)
-		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC8, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc8)
-		ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC9, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc9)
+	ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC2, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc2)
+	ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC3, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc3)
+	ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC4, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc4)
+	ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC5, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc5)
+	ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC6, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc6)
+	ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC7, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc7)
+	ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC8, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc8)
+	ON_BN_CLICKED(IDC_PEELER_MAIN_MOVE_FUNC9, &CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc9)
+		ON_BN_CLICKED(IDC_MAIN_BTN_GET_LOG, &CVPRemoteDlg::OnBnClickedMainBtnGetLog)
 		END_MESSAGE_MAP()
 
 
@@ -390,7 +389,7 @@ BOOL CVPRemoteDlg::OnInitDialog()
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_21))->SetWindowText(DEF_CHECK_STATE_21);
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_22))->SetWindowText(DEF_CHECK_STATE_22);
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_23))->SetWindowText(DEF_CHECK_STATE_23);
-																  
+
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_24))->SetWindowText(DEF_CHECK_STATE_24);
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_25))->SetWindowText(DEF_CHECK_STATE_25);
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_26))->SetWindowText(DEF_CHECK_STATE_26);
@@ -429,7 +428,7 @@ BOOL CVPRemoteDlg::OnInitDialog()
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_53))->SetWindowText(DEF_CHECK_STATE_53);
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_54))->SetWindowText(DEF_CHECK_STATE_54);
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_55))->SetWindowText(DEF_CHECK_STATE_55);
-																  
+
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_56))->SetWindowText(DEF_CHECK_STATE_56);
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_57))->SetWindowText(DEF_CHECK_STATE_57);
 		((CStatic*)GetDlgItem(IDC_CHECK_STATE_58))->SetWindowText(DEF_CHECK_STATE_58);
@@ -599,7 +598,7 @@ static void receiveMainDlgCB(void* obj, void* w_parm, void* l_parm)
 void CVPRemoteDlg::AddRxList(CString str)
 {
 	// TODO: 여기에 구현 코드 추가.
-	if (m_rxListBox.GetCount() == 13)
+	if (m_rxListBox.GetCount() == 10)
 	{
 		m_rxListBox.ResetContent();
 	}
@@ -665,7 +664,10 @@ void CVPRemoteDlg::update()
 		}
 	}
 	//end of if (m_popMcuData->IsWindowVisible())
-
+	
+	
+	updateStepLog();
+	updateMcuLog();
 
 	{
 		peeler->GetMcuState();
@@ -695,7 +697,7 @@ void CVPRemoteDlg::update()
 		}
 	}
 
-	{		
+	{
 		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CYL_1))->SetCheck(peeler->IsOpenCyl(MCU_OBJ::CYL_PHONE_FORBACK));
 		((CButton*)GetDlgItem(IDC_PEELER_MAIN_CYL_2))->SetCheck(peeler->IsCloseCyl(MCU_OBJ::CYL_PHONE_FORBACK));
 
@@ -1202,4 +1204,268 @@ void CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc8()
 void CVPRemoteDlg::OnBnClickedPeelerMainMoveFunc9()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	
+}
+
+
+const wchar_t* CVPRemoteDlg::stepName(uint8_t step_no)
+{
+	// TODO: 여기에 구현 코드 추가.
+
+	constexpr uint8_t STEP_INIT = 0x00;
+	constexpr uint8_t	STEP_TODO = 0x01;
+	constexpr uint8_t	STEP_TIMEOUT = 0x02;
+	constexpr uint8_t	STEP_WAIT_DONE = 0x03;
+	constexpr uint8_t	STEP_WAIT_RETURN = 0x04;
+
+	constexpr uint8_t	STEP_DO_READY_MOVE_HIGH = 0x05;
+	constexpr uint8_t	STEP_DO_READY_MOVE_HIGH_START = 0x06;
+	constexpr uint8_t	STEP_DO_READY_MOVE_HIGH_WAIT = 0x07;
+	constexpr uint8_t	STEP_DO_READY_MOVE_HIGH_END = 0x08;
+	constexpr uint8_t	STEP_DO_READY_MOVE_ROLL = 0x09;
+	constexpr uint8_t	STEP_DO_READY_MOVE_ROLL_START = 0x0a;
+	constexpr uint8_t	STEP_DO_READY_MOVE_ROLL_WAIT = 0x0b;
+	constexpr uint8_t	STEP_DO_READY_MOVE_ROLL_END = 0x0c;
+	constexpr uint8_t	STEP_DO_READY_MOVE_JIG = 0x0d;
+	constexpr uint8_t	STEP_DO_READY_MOVE_JIG_START = 0x0e;
+	constexpr uint8_t	STEP_DO_READY_MOVE_JIG_WAIT = 0x0f;
+	constexpr uint8_t	STEP_DO_READY_MOVE_JIG_END = 0x10;
+	constexpr uint8_t	STEP_DO_READY_CYL_JIG_OPEN = 0x11;
+	constexpr uint8_t	STEP_DO_READY_CYL_JIG_OPEN_START = 0x12;
+	constexpr uint8_t	STEP_DO_READY_CYL_JIG_OPEN_WAIT = 0x13;
+	constexpr uint8_t	STEP_DO_READY_CYL_JIG_OPEN_END = 0x14;
+	constexpr uint8_t	STEP_DO_STICKY_CYL_JIG_CLOSE = 0x15;
+	constexpr uint8_t	STEP_DO_STICKY_CYL_JIG_CLOSE_START = 0x16;
+	constexpr uint8_t	STEP_DO_STICKY_CYL_JIG_CLOSE_WAIT = 0x17;
+	constexpr uint8_t	STEP_DO_STICKY_CYL_JIG_CLOSE_END = 0x18;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_READY = 0x19;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_READY_START = 0x1a;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_READY_WAIT = 0x1b;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_READY_END = 0x1c;
+	constexpr uint8_t	STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON = 0x1d;
+	constexpr uint8_t	STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON_START = 0x1e;
+	constexpr uint8_t	STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON_WAIT = 0x1f;
+	constexpr uint8_t	STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON_END = 0x20;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW = 0x21;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW_START = 0x22;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW_WAIT = 0x23;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW_END = 0x24;
+	constexpr uint8_t	STEP_DO_STICKY_CHECK_VAC_ON_VINYL = 0x25;
+	constexpr uint8_t	STEP_DO_STICKY_CHECK_VAC_ON_VINYL_START = 0x26;
+	constexpr uint8_t	STEP_DO_STICKY_CHECK_VAC_ON_VINYL_WAIT = 0x27;
+	constexpr uint8_t	STEP_DO_STICKY_CHECK_VAC_ON_VINYL_END = 0x28;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_ROLL_FAST = 0x29;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_ROLL_FAST_START = 0x2a;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_ROLL_FAST_WAIT = 0x2b;
+	constexpr uint8_t	STEP_DO_STICKY_LINK_MOVE_ROLL_FAST_END = 0x2c;
+	constexpr uint8_t	STEP_DO_STICKY_MOVE_HIGH_UP = 0x2d;
+	constexpr uint8_t	STEP_DO_STICKY_MOVE_HIGH_UP_START = 0x2e;
+	constexpr uint8_t	STEP_DO_STICKY_MOVE_HIGH_UP_WAIT = 0x2f;
+	constexpr uint8_t	STEP_DO_STICKY_MOVE_HIGH_UP_END = 0x30;
+	constexpr uint8_t	STEP_DO_RETRUN_MOVE_JIG_OPEN = 0x31;
+	constexpr uint8_t	STEP_DO_RETRUN_MOVE_JIG_OPEN_START = 0x32;
+	constexpr uint8_t	STEP_DO_RETRUN_MOVE_JIG_OPEN_WAIT = 0x33;
+	constexpr uint8_t	STEP_DO_RETRUN_MOVE_JIG_OPEN_END = 0x34;
+	constexpr uint8_t	STEP_DO_TRASH_MOVE_ROLL = 0x35;
+	constexpr uint8_t	STEP_DO_TRASH_MOVE_ROLL_START = 0x36;
+	constexpr uint8_t	STEP_DO_TRASH_MOVE_ROLL_WAIT = 0x37;
+	constexpr uint8_t	STEP_DO_TRASH_MOVE_ROLL_END = 0x38;
+	constexpr uint8_t	STEP_DO_TRASH_REMOVE_CYL_UP = 0x39;
+	constexpr uint8_t	STEP_DO_TRASH_REMOVE_CYL_UP_START = 0x3a;
+	constexpr uint8_t	STEP_DO_TRASH_REMOVE_CYL_UP_WAIT = 0x3b;
+	constexpr uint8_t	STEP_DO_TRASH_REMOVE_CYL_UP_END = 0x3c;
+	constexpr uint8_t	STEP_DO_TRASH_CHECK_VINYL = 0x3d;
+	constexpr uint8_t	STEP_DO_TRASH_CHECK_VINYL_START = 0x3e;
+	constexpr uint8_t	STEP_DO_TRASH_CHECK_VINYL_WAIT = 0x3f;
+	constexpr uint8_t	STEP_DO_TRASH_CHECK_VINYL_END = 0x40;
+	constexpr uint8_t	STEP_DO_TRASH_LINK_MOVE_CLEAR = 0x41;
+	constexpr uint8_t	STEP_DO_TRASH_LINK_MOVE_CLEAR_START = 0x42;
+	constexpr uint8_t	STEP_DO_TRASH_LINK_MOVE_CLEAR_WAIT = 0x43;
+	constexpr uint8_t	STEP_DO_TRASH_LINK_MOVE_CLEAR_END = 0x44;
+	constexpr uint8_t	STEP_DO_TRASH_REMOVE_CYL_DOWN = 0x45;
+	constexpr uint8_t	STEP_DO_TRASH_REMOVE_CYL_DOWN_START = 0x46;
+	constexpr uint8_t	STEP_DO_TRASH_REMOVE_CYL_DOWN_WAIT = 0x47;
+	constexpr uint8_t	STEP_DO_TRASH_REMOVE_CYL_DOWN_END = 0x48;
+	constexpr uint8_t	STEP_DO_TRASH_PUSH_CYL_PUSH = 0x49;
+	constexpr uint8_t	STEP_DO_TRASH_PUSH_CYL_PUSH_START = 0x4a;
+	constexpr uint8_t	STEP_DO_TRASH_PUSH_CYL_PUSH_WAIT = 0x4b;
+	constexpr uint8_t	STEP_DO_TRASH_PUSH_CYL_PUSH_END = 0x4c;
+	constexpr uint8_t	STEP_DO_PEEL_VINYL_FINISH = 0x4d;
+	constexpr uint8_t	STEP_DO_PEEL_VINYL_FINISH_START = 0x4e;
+	constexpr uint8_t	STEP_DO_PEEL_VINYL_FINISH_WAIT = 0x4f;
+	constexpr uint8_t	STEP_DO_PEEL_VINYL_FINISH_END = 0x50;
+
+	switch (step_no)
+	{
+	case STEP_INIT: return L"STEP_INIT"; 
+	case STEP_TODO: return L"STEP_TODO";
+	case STEP_TIMEOUT: return L"STEP_TIMEOUT";
+	case STEP_WAIT_DONE: return L"STEP_WAIT_DONE";
+	case STEP_WAIT_RETURN: return L"STEP_WAIT_RETURN";
+	case STEP_DO_READY_MOVE_HIGH: return L"STEP_DO_READY_MOVE_HIGH";
+	case STEP_DO_READY_MOVE_HIGH_START: return L"STEP_DO_READY_MOVE_HIGH_START";
+	case STEP_DO_READY_MOVE_HIGH_WAIT: return L"STEP_DO_READY_MOVE_HIGH_WAIT";
+	case STEP_DO_READY_MOVE_HIGH_END: return L"STEP_DO_READY_MOVE_HIGH_END";
+	case STEP_DO_READY_MOVE_ROLL: return L"STEP_DO_READY_MOVE_ROLL";
+	case STEP_DO_READY_MOVE_ROLL_START: return L"STEP_DO_READY_MOVE_ROLL_START";
+	case STEP_DO_READY_MOVE_ROLL_WAIT: return L"STEP_DO_READY_MOVE_ROLL_WAIT";
+	case STEP_DO_READY_MOVE_ROLL_END: return L"STEP_DO_READY_MOVE_ROLL_END";
+	case STEP_DO_READY_MOVE_JIG: return L"STEP_DO_READY_MOVE_JIG";
+	case STEP_DO_READY_MOVE_JIG_START: return L"STEP_DO_READY_MOVE_JIG_START";
+	case STEP_DO_READY_MOVE_JIG_WAIT: return L"STEP_DO_READY_MOVE_JIG_WAIT";
+	case STEP_DO_READY_MOVE_JIG_END: return L"STEP_DO_READY_MOVE_JIG_END";
+	case STEP_DO_READY_CYL_JIG_OPEN: return L"STEP_DO_READY_CYL_JIG_OPEN";
+	case STEP_DO_READY_CYL_JIG_OPEN_START: return L"STEP_DO_READY_CYL_JIG_OPEN_START";
+	case STEP_DO_READY_CYL_JIG_OPEN_WAIT: return L"STEP_DO_READY_CYL_JIG_OPEN_WAIT";
+	case STEP_DO_READY_CYL_JIG_OPEN_END: return L"STEP_DO_READY_CYL_JIG_OPEN_END";
+	case STEP_DO_STICKY_CYL_JIG_CLOSE: return L"STEP_DO_STICKY_CYL_JIG_CLOSE";
+	case STEP_DO_STICKY_CYL_JIG_CLOSE_START: return L"STEP_DO_STICKY_CYL_JIG_CLOSE_START";
+	case STEP_DO_STICKY_CYL_JIG_CLOSE_WAIT: return L"STEP_DO_STICKY_CYL_JIG_CLOSE_WAIT";
+	case STEP_DO_STICKY_CYL_JIG_CLOSE_END: return L"STEP_DO_STICKY_CYL_JIG_CLOSE_END";
+	case STEP_DO_STICKY_LINK_MOVE_READY: return L"STEP_DO_STICKY_LINK_MOVE_READY";
+	case STEP_DO_STICKY_LINK_MOVE_READY_START: return L"STEP_DO_STICKY_LINK_MOVE_READY_START";
+	case STEP_DO_STICKY_LINK_MOVE_READY_WAIT: return L"STEP_DO_STICKY_LINK_MOVE_READY_WAIT";
+	case STEP_DO_STICKY_LINK_MOVE_READY_END: return L"STEP_DO_STICKY_LINK_MOVE_READY_END";
+	case STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON: return L"STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON";
+	case STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON_START: return L"STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON_START";
+	case STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON_WAIT: return L"STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON_WAIT ";
+	case STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON_END: return L"STEP_DO_STICKY_MOVE_HIGH_READY_VAC_ON_END ";
+	case STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW: return L"STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW ";
+	case STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW_START: return L"STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW_START";
+	case STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW_WAIT: return L"STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW_WAIT ";
+	case STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW_END: return L"STEP_DO_STICKY_LINK_MOVE_ROLL_SLOW_END ";
+	case STEP_DO_STICKY_CHECK_VAC_ON_VINYL: return L"STEP_DO_STICKY_CHECK_VAC_ON_VINYL";
+	case STEP_DO_STICKY_CHECK_VAC_ON_VINYL_START: return L"STEP_DO_STICKY_CHECK_VAC_ON_VINYL_START";
+	case STEP_DO_STICKY_CHECK_VAC_ON_VINYL_WAIT: return L"STEP_DO_STICKY_CHECK_VAC_ON_VINYL_WAIT ";
+	case STEP_DO_STICKY_CHECK_VAC_ON_VINYL_END: return L"STEP_DO_STICKY_CHECK_VAC_ON_VINYL_END";
+	case STEP_DO_STICKY_LINK_MOVE_ROLL_FAST: return L"STEP_DO_STICKY_LINK_MOVE_ROLL_FAST";
+	case STEP_DO_STICKY_LINK_MOVE_ROLL_FAST_START: return L"STEP_DO_STICKY_LINK_MOVE_ROLL_FAST_START";
+	case STEP_DO_STICKY_LINK_MOVE_ROLL_FAST_WAIT: return L"STEP_DO_STICKY_LINK_MOVE_ROLL_FAST_WAIT ";
+	case STEP_DO_STICKY_LINK_MOVE_ROLL_FAST_END: return L"STEP_DO_STICKY_LINK_MOVE_ROLL_FAST_END ";
+	case STEP_DO_STICKY_MOVE_HIGH_UP: return L"STEP_DO_STICKY_MOVE_HIGH_UP";
+	case STEP_DO_STICKY_MOVE_HIGH_UP_START: return L"STEP_DO_STICKY_MOVE_HIGH_UP_START";
+	case STEP_DO_STICKY_MOVE_HIGH_UP_WAIT: return L"STEP_DO_STICKY_MOVE_HIGH_UP_WAIT";
+	case STEP_DO_STICKY_MOVE_HIGH_UP_END: return L"STEP_DO_STICKY_MOVE_HIGH_UP_END";
+	case STEP_DO_RETRUN_MOVE_JIG_OPEN: return L"STEP_DO_RETRUN_MOVE_JIG_OPEN";
+	case STEP_DO_RETRUN_MOVE_JIG_OPEN_START: return L"STEP_DO_RETRUN_MOVE_JIG_OPEN_START";
+	case STEP_DO_RETRUN_MOVE_JIG_OPEN_WAIT: return L"STEP_DO_RETRUN_MOVE_JIG_OPEN_WAIT";
+	case STEP_DO_RETRUN_MOVE_JIG_OPEN_END: return L"STEP_DO_RETRUN_MOVE_JIG_OPEN_END";
+	case STEP_DO_TRASH_MOVE_ROLL: return L"STEP_DO_TRASH_MOVE_ROLL";
+	case STEP_DO_TRASH_MOVE_ROLL_START: return L"STEP_DO_TRASH_MOVE_ROLL_START";
+	case STEP_DO_TRASH_MOVE_ROLL_WAIT: return L"STEP_DO_TRASH_MOVE_ROLL_WAIT";
+	case STEP_DO_TRASH_MOVE_ROLL_END: return L"STEP_DO_TRASH_MOVE_ROLL_END";
+	case STEP_DO_TRASH_REMOVE_CYL_UP: return L"STEP_DO_TRASH_REMOVE_CYL_UP";
+	case STEP_DO_TRASH_REMOVE_CYL_UP_START: return L"STEP_DO_TRASH_REMOVE_CYL_UP_START";
+	case STEP_DO_TRASH_REMOVE_CYL_UP_WAIT: return L"STEP_DO_TRASH_REMOVE_CYL_UP_WAIT";
+	case STEP_DO_TRASH_REMOVE_CYL_UP_END: return L"STEP_DO_TRASH_REMOVE_CYL_UP_END";
+	case STEP_DO_TRASH_CHECK_VINYL: return L"STEP_DO_TRASH_CHECK_VINYL";
+	case STEP_DO_TRASH_CHECK_VINYL_START: return L"STEP_DO_TRASH_CHECK_VINYL_START";
+	case STEP_DO_TRASH_CHECK_VINYL_WAIT: return L"STEP_DO_TRASH_CHECK_VINYL_WAIT";
+	case STEP_DO_TRASH_CHECK_VINYL_END: return L"STEP_DO_TRASH_CHECK_VINYL_END";
+	case STEP_DO_TRASH_LINK_MOVE_CLEAR: return L"STEP_DO_TRASH_LINK_MOVE_CLEAR";
+	case STEP_DO_TRASH_LINK_MOVE_CLEAR_START: return L"STEP_DO_TRASH_LINK_MOVE_CLEAR_START";
+	case STEP_DO_TRASH_LINK_MOVE_CLEAR_WAIT: return L"STEP_DO_TRASH_LINK_MOVE_CLEAR_WAIT";
+	case STEP_DO_TRASH_LINK_MOVE_CLEAR_END: return L"STEP_DO_TRASH_LINK_MOVE_CLEAR_END";
+	case STEP_DO_TRASH_REMOVE_CYL_DOWN: return L"STEP_DO_TRASH_REMOVE_CYL_DOWN";
+	case STEP_DO_TRASH_REMOVE_CYL_DOWN_START: return L"STEP_DO_TRASH_REMOVE_CYL_DOWN_START";
+	case STEP_DO_TRASH_REMOVE_CYL_DOWN_WAIT: return L"STEP_DO_TRASH_REMOVE_CYL_DOWN_WAIT";
+	case STEP_DO_TRASH_REMOVE_CYL_DOWN_END: return L"STEP_DO_TRASH_REMOVE_CYL_DOWN_END";
+	case STEP_DO_TRASH_PUSH_CYL_PUSH: return L"STEP_DO_TRASH_PUSH_CYL_PUSH";
+	case STEP_DO_TRASH_PUSH_CYL_PUSH_START: return L"STEP_DO_TRASH_PUSH_CYL_PUSH_START";
+	case STEP_DO_TRASH_PUSH_CYL_PUSH_WAIT: return L"STEP_DO_TRASH_PUSH_CYL_PUSH_WAIT";
+	case STEP_DO_TRASH_PUSH_CYL_PUSH_END: return L"STEP_DO_TRASH_PUSH_CYL_PUSH_END";
+	case STEP_DO_PEEL_VINYL_FINISH: return L"STEP_DO_PEEL_VINYL_FINISH";
+	case STEP_DO_PEEL_VINYL_FINISH_START: return L"STEP_DO_PEEL_VINYL_FINISH_START";
+	case STEP_DO_PEEL_VINYL_FINISH_WAIT: return L"STEP_DO_PEEL_VINYL_FINISH_WAIT";
+	case STEP_DO_PEEL_VINYL_FINISH_END: return L"STEP_DO_PEEL_VINYL_FINISH_END";
+	default:
+		break;
+	}
+
+
+
+
+
+
+
+
+	return nullptr;
+}
+
+void CVPRemoteDlg::updateStepLog()
+{
+	// TODO: 여기에 구현 코드 추가.
+	HAL::ModulePeeler* peeler = m_pSystem->GetModulePeelerComponent();
+
+	
+	if (m_StepNo != peeler->m_currStep)
+	{
+		m_StepNo = peeler->m_currStep;
+		m_queStepLog.Put(stepName(m_StepNo));
+	}
+
+	if (m_queStepLog.Available())
+	{
+		CString str, str_date;
+		std::array<char, 40> datetime{ 0, };
+		UTL::trans::DateFormStr(datetime.data(), (int)datetime.size(), UTL::trans::DataTimeFormat_e::YYYYMMDD_HHMMSS_UU);
+		str_date = UTL::trans::CharToCString(datetime.data());
+
+		m_queStepLog.Get(&str);
+		if (m_listStepLog.GetCount() == 10)
+		{
+			m_listStepLog.ResetContent();
+		}
+		m_listStepLog.AddString(str_date + L" : " + str);
+	}
+
+}
+
+
+void CVPRemoteDlg::OnBnClickedMainBtnGetLog()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	LockUpdate();
+	HAL::ModulePeeler* peeler = m_pSystem->GetModulePeelerComponent();
+	peeler->GetLogMsg(0);
+	//LockUpdate(true);
+}
+
+
+void CVPRemoteDlg::updateMcuLog()
+{
+	// TODO: 여기에 구현 코드 추가.
+	HAL::ModulePeeler* peeler = m_pSystem->GetModulePeelerComponent();
+	CString str, str_date;
+	str.Format(L"LOG: HEAD - %d", peeler->m_logHead);
+	((CStatic*)GetDlgItem(IDC_MAIN_STATIC_MCU_LOG_HEAD))->SetWindowText(str);
+	str.Format(L"LOG: TAIL - %d", peeler->m_logTail);
+	((CStatic*)GetDlgItem(IDC_MAIN_STATIC_MCU_LOG_TAIL))->SetWindowText(str);
+
+
+	std::array<char, 40> datetime{ 0, };
+	UTL::trans::DateFormStr(datetime.data(), (int)datetime.size(), UTL::trans::DataTimeFormat_e::YYYYMMDD_HHMMSS_UU);
+	str_date = UTL::trans::CharToCString(datetime.data());
+	if (peeler->m_queMcuLog.Available())
+	{
+		HAL::ModulePeeler::mcu_log_dat_st* plog{};
+		peeler->m_queMcuLog.Get(&plog);
+		std::vector<uint8_t> vdata{};
+		vdata.emplace_back(plog->head.header);
+		vdata.emplace_back(plog->head.error_no);
+		vdata.emplace_back(plog->head.obj_id);
+		vdata.emplace_back(plog->head.step_no);
+		for (const auto & elm : plog->data.log_v)
+			vdata.emplace_back(elm);
+
+		str.Empty();
+		str = UTL::trans::CharToCString((char*)vdata.data());
+		//m_queStepLog.Get(&str);
+		if (m_listAlarmLog.GetCount() == 10)
+		{
+			m_listAlarmLog.ResetContent();
+		}
+		m_listAlarmLog.AddString(str_date + L" : " + str);
+	}
+
 }

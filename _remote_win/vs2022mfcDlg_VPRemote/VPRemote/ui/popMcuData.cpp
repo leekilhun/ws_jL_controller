@@ -9,37 +9,40 @@
 #include "VPRemoteDlg.h"
 // Cui_popMcuData 대화 상자
 
+// mt  -  motor
+enum motor_idx {
+	mt_jig, mt_roll, mt_high, mt_max
+};
+constexpr wchar_t* DEF_MCU_DATA_POS_NAME_1[mt_max]{ (L"ready"),(L"ready"),(L"ready") };
+constexpr wchar_t* DEF_MCU_DATA_POS_NAME_2[mt_max]{ (L"sticky"),(L"sticky"),(L"sticky") };
+constexpr wchar_t* DEF_MCU_DATA_POS_NAME_3[mt_max]{ (L"trash"),(L"trash"),(L"up sticky") };
+constexpr wchar_t* DEF_MCU_DATA_POS_NAME_4[mt_max]{ (L"loc 3"),(L"loc 3"),(L"trash") };
+constexpr wchar_t* DEF_MCU_DATA_POS_NAME_5[mt_max]{ (L"loc 4"),(L"loc 4"),(L"loc 4") };
+constexpr wchar_t* DEF_MCU_DATA_POS_NAME_6[mt_max]{ (L"loc 5"),(L"loc 5"),(L"loc 5") };
+constexpr wchar_t* DEF_MCU_DATA_POS_NAME_7[mt_max]{ (L"loc 6"),(L"loc 6"),(L"loc 6") };
+constexpr wchar_t* DEF_MCU_DATA_POS_NAME_8[mt_max]{ (L"loc 7"),(L"loc 7"),(L"loc 7") };
+												  
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_0[mt_max]{ (L"10000") ,(L"10000"),(L"10000")};
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_0[mt_max]{ (L"10")    ,(L"10")   ,(L"10")   };
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_1[mt_max]{ (L"10000") ,(L"10000"),(L"10000")};
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_1[mt_max]{ (L"10")    ,(L"10")   ,(L"10")   };
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_2[mt_max]{ (L"10000") ,(L"10000"),(L"10000")};
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_2[mt_max]{ (L"10")    ,(L"10")   ,(L"10")   };
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_3[mt_max]{ (L"10000") ,(L"10000"),(L"10000")};
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_3[mt_max]{ (L"10")    ,(L"10")   ,(L"10")   };
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_4[mt_max]{ (L"10000") ,(L"10000"),(L"10000")};
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_4[mt_max]{ (L"10")    ,(L"10")   ,(L"10")   };
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_5[mt_max]{ (L"10000") ,(L"10000"),(L"10000")};
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_5[mt_max]{ (L"10")    ,(L"10")   ,(L"10")   };
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_6[mt_max]{ (L"10000") ,(L"10000"),(L"10000")};
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_6[mt_max]{ (L"10")    ,(L"10")   ,(L"10")   };
+constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_7[mt_max]{ (L"10000") ,(L"10000"),(L"10000")};
+constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_7[mt_max]{ (L"10")    ,(L"10")   ,(L"10")   };
 
-constexpr wchar_t* DEF_MCU_DATA_POS_NAME_1(L"ready");
-constexpr wchar_t* DEF_MCU_DATA_POS_NAME_2(L"loc 1");
-constexpr wchar_t* DEF_MCU_DATA_POS_NAME_3(L"loc 2");
-constexpr wchar_t* DEF_MCU_DATA_POS_NAME_4(L"loc 3");
-constexpr wchar_t* DEF_MCU_DATA_POS_NAME_5(L"loc 4");
-constexpr wchar_t* DEF_MCU_DATA_POS_NAME_6(L"loc 5");
-constexpr wchar_t* DEF_MCU_DATA_POS_NAME_7(L"loc 6");
-constexpr wchar_t* DEF_MCU_DATA_POS_NAME_8(L"loc 7");
-
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_0(L"10000");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_0(L"10");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_1(L"10000");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_1(L"10");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_2(L"10000");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_2(L"10");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_3(L"10000");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_3(L"10");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_4(L"10000");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_4(L"10");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_5(L"10000");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_5(L"10");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_6(L"10000");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_6(L"10");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_POS_7(L"10000");
-constexpr wchar_t* DEF_MCU_DATA_EDIT_VEL_7(L"10");
-
-constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_1(L"link pose 1");
-constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_2(L"link pose 2");
-constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_3(L"link pose 3");
-constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_4(L"link pose 4");
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_1(L"link ready");
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_2(L"roll slow");
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_3(L"roll fast");
+constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_4(L"roll clear");
 constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_5(L"link pose 5");
 constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_6(L"link pose 6");
 constexpr wchar_t* DEF_MCU_DATA_LINK_NAME_7(L"link pose 7");
@@ -184,9 +187,12 @@ constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_14(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_15(L"200");
 constexpr wchar_t* DEF_MCU_DATA_EDIT_SEQ_16(L"200");
 
+constexpr wchar_t* DEF_MCU_DATA_MOTOR_RPS_MIN(L"1");
+constexpr wchar_t* DEF_MCU_DATA_MOTOR_RPS_MAX(L"50");
 #define MOONS_MOTORS_VELOCITY_RPS_MAX  50
 #define MOONS_MOTORS_VELOCITY_RPS_MIN  1
-#define constrain_rps(v,id)   ((GetDlgItemInt(id))<(MOONS_MOTORS_VELOCITY_RPS_MIN)?(MOONS_MOTORS_VELOCITY_RPS_MIN)\
+
+#define mcr_constrain_rps(v,id)   ((GetDlgItemInt(id))<(MOONS_MOTORS_VELOCITY_RPS_MIN)?(MOONS_MOTORS_VELOCITY_RPS_MIN)\
 														 :((GetDlgItemInt(id))>(MOONS_MOTORS_VELOCITY_RPS_MAX)?(MOONS_MOTORS_VELOCITY_RPS_MAX)\
                               :(GetDlgItemInt(id))))
 //((GetDlgItemInt(id))<(low)?(low):((GetDlgItemInt(id))>(high)?(high):(GetDlgItemInt(id))))
@@ -245,6 +251,9 @@ BEGIN_MESSAGE_MAP(Cui_PopMcuData, CDialogEx)
 	ON_STN_CLICKED(IDC_MCU_DATA_LINK_NAME_7, &Cui_PopMcuData::OnStnClickedMcuDataLinkName7)
 	ON_STN_CLICKED(IDC_MCU_DATA_LINK_NAME_8, &Cui_PopMcuData::OnStnClickedMcuDataLinkName8)
 	ON_BN_CLICKED(IDC_IDC_MCU_DATA_BTN_MOVE_STOP, &Cui_PopMcuData::OnBnClickedIdcMcuDataBtnMoveStop)
+	ON_BN_CLICKED(IDC_MCU_DATA_RADIO_MT_ID0, &Cui_PopMcuData::OnBnClickedMcuDataRadioMtId0)
+	ON_BN_CLICKED(IDC_MCU_DATA_RADIO_MT_ID1, &Cui_PopMcuData::OnBnClickedMcuDataRadioMtId1)
+	ON_BN_CLICKED(IDC_MCU_DATA_RADIO_MT_ID2, &Cui_PopMcuData::OnBnClickedMcuDataRadioMtId2)
 END_MESSAGE_MAP()
 
 
@@ -260,31 +269,31 @@ BOOL Cui_PopMcuData::OnInitDialog()
 
 	((CButton*)GetDlgItem(IDC_MCU_DATA_RADIO_MT_ID0))->SetCheck(TRUE);
 	
-	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_1))->SetWindowText(DEF_MCU_DATA_POS_NAME_1);
-	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_2))->SetWindowText(DEF_MCU_DATA_POS_NAME_2);
-	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_3))->SetWindowText(DEF_MCU_DATA_POS_NAME_3);
-	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_4))->SetWindowText(DEF_MCU_DATA_POS_NAME_4);
-	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_5))->SetWindowText(DEF_MCU_DATA_POS_NAME_5);
-	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_6))->SetWindowText(DEF_MCU_DATA_POS_NAME_6);
-	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_7))->SetWindowText(DEF_MCU_DATA_POS_NAME_7);
-	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_8))->SetWindowText(DEF_MCU_DATA_POS_NAME_8);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_1))->SetWindowText(DEF_MCU_DATA_POS_NAME_1[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_2))->SetWindowText(DEF_MCU_DATA_POS_NAME_2[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_3))->SetWindowText(DEF_MCU_DATA_POS_NAME_3[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_4))->SetWindowText(DEF_MCU_DATA_POS_NAME_4[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_5))->SetWindowText(DEF_MCU_DATA_POS_NAME_5[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_6))->SetWindowText(DEF_MCU_DATA_POS_NAME_6[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_7))->SetWindowText(DEF_MCU_DATA_POS_NAME_7[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_8))->SetWindowText(DEF_MCU_DATA_POS_NAME_8[m_pParent->m_motorIdx]);
 
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_0))->SetWindowText(DEF_MCU_DATA_EDIT_POS_0);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_0))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_0);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_1))->SetWindowText(DEF_MCU_DATA_EDIT_POS_1);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_1))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_1);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_2))->SetWindowText(DEF_MCU_DATA_EDIT_POS_2);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_2))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_2);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_3))->SetWindowText(DEF_MCU_DATA_EDIT_POS_3);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_3))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_3);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_4))->SetWindowText(DEF_MCU_DATA_EDIT_POS_4);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_4))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_4);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_5))->SetWindowText(DEF_MCU_DATA_EDIT_POS_5);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_5))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_5);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_6))->SetWindowText(DEF_MCU_DATA_EDIT_POS_6);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_6))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_6);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_7))->SetWindowText(DEF_MCU_DATA_EDIT_POS_7);
-	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_7))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_7);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_0))->SetWindowText(DEF_MCU_DATA_EDIT_POS_0[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_0))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_0[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_1))->SetWindowText(DEF_MCU_DATA_EDIT_POS_1[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_1))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_1[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_2))->SetWindowText(DEF_MCU_DATA_EDIT_POS_2[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_2))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_2[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_3))->SetWindowText(DEF_MCU_DATA_EDIT_POS_3[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_3))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_3[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_4))->SetWindowText(DEF_MCU_DATA_EDIT_POS_4[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_4))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_4[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_5))->SetWindowText(DEF_MCU_DATA_EDIT_POS_5[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_5))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_5[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_6))->SetWindowText(DEF_MCU_DATA_EDIT_POS_6[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_6))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_6[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_7))->SetWindowText(DEF_MCU_DATA_EDIT_POS_7[m_pParent->m_motorIdx]);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_7))->SetWindowText(DEF_MCU_DATA_EDIT_VEL_7[m_pParent->m_motorIdx]);
 
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_LINK_NAME_1))->SetWindowText(DEF_MCU_DATA_LINK_NAME_1);
 	((CStatic*)GetDlgItem(IDC_MCU_DATA_LINK_NAME_2))->SetWindowText(DEF_MCU_DATA_LINK_NAME_2);
@@ -475,6 +484,7 @@ void Cui_PopMcuData::update()
 	if (((CButton*)GetDlgItem(IDC_MCU_DATA_RADIO_MT_ID2))->GetCheck())
 	{
 		m_pParent->m_motorIdx = MCU_OBJ::MOTOR_HIGH;
+
 	}
 	else if (((CButton*)GetDlgItem(IDC_MCU_DATA_RADIO_MT_ID1))->GetCheck())
 	{
@@ -728,23 +738,23 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomWriteInit()
 		return (uint8_t)(offset + sizeof(uint16_t));
 	};
 
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_0);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_0);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_1);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_1);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_2);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_2);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_3);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_3);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_0[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_0[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_1[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_1[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_2[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_2[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_3[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_3[m_pParent->m_motorIdx]);
 
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_4);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_4);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_5);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_5);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_6);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_6);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_7);
-	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_7);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_4[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_4[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_5[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_5[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_6[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_6[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_POS_7[m_pParent->m_motorIdx]);
+	idx = make_packet_dw(idx, DEF_MCU_DATA_EDIT_VEL_7[m_pParent->m_motorIdx]);
 
 	if (m_pPeeler->WriteROM_PosData(datas, m_pParent->m_motorIdx) != ERROR_SUCCESS)
 	{
@@ -851,6 +861,31 @@ void Cui_PopMcuData::OnBnClickedMcuDataBtnRomWriteInit()
 		m_pParent->LockUpdate(true);
 		return;
 	}
+
+	idx = 0; datas.clear();
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_POS_0);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_VEL_0);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_POS_1);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_VEL_1);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_POS_2);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_VEL_2);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_POS_3);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_VEL_3);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_POS_4);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_VEL_4);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_POS_5);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_VEL_5);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_POS_6);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_VEL_6);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_POS_7);
+	idx = make_packet_w(idx, DEF_MCU_DATA_EDIT_LINK_VEL_7);
+	if (m_pPeeler->WriteROM_LinkPosData(datas) != ERROR_SUCCESS)
+	{
+		AfxMessageBox(L"comm error! - link pose data write ");
+		m_pParent->LockUpdate(true);
+		return;
+	}
+
 	m_pParent->LockUpdate(true);
 
 }
@@ -1457,14 +1492,13 @@ void Cui_PopMcuData::movePoseData(int pose, int vel, bool is_link )
     {
       AfxMessageBox(L"comm error! - link pose move ");
     }
+	return;
   }
-  else
-  {
 
-    if (m_pPeeler->Move(m_pParent->m_motorIdx, pose, (uint16_t)vel) != ERROR_SUCCESS)
-    {
-      AfxMessageBox(L"comm error! - pose data move ");
-    }
+  // else link
+  if (m_pPeeler->Move(m_pParent->m_motorIdx, pose, (uint16_t)vel) != ERROR_SUCCESS)
+  {
+	  AfxMessageBox(L"comm error! - pose data move ");
   }
 }
 
@@ -1481,15 +1515,96 @@ int Cui_PopMcuData::constrainRps(int id)
 	// TODO: 여기에 구현 코드 추가.
 		if (GetDlgItemInt(id) < MOONS_MOTORS_VELOCITY_RPS_MIN)
 		{
-			SetDlgItemText(id, L"1");
+			SetDlgItemText(id, DEF_MCU_DATA_MOTOR_RPS_MIN);
 			return MOONS_MOTORS_VELOCITY_RPS_MIN;
 		}
 		else if (GetDlgItemInt(id) > MOONS_MOTORS_VELOCITY_RPS_MAX)
 		{
-			SetDlgItemText(id, L"50");
+			SetDlgItemText(id, DEF_MCU_DATA_MOTOR_RPS_MAX);
 			return MOONS_MOTORS_VELOCITY_RPS_MAX;
 		}
 
 		return GetDlgItemInt(id);
 
 }
+
+
+void Cui_PopMcuData::OnBnClickedMcuDataRadioMtId0()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	
+	m_pParent->m_motorIdx = MCU_OBJ::MOTOR_JIG;
+	updatePoseData();
+}
+
+
+void Cui_PopMcuData::OnBnClickedMcuDataRadioMtId1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	
+	m_pParent->m_motorIdx = MCU_OBJ::MOTOR_ROLL;
+	updatePoseData();
+}
+
+
+void Cui_PopMcuData::OnBnClickedMcuDataRadioMtId2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	m_pParent->m_motorIdx = MCU_OBJ::MOTOR_HIGH;
+	updatePoseData();
+}
+
+
+void Cui_PopMcuData::updatePoseData()
+{
+	// TODO: 여기에 구현 코드 추가.
+	CString str{};
+	constexpr int axis_pose_data_cnt = 8;
+
+
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[0 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_pos);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_0))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[0 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_vel);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_0))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[1 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_pos);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_1))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[1 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_vel);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_1))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[2 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_pos);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_2))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[2 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_vel);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_2))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[3 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_pos);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_3))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[3 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_vel);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_3))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[4 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_pos);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_4))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[4 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_vel);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_4))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[5 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_pos);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_5))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[5 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_vel);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_5))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[6 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_pos);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_6))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[6 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_vel);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_6))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[7 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_pos);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_POS_7))->SetWindowText(str);
+	str.Format(L"%d", m_pPeeler->m_mcuAxisDat[7 + (axis_pose_data_cnt * m_pParent->m_motorIdx)].cmd_vel);
+	((CEdit*)GetDlgItem(IDC_MCU_DATA_EDIT_VEL_7))->SetWindowText(str);
+
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_1))->SetWindowText(DEF_MCU_DATA_POS_NAME_1[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_2))->SetWindowText(DEF_MCU_DATA_POS_NAME_2[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_3))->SetWindowText(DEF_MCU_DATA_POS_NAME_3[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_4))->SetWindowText(DEF_MCU_DATA_POS_NAME_4[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_5))->SetWindowText(DEF_MCU_DATA_POS_NAME_5[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_6))->SetWindowText(DEF_MCU_DATA_POS_NAME_6[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_7))->SetWindowText(DEF_MCU_DATA_POS_NAME_7[m_pParent->m_motorIdx]);
+	((CStatic*)GetDlgItem(IDC_MCU_DATA_POS_NAME_8))->SetWindowText(DEF_MCU_DATA_POS_NAME_8[m_pParent->m_motorIdx]);
+}
+
+
+

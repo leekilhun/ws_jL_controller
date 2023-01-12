@@ -116,6 +116,91 @@ BOOL CVPRemoteApp::InitInstance()
 	byte source[] = { 1,2,3,4,5 };
 	memcpy(&test_array[4], source, 5);
 
+	{
+		struct mcu_log_dat_st {
+			struct head_st {
+				uint8_t  header{};
+				uint8_t  error_no{};
+				uint8_t  obj_id{};
+				uint8_t  step_no{};
+
+				head_st() = default;
+
+				head_st& operator = (const head_st& dat) {
+					this->header = dat.header;
+					this->error_no = dat.error_no;
+					this->obj_id = dat.obj_id;
+					this->step_no = dat.step_no;
+					return *this;
+				}
+			};
+
+			struct dat_t {
+				head_st head{};
+				std::vector<char> log_v{};
+
+				dat_t() = default;
+
+				dat_t& operator = (const dat_t& dat) {
+					head = dat.head;
+					log_v = dat.log_v;
+					return *this;
+				}
+
+			};
+
+			head_st head{};
+			dat_t data{};
+
+		};
+
+		
+	}
+
+	{
+	struct head_t
+	{
+		uint8_t  header{};
+		uint8_t  error_no{};
+		uint8_t  obj_id{};
+		uint8_t  step_no{};
+
+	};
+
+	struct dat_t
+	{
+		head_t head{};
+		std::array<char, 60> log{"test124"};
+	};
+
+	dat_t test_st;
+	test_st.head.header = 1;
+	test_st.head.error_no = 2;
+	test_st.head.obj_id = 3;
+	test_st.head.step_no = 4;
+
+	size_t size = sizeof(dat_t{});
+
+	size_t size2 = sizeof(dat_t{}.head);
+
+	size_t sum = size + size2;
+
+	char char_array[64] = {};
+
+	memcpy(&char_array[0], &test_st, size);
+	size = 1;
+
+
+	}
+
+
+
+
+
+
+
+
+
 
 	errno_t result = m_pSystem->Initialize();
 	if (result != ERROR_SUCCESS)

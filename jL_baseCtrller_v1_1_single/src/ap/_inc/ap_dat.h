@@ -166,37 +166,37 @@ struct ap_dat
 
 enum class mt_jig_pos_addr
 {
-  ready_pos,
-  pos_start_peel,
-  pos_vinyl_cplt,
-  pos_destination,
-  pos_reattach,
-  pos_reattach_cplt,
-  pos_6,
-  pos_7,
-  _max
+	ready,
+	sticky,
+	trash,
+	pos_3,
+	pos_4,
+	pos_5,
+	pos_6,
+	pos_7,
+	_max
 };
 
 enum class mt_roll_pos_addr
 {
-  pos_0 = static_cast<uint8_t>(mt_jig_pos_addr::_max),
-  pos_1,// ready
-  pos_2,// turn
-  pos_3,
-  pos_4,
-  pos_5,
-  pos_6,
-  pos_7,
-  _max
+	ready = static_cast<uint8_t>(mt_jig_pos_addr::_max),
+	sticky,//
+  trash,//
+	pos_3,
+	pos_4,
+	pos_5,
+	pos_6,
+	pos_7,
+	_max
 };
 
 enum class mt_high_pos_addr
 {
-  pos_0 = static_cast<uint8_t>(mt_roll_pos_addr::_max),
-  pos_1,//peel position
-  pos_2,//check position
-  pos_3,//re_attach
-  pos_4,//back_high
+	ready = static_cast<uint8_t>(mt_roll_pos_addr::_max),
+	sticky,//
+  up_sticky,//
+  trash,//
+  pos_4,//
   pos_5,
   pos_6,
   pos_7,
@@ -508,14 +508,14 @@ struct link_dat{
 
   enum addr_e:uint8_t //
   {
-    link_pose_stick,//0,
-    link_pose_peel_check,//1,
-    link_pose_peel_cplt,//2,
-    link_pose_reatt_start,//3,
-    link_pose_reatt_fast,//4,
-    link_pose_cplt_slow,//5,
-    link_pose_retry_back,//6,
-    link_pose_10mm,
+    sticky_ready,//0,
+    roll_slow,//1,
+    roll_fast,//2,
+		roll_clear,//3,
+    link_4,//4,
+    link_5,//5,
+    link_6,//6,
+    link_7,
     _max
   };
 
@@ -577,17 +577,22 @@ struct log_dat{
     uint8_t  error_no{};
     uint8_t  obj_id{};
     uint8_t  step_no{};
-    inline void operator = (const head_t* p){
-      this->header =  p->header;
-      this->error_no =  p->error_no;
-      this->obj_id =  p->obj_id;
-      this->step_no =  p->step_no;
+
+    head_t& operator = (const head_t& dat){
+    	header = dat.header;
+    	error_no = dat.error_no;
+    	obj_id = dat.obj_id;
+    	step_no = dat.step_no;
+    	return *this;
     }
+
   };
+
   struct dat_t
   {
     head_t head{};
-    char  log[AP_LOG_DAT_BUFF_SIZE]{};
+    std::array<char, AP_LOG_DAT_BUFF_SIZE> log{};
+    //char  log[AP_LOG_DAT_BUFF_SIZE]{};
 
     dat_t(){init();}
     inline void init(){
@@ -595,15 +600,25 @@ struct log_dat{
       head.error_no = 0;
       head.obj_id = 0;
       head.step_no = 0;
-      memset(&log,0x00,AP_LOG_DAT_BUFF_SIZE);
+      log.fill(0);
     }
 
+    dat_t& operator = (const dat_t& dat){
+    	head = dat.head;
+    	log = dat.log;
+    /*	for (uint8_t i = 0; i < AP_LOG_DAT_BUFF_SIZE; i++) {
+    		this->log[i]=dat.log[i];
+    	}*/
+    	return *this;
+    }
+    /*
     inline void operator = (const dat_t* p_dat){
       this->head =  p_dat->head;
       for (uint8_t i = 0; i < AP_LOG_DAT_BUFF_SIZE; i++) {
         this->log[i]=p_dat->log[i];
       }
     }
+    */
 
   };
 
@@ -623,11 +638,10 @@ struct log_dat{
   }
 
   inline uint8_t GetBufferLen(){
-    return AP_LOG_DAT_BUFF_SIZE;
+    return (uint8_t)log_buff.log.size();
   }
-  inline void WriteData(addr_e addr, dat_t* p_data){
-    memcpy(&log_buff, p_data, APDAT_LOG_DATA_LENGTH);
-    at24c64Write(APDAT_LOG_DATA_ADDR(addr), (uint8_t *)&log_buff, APDAT_LOG_DATA_LENGTH);
+  inline void WriteData(addr_e addr, dat_t& ref_data){
+    at24c64Write(APDAT_LOG_DATA_ADDR(addr), (uint8_t *)&ref_data, APDAT_LOG_DATA_LENGTH);
   }
 
   inline dat_t* GetData(addr_e addr){
@@ -635,11 +649,10 @@ struct log_dat{
     return &log_buff;
   }
 
-  inline uint8_t* Get(addr_e addr){
+/*  inline uint8_t* Get(addr_e addr){
     at24c64Read(APDAT_LOG_DATA_ADDR(addr), (uint8_t*)&log_buff, APDAT_LOG_DATA_LENGTH);
     return (uint8_t*)&log_buff;
-
-  }
+  }*/
 
  /* inline bool LoadRomData(){
     bool ret;

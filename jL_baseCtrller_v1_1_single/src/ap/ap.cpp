@@ -361,8 +361,21 @@ enOp op_panel;
 
 			linkPose_data.LoadRomData();
 
+
+#define	_USE_TEST_FIELD
+#ifdef _USE_TEST_FIELD
+
+  /*log test*/
+
+  log_dat::head_t head_inf;
+  head_inf.error_no = static_cast<uint8_t>(cnAuto::state_e::axis_origin_err);
+  head_inf.obj_id = AP_OBJ::MOTOR_JIG;
+  head_inf.step_no = 15;
+  autoManager.AUTO_ALARM(&head_inf,"test cylinder error jig open");
+#endif
+
+
 			/****************************/
-			//mcu_reg.status[AP_REG_BANK_SETTING][AP_REG_USE_BEEP] = true;
 			mcu_reg.option_reg.use_beep = true;
 			/****************************/
 
@@ -406,7 +419,8 @@ enOp op_panel;
 
 				// non-block코드
 				remote_pc.ThreadJob();
-				//remote_ctrl.ReceiveProcess();
+
+				tasks.ThreadJob();
 
 				eventOpPanel();
 
@@ -429,16 +443,16 @@ enOp op_panel;
 			{
 				// auto
 
-				const enOp::panel_e ext_start      = enOp::panel_e::SW_START;
-				const enOp::panel_e ext_stop       = enOp::panel_e::SW_STOP;
-				const enOp::panel_e ext_reset      = enOp::panel_e::SW_RESET;
-				const enOp::panel_e ext_estop      = enOp::panel_e::SW_ESTOP;
+				//const enOp::panel_e ext_start      = enOp::panel_e::SW_START;
+				//const enOp::panel_e ext_stop       = enOp::panel_e::SW_STOP;
+				//const enOp::panel_e ext_reset      = enOp::panel_e::SW_RESET;
+				//const enOp::panel_e ext_estop      = enOp::panel_e::SW_ESTOP;
 
-				const enOp::status_e system_init   = enOp::status_e::INIT;
+				//const enOp::status_e system_init   = enOp::status_e::INIT;
 				const enOp::status_e auto_init     = enOp::status_e::STEP_STOP;
-				const enOp::status_e auto_ready    = enOp::status_e::RUN_READY;
-				const enOp::status_e auto_working  = enOp::status_e::RUN;
-				const enOp::status_e error_stop    = enOp::status_e::ERR_STOP;
+				//const enOp::status_e auto_ready    = enOp::status_e::RUN_READY;
+				//const enOp::status_e auto_working  = enOp::status_e::RUN;
+				//const enOp::status_e error_stop    = enOp::status_e::ERR_STOP;
 
 				if (mcu_reg.state_reg.request_initial)
 				{

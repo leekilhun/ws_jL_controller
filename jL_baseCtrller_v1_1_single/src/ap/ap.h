@@ -48,6 +48,7 @@ struct prc_step_t
   uint32_t prev_ms{};
   uint32_t elap_ms{};
   uint8_t retry_cnt{};
+  bool wait_resp{};//true - wait step complete, false - completed step
 
   inline void SetStep(uint8_t step){
   	elap_ms = millis() - prev_ms;
@@ -70,6 +71,10 @@ struct prc_step_t
 
   inline bool MoreThan(uint32_t msec){
   		return !LessThan(msec);
+  }
+
+  inline bool Available() const {
+  	return !wait_resp;
   }
 
 } ;

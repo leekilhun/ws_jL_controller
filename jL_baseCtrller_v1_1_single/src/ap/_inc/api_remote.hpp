@@ -9,7 +9,7 @@
 #define SRC_AP__INC_API_REMOTE_HPP_
 
 
-#define UI_RCTRL_MAX_BUFFER_LENGTH                     (48)
+#define UI_RCTRL_MAX_BUFFER_LENGTH                     (64)
 
 class api_remote
 {

@@ -50,6 +50,16 @@ constexpr uint8_t	STEP_ROMDATA_LINK_POS_H_START				= 0x1D;
 constexpr uint8_t	STEP_ROMDATA_LINK_POS_H_WAIT				= 0x1E;
 constexpr uint8_t	STEP_ROMDATA_LINK_POS_H_END					= 0x1F;
 
+constexpr uint8_t	STEP_LOG_DATA_L							        = 0x20;
+constexpr uint8_t	STEP_LOG_DATA_L_START				        = 0x21;
+constexpr uint8_t	STEP_LOG_DATA_L_WAIT				        = 0x22;
+constexpr uint8_t	STEP_LOG_DATA_L_END					        = 0x23;
+
+constexpr uint8_t	STEP_LOG_DATA_H							        = 0x24;
+constexpr uint8_t	STEP_LOG_DATA_H_START				        = 0x25;
+constexpr uint8_t	STEP_LOG_DATA_H_WAIT				        = 0x26;
+constexpr uint8_t	STEP_LOG_DATA_H_END					        = 0x27;
+
 
 constexpr uint8_t STEP_DELAY_WAIT											= 30;
 constexpr uint8_t RETRY_CNT_MAX												= 3;
@@ -145,6 +155,9 @@ void api_remote::doRunStep()
 			idx = make_packet(idx, m_cfg.ptr_mcu_reg->error_reg.ap_error);
 			idx = make_packet(idx, m_cfg.ptr_io->m_in.data);
 			idx = make_packet(idx, m_cfg.ptr_io->m_out.data);
+			idx = make_packet(idx, m_cfg.ptr_task->m_step.curr_step);
+			idx = make_packet(idx, m_cfg.ptr_log->m_Head);
+			idx = make_packet(idx, m_cfg.ptr_log->m_Tail);
 			m_cfg.ptr_comm->SendData((uint8_t)tx_t::TX_MCU_STATE_DATA, m_txBuffer.data(), idx);
 
 			m_waitReplyOK = true;
@@ -570,6 +583,9 @@ void api_remote::doRunStep()
 			m_step.SetStep(STEP_TODO);
 		}
 		break;
+
+		//
+
 		default:
 			break;
 	}
@@ -755,7 +771,7 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 				uint16_t acc = (uint16_t)(m_receiveData.data[6] << 0)
 												 | (uint16_t)(m_receiveData.data[7] << 8);
 				*/
-				m_cfg.ptr_motors->RelMove(m_idxMotor, (uint32_t)vel, (uint32_t)acc, (uint32_t)acc, pos);
+				m_cfg.ptr_motors->RelMove(m_idxMotor, pos , (uint32_t)vel, (uint32_t)acc, (uint32_t)acc);
 			}
 		}
 		break;
@@ -1003,6 +1019,23 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 		}
 		break;
 
+		case TYPE::CMD_EEPROM_READ_LOG:
+		{
+			ok_Response();
+
+			uint8_t idx = 0;
+			log_dat::dat_t* p_data{};
+			uint8_t addr = m_receiveData.data[0];
+
+			p_data = m_cfg.ptr_log->Pop(addr);
+			idx = make_packet(idx,*(p_data));
+
+			m_cfg.ptr_comm->SendData((uint8_t)RCTRL::TX_TYPE::TX_EEPROM_LOG_DATA, m_txBuffer.data(), idx, addr);
+			m_waitReplyOK = true;
+			m_step.SetStep(STEP_WAIT_RETURN);
+		}
+		break;
+
 		case TYPE::CMD_EEPROM_CLEAR_ROM_DATA:
 		{
 			m_cfg.ptr_task->ClearROMData();
@@ -1038,7 +1071,52 @@ void api_remote::ProcessCmd(RCTRL::uart_remote::rx_packet_t* ptr_data){
 			m_step.SetStep(STEP_MCU_STATE);
 		}
 		break;
+		case TYPE::CMD_DO_JOB_TASK_1:
+		{
+			ok_Response();
+			m_cfg.ptr_task->DoTask_JobReady();
+			/*if(m_cfg.ptr_task->DoTask_JobReady() != ERROR_SUCCESS)
+			{
 
+			}*/
+
+		}
+		break;
+		case TYPE::CMD_DO_JOB_TASK_2:
+		{
+
+		}
+		break;
+		case TYPE::CMD_DO_JOB_TASK_3:
+		{
+
+		}
+		break;
+		case TYPE::CMD_DO_JOB_TASK_4:
+		{
+
+		}
+		break;
+		case TYPE::CMD_DO_JOB_TASK_5:
+		{
+
+		}
+		break;
+		case TYPE::CMD_DO_JOB_TASK_6:
+		{
+
+		}
+		break;
+		case TYPE::CMD_DO_JOB_TASK_7:
+		{
+
+		}
+		break;
+		case TYPE::CMD_DO_JOB_TASK_8:
+		{
+
+		}
+		break;
 		case TYPE::CMD_OK_RESPONSE :
 			__attribute__((fallthrough));
 		default:

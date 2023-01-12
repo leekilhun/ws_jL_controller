@@ -77,4 +77,10 @@ public:
 	afx_msg void OnBnClickedIdcMcuDataBtnMoveStop();
 private:
 	int constrainRps(int id);
+public:
+	afx_msg void OnBnClickedMcuDataRadioMtId0();
+	afx_msg void OnBnClickedMcuDataRadioMtId1();
+	afx_msg void OnBnClickedMcuDataRadioMtId2();
+private:
+	void updatePoseData();
 };

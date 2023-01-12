@@ -26,6 +26,7 @@ class ap_log
   /****************************************************
    *  data
    ****************************************************/
+public:
   log_dat m_log;
 
   uint8_t m_Head, m_Tail;
@@ -79,7 +80,7 @@ public:
     next_in = (m_Head + 1) % AP_LOG_QUE_BUFF_SIZE;
     if (next_in != m_Tail) {
       // write
-      //m_log.WriteData(static_cast<log_dat::addr_e>(m_Head),m_log.log_buff);
+      m_log.WriteData(static_cast<log_dat::addr_e>(m_Head),m_log.log_buff);
       m_Head = next_in;
     }
     else
@@ -90,7 +91,7 @@ public:
     return ret;
   }
 
-  inline bool Get(log_dat::dat_t* p_data) {
+   inline bool Get(log_dat::dat_t* p_data) {
     bool ret = true;
     //AP_LOG_LOCK_BEGIN;
 
@@ -106,6 +107,7 @@ public:
     return ret;
   }
 
+ /*
   inline uint8_t* Get() {
     uint8_t* ret = 0;
     //read *(p_data) = m_Buff[m_Tail];
@@ -120,7 +122,16 @@ public:
 
     return ret;
   }
+  */
 
+  inline log_dat::dat_t* Pop(uint8_t addr){
+  	if (addr < log_dat::addr_e::_max){
+  		//m_log.
+     return m_log.GetData(static_cast<log_dat::addr_e>(addr));
+  	}
+  	return nullptr;
+
+  }
 
 
 

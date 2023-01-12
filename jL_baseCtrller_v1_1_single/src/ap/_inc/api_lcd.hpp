@@ -184,13 +184,13 @@ public:
 			SetReparseMode();
 		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
 		m_txBuf[0] = data_e::TYPE_MOTOR_POS_1_H;
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::ready_pos));
+		data = m_cfg.ptr_axis_data->ReadData(0);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_start_peel));
+		data = m_cfg.ptr_axis_data->ReadData(1);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_vinyl_cplt));
+		data = m_cfg.ptr_axis_data->ReadData(2);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_destination));
+		data = m_cfg.ptr_axis_data->ReadData(3);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
 
 		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
@@ -199,13 +199,13 @@ public:
 		idx = 0;
 		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
 		m_txBuf[0] = data_e::TYPE_MOTOR_POS_1_L;
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_reattach));
+		data = m_cfg.ptr_axis_data->ReadData(4);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_reattach_cplt));
+		data = m_cfg.ptr_axis_data->ReadData(5);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_6));
+		data = m_cfg.ptr_axis_data->ReadData(6);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_7));
+		data = m_cfg.ptr_axis_data->ReadData(7);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
 
 		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
@@ -214,13 +214,13 @@ public:
 		idx = 0;
 		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
 		m_txBuf[0] = data_e::TYPE_MOTOR_POS_2_H;
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_reattach));
+		data = m_cfg.ptr_axis_data->ReadData(8);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_reattach_cplt));
+		data = m_cfg.ptr_axis_data->ReadData(9);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_6));
+		data = m_cfg.ptr_axis_data->ReadData(10);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_7));
+		data = m_cfg.ptr_axis_data->ReadData(11);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
 
 		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
@@ -229,13 +229,13 @@ public:
 		idx = 0;
 		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
 		m_txBuf[0] = data_e::TYPE_MOTOR_POS_2_L;
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_reattach));
+		data = m_cfg.ptr_axis_data->ReadData(12);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_reattach_cplt));
+		data = m_cfg.ptr_axis_data->ReadData(13);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_6));
+		data = m_cfg.ptr_axis_data->ReadData(14);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_7));
+		data = m_cfg.ptr_axis_data->ReadData(15);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
 
 		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
@@ -244,13 +244,13 @@ public:
 		idx = 0;
 		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
 		m_txBuf[0] = data_e::TYPE_MOTOR_POS_3_H;
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_reattach));
+		data = m_cfg.ptr_axis_data->ReadData(16);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_reattach_cplt));
+		data = m_cfg.ptr_axis_data->ReadData(17);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_6));
+		data = m_cfg.ptr_axis_data->ReadData(18);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_7));
+		data = m_cfg.ptr_axis_data->ReadData(19);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
 
 		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)
@@ -259,13 +259,13 @@ public:
 		idx = 0;
 		memset(&m_txBuf[0], 0x00, UI_LCD_MAX_BUFFER_LENGTH);
 		m_txBuf[0] = data_e::TYPE_MOTOR_POS_3_L;
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_reattach));
+		data = m_cfg.ptr_axis_data->ReadData(20);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_reattach_cplt));
+		data = m_cfg.ptr_axis_data->ReadData(21);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_6));
+		data = m_cfg.ptr_axis_data->ReadData(22);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
-		data = m_cfg.ptr_axis_data->ReadData(static_cast<uint8_t>(mt_jig_pos_addr::pos_7));
+		data = m_cfg.ptr_axis_data->ReadData(23);
 		memcpy(&m_txBuf[1 + (idx++ * length)], (uint8_t *)&data, length);
 
 		if (m_cfg.ptr_comm->SendDataRxResp(&m_txBuf[0] , UI_LCD_MAX_BUFFER_LENGTH ) == false)

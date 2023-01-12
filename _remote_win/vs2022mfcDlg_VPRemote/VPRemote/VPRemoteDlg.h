@@ -13,7 +13,7 @@ class CVPRemoteDlg : public CDialogEx
 	Cui_PopMoonsControl* m_popMotor;
 	Cui_PopMcuData* m_popMcuData;
 	AP_SYS::MSystem* m_pSystem;
-
+	uint8_t m_StepNo;
 	UINT_PTR m_TimerID;
 	bool m_lockUpdate;
 	CStatusBar		m_statusBar;
@@ -46,6 +46,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
 	// 수신 데이터 표시
+	UTL::_que <CString> m_queStepLog;
 	CListBox m_rxListBox;
 public:
 	void AddRxList(CString str);
@@ -53,6 +54,8 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 private:
 	void update();
+
+	const wchar_t* stepName(uint8_t step_no);
 public:
 	void LockUpdate(bool is_release = false);
 	afx_msg void OnBnClickedPeelerMainPopMotorCtrl();
@@ -126,4 +129,14 @@ public:
 	afx_msg void OnBnClickedPeelerMainMoveFunc7();
 	afx_msg void OnBnClickedPeelerMainMoveFunc8();
 	afx_msg void OnBnClickedPeelerMainMoveFunc9();
+
+
+private:
+	CListBox m_listStepLog;
+	void updateStepLog();
+	CListBox m_listAlarmLog;
+public:
+	afx_msg void OnBnClickedMainBtnGetLog();
+private:
+	void updateMcuLog();
 };

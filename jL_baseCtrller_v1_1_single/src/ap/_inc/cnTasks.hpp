@@ -67,11 +67,13 @@ private:
 
 public:
   bool m_IsInit;
+  prc_step_t m_step;
+  bool m_IsAutoReady;
 	/****************************************************
 	 *  Constructor
 	 ****************************************************/
 public:
-	cnTasks():m_cfg{}, m_IsInit{}{
+	cnTasks():m_cfg{}, m_IsInit{}, m_step{}, m_IsAutoReady{}{
 
 	};
 	virtual ~cnTasks(){};
@@ -88,6 +90,8 @@ public:
 		m_cfg = cfg;
 		return ERROR_SUCCESS;
 	}
+
+	void ThreadJob();
 
 	inline errno_t Initialize(){
 		m_IsInit = true;
@@ -294,7 +298,7 @@ public:
 	}
 
 	inline bool IsMotorMoveCplt(AP_OBJ::MOTOR motor_id = AP_OBJ::MOTOR_MAX){
-		return !IsMotorRun(motor_id);
+		return m_cfg.p_motors->IsInPose(motor_id);
 	}
 
 	inline errno_t MotorStop (AP_OBJ::MOTOR motor_id = AP_OBJ::MOTOR_MAX){
@@ -307,9 +311,19 @@ public:
 		return m_cfg.p_motors->Move(motor_id, cmd_pos);
 	}
 
+	inline errno_t MotorRun(AP_OBJ::MOTOR motor_id, int cmd_pos, uint32_t vel){
+
+		return m_cfg.p_motors->Move(motor_id, cmd_pos, vel);
+	}
+
+
 	inline errno_t RelMove(AP_OBJ::MOTOR motor_id, int cmd_dist){
 
 		return  m_cfg.p_motors->RelMove(motor_id, cmd_dist);
+	}
+
+	inline errno_t LinkMove(int cmd_pos, uint32_t vel){
+		return m_cfg.p_motors->LinkMove(cmd_pos, vel);
 	}
 
 	// is floating state
@@ -320,9 +334,11 @@ public:
 		return !(ret);
 	}
 
-	inline errno_t Grip(AP_OBJ::CYL cyl_id){
+	inline errno_t CylGrip(AP_OBJ::CYL cyl_id ,bool skip_sensor = false ){
 		errno_t ret = ERROR_SUCCESS;
 		ret = m_cfg.p_Cyl[cyl_id].Close(true);
+		if (skip_sensor)			return ret;
+
 		uint32_t pre_ms = millis();
 		constexpr int timeout = 100;
 		while (!IsGrip(cyl_id))
@@ -408,9 +424,17 @@ public:
 		return ret;
 	}
 
+	errno_t DoTask_JobReady();
 
+	errno_t DoTask_loaingPhone();
 
+	errno_t DoTask_StickyVinyl();
 
+	errno_t DoTask_RemoveRolling();
+
+	errno_t DoTask_ReturnPhoneMoveToTrash();
+
+	errno_t DoTask_CleanVinyl();
 
 
 

@@ -58,6 +58,8 @@ public:
 		vac_deletc_on_timeout,
 
 		cyl_interlock_State,
+
+		vinyl_detect_timeout,
 	};
 
 

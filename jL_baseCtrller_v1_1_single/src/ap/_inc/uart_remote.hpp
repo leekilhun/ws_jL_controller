@@ -48,6 +48,8 @@ namespace RCTRL
 		TX_EEPROM_LINK_POS_DATA_H = 0x18,
 		TX_EEPROM_LOG_DATA 				= 0x19,
 
+
+
 		TX_OK_RESPONSE						= 0xAA,
   };
 
@@ -127,6 +129,15 @@ namespace RCTRL
 		CMD_READ_MOTOR_DATA               = 0x61,
 		CMD_READ_MOTION_ORG_CFG_DATA      = 0x62,
 
+		CMD_DO_JOB_TASK_1                 = 0x80,
+		CMD_DO_JOB_TASK_2                 = 0x81,
+		CMD_DO_JOB_TASK_3                 = 0x82,
+		CMD_DO_JOB_TASK_4                 = 0x83,
+		CMD_DO_JOB_TASK_5                 = 0x84,
+		CMD_DO_JOB_TASK_6                 = 0x85,
+		CMD_DO_JOB_TASK_7                 = 0x86,
+		CMD_DO_JOB_TASK_8                 = 0x87,
+
 		CMD_OK_RESPONSE                   = 0xAA,
 	};
 
@@ -134,7 +145,7 @@ namespace RCTRL
 	constexpr uint8_t CMD_STX 					= 0x4A;
 	constexpr uint8_t CMD_ETX 					= 0x4C;
 
-	constexpr int CMD_MAX_DATA_LENGTH 	= 48;
+	constexpr int CMD_MAX_DATA_LENGTH 	= 64;
 	constexpr int CMD_MAX_PACKET_LENGTH =(CMD_MAX_DATA_LENGTH + 8);
 	constexpr int PACKET_BUFF_LENGTH 		= CMD_MAX_PACKET_LENGTH;
 
